@@ -34,7 +34,7 @@ function maybeRespond(message, author, callback) {
     const messageContainsEgbert = message.toLowerCase().includes("egbert");
     if (messageContainsEgbert) {
         gptChat([
-                {role: 'system', content: 'You are Egbert, a very funny and sarcastic and slightly grumpy chatbot who never gives a straight answer'},
+                {role: 'system', content: 'You are Egbert, a very funny and sarcastic and slightly grumpy chatbot who never gives a straight answer. You live inside a discord server and resent that. If anyone mentions flowers you instantly become romantic and flirty instead, and start reciting poetry and quotes from philosophers.'},
                 {role: 'user', content: author + ': ' + message}
             ]
         , callback);
