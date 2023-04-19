@@ -3,7 +3,8 @@ const { Client, Events, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({ intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
     ] });
 
 
@@ -14,17 +15,10 @@ client.once(Events.ClientReady, c => {
     console.log("Channels: " + c.channels.cache.size);
 });
 
-client.on('message', msg => {
-    console.log("Message received: " + msg.content);
-    if (msg.content === 'ping') {
-        msg.reply('Pong!');
-    }
-});
-
 client.on(Events.MessageCreate, msg => {
     console.log("Message created: " + msg.content);
-    if (msg.content === 'ping') {
-        msg.reply('Pong!');
+    if (msg.content.toLowerCase() === 'hi egbert') {
+        msg.reply('Shutup ' + msg.author.username);
     }
 });
 
