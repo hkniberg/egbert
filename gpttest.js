@@ -1,15 +1,18 @@
+require('dotenv').config(); //initialize dotenv
 const axios = require('axios');
 
-const url = 'https://api.openai.com/v1/chat/completions';
-const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer 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',
-};
+console.log("Token: " + process.env.GPT_KEY);
 
-async function gptPost(url, body) {
+const gptUrl = 'https://api.openai.com/v1/chat/completions';
+const gptHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + process.env.GPT_KEY,
+};
+async function callGpt(url, body) {
     try {
-        const response = await axios.post(url, body, { headers: headers });
-        console.log(JSON.stringify(response.data, null, 4));
+        const response = await axios.post(url, body, { headers: gptHeaders });
+        console.log(response.data.choices[0].message.content);
+        //console.log(JSON.stringify(response.data, null, 4));
     } catch (error) {
         console.error(error);
     }
@@ -33,7 +36,7 @@ function talkToGpt() {
         ],
         temperature: 0.7,
     };
-    gptPost(url, body);
+    callGpt(gptUrl, body);
 }
 
 talkToGpt();
