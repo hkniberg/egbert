@@ -20,7 +20,7 @@ discord.on(Events.MessageCreate, (msg) => {
     if (msg.author.username === 'Egbert') return; // Don't respond to yourself (or other bots)
 
     console.log(`Message created: ${messageContent}`);
-    maybeRespond(messageContent, msg.author.username, (response) => {
+    maybeRespond(messageContent, msg.author.username, msg.guild.name, (response) => {
         msg.reply(response);
     });
 });
@@ -28,9 +28,10 @@ discord.on(Events.MessageCreate, (msg) => {
 // Log in to Discord with your client's token
 discord.login(process.env.CLIENT_TOKEN);
 
+// This is for testing in the console
 const stdin = process.openStdin();
 stdin.addListener('data', (message) => {
-    maybeRespond(message.toString().trim(), 'Console user', (response) => {
+    maybeRespond(message.toString().trim(), 'Console user','Console', (response) => {
         console.log(response);
     });
 });
