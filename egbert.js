@@ -10,14 +10,7 @@ const discord = new Client({
         GatewayIntentBits.MessageContent,
     ],
 });
-
-const gptUrl = 'https://api.openai.com/v1/chat/completions';
-const gptHeaders = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${process.env.GPT_KEY}`,
-};
-const axios = require('axios');
-
+require('axios');
 discord.once(Events.ClientReady, (client) => {
     console.log(`Ready! Logged in as ${client.user.tag}. I see ${client.channels.cache.size} channels.`);
 });

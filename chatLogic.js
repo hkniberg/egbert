@@ -13,6 +13,7 @@ const temperature = 0.7;
 
 /**
  * @param messages array of objects with role and content. Role should be 'system' or 'user' or 'assistant'.
+ * @param callback
  */
 async function gptChat(messages, callback) {
     try {
