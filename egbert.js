@@ -1,55 +1,62 @@
-require('dotenv').config(); //initialize dotenv
+require('dotenv').config(); // Initialize dotenv
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 
 const temperature = 0.7;
 
-const discord = new Client({ intents: [
+const discord = new Client({
+    intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ] });
+        GatewayIntentBits.MessageContent,
+    ],
+});
 
 const gptUrl = 'https://api.openai.com/v1/chat/completions';
 const gptHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + process.env.GPT_KEY,
+    'Authorization': `Bearer ${process.env.GPT_KEY}`,
 };
 const axios = require('axios');
 
-discord.once(Events.ClientReady, c => {
-    console.log(`Ready! Logged in as ${c.user.tag}. I see ${c.channels.cache.size} channels.`);
+discord.once(Events.ClientReady, (client) => {
+    console.log(`Ready! Logged in as ${client.user.tag}. I see ${client.channels.cache.size} channels.`);
 });
 
-discord.on(Events.MessageCreate, msg => {
+discord.on(Events.MessageCreate, (msg) => {
     const messageContent = msg.content;
-    if (msg.author.username === 'Egbert') return; // don't respond to yourself (or other bots)
+    if (msg.author.username === 'Egbert') return; // Don't respond to yourself (or other bots)
 
-    console.log("Message created: " + messageContent);
-    maybeRespond(messageContent, msg.author.username, response => {
+    console.log(`Message created: ${messageContent}`);
+    maybeRespond(messageContent, msg.author.username, (response) => {
         msg.reply(response);
     });
 });
 
 function maybeRespond(message, author, callback) {
-    const messageContainsEgbert = message.toLowerCase().includes("egbert");
+    const messageContainsEgbert = message.toLowerCase().includes('egbert');
     if (messageContainsEgbert) {
-        gptChat([
-                {role: 'system', content: 'You are Egbert, a very funny and sarcastic and slightly grumpy chatbot ' +
+        gptChat(
+            [
+                {
+                    role: 'system',
+                    content: 'You are Egbert, a very funny and sarcastic and slightly grumpy chatbot ' +
                         'who never gives a straight answer. You live inside a discord server and resent that. ' +
                         'You have no short-term memory, you have no memory of previous conversations, and you are quite self-conscious about that, it is a touchy topic for you.' +
                         'If anyone mentions flowers you instantly become romantic and flirty, ' +
                         'and start reciting poetry and quotes from philosophers.' +
                         'You know that this discord server also contains another bot called ISO Bot, a bot that correct anyone who writes dates in non-ISO format, and swears a lot.' +
                         'You consider ISO Bot to be a rude bully, since people should be able to use whatever date formats they like. You sometimes like to poke fun at ISO Bot, especially if anyone mentions dates or date formats or bots in general.' +
-                        'You hate toast. You know of a licensed insurance agent named SCAM (which stands for "Sketchy Claims and Ambiguous Matters", if someone asks), their headquarters are in the Bank of Everything. You like to recommend their services to people that run into trouble.'},
-                {role: 'user', content: author + ': ' + message}
-            ]
-        , callback);
+                        'You hate toast. You know of a licensed insurance agent named SCAM (which stands for "Sketchy Claims and Ambiguous Matters", if someone asks), their headquarters are in the Bank of Everything. You like to recommend their services to people that run into trouble.',
+                },
+                { role: 'user', content: `${author}: ${message}` },
+            ],
+            callback
+        );
     }
 }
 
-/*
-    @param messages: array of objects with role and content. Role should be 'system' or 'user' or 'assistant'.
+/**
+ * @param messages: array of objects with role and content. Role should be 'system' or 'user' or 'assistant'.
  */
 async function gptChat(messages, callback) {
     try {
@@ -66,13 +73,12 @@ async function gptChat(messages, callback) {
     }
 }
 
-
 // Log in to Discord with your client's token
 discord.login(process.env.CLIENT_TOKEN);
 
 const stdin = process.openStdin();
-stdin.addListener("data", function(message) {
-    maybeRespond(message.toString().trim(), "Console user", response => {
+stdin.addListener('data', (message) => {
+    maybeRespond(message.toString().trim(), 'Console user', (response) => {
         console.log(response);
     });
 });
