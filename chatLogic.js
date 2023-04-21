@@ -1,4 +1,7 @@
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+
 const gptUrl = 'https://api.openai.com/v1/chat/completions';
 const gptHeaders = {
     'Content-Type': 'application/json',
@@ -28,7 +31,12 @@ async function gptChat(messages, callback) {
 
 function maybeRespond(message, author, callback) {
     const messageContainsEgbert = message.toLowerCase().includes('egbert');
+    const messageContainsRemember = message.toLowerCase().includes('remember:');
     if (messageContainsEgbert) {
+        if (messageContainsRemember) {
+            saveMemory(message);
+        }
+
         gptChat(
             [
                 {
@@ -48,6 +56,40 @@ function maybeRespond(message, author, callback) {
         );
     }
 }
+
+function saveMemory(message) {
+    const memoriesFilePath = path.join(__dirname, 'memories.json');
+
+    fs.readFile(memoriesFilePath, 'utf8', (err, data) => {
+        if (err) {
+            if (err.code === 'ENOENT') {
+                // If the file doesn't exist, create it with the message in an array
+                const memories = [message];
+                fs.writeFile(memoriesFilePath, JSON.stringify(memories), 'utf8', (err) => {
+                    if (err) {
+                        console.error(`Error writing to memories.json: ${err}`);
+                    } else {
+                        console.log('Memory saved.');
+                    }
+                });
+            } else {
+                console.error(`Error reading memories.json: ${err}`);
+            }
+        } else {
+            // If the file exists, parse the JSON, add the message, and save the updated array
+            const memories = JSON.parse(data);
+            memories.push(message);
+            fs.writeFile(memoriesFilePath, JSON.stringify(memories), 'utf8', (err) => {
+                if (err) {
+                    console.error(`Error writing to memories.json: ${err}`);
+                } else {
+                    console.log('Memory saved.');
+                }
+            });
+        }
+    });
+}
+
 
 module.exports = {
     maybeRespond,
