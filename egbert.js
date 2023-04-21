@@ -21,7 +21,12 @@ discord.on(Events.MessageCreate, (msg) => {
 
     console.log(`Message created: ${messageContent}`);
     maybeRespond(messageContent, msg.author.username, msg.guild.name, (response) => {
-        msg.reply(response);
+        const replyChunks = splitStringAtNewline(response, 2000);
+        for (let replyChunk of replyChunks) {
+            // ignore if the message is empty
+            if (replyChunk.length === 0) continue;
+            msg.reply(replyChunk);
+        }
     });
 });
 
@@ -35,3 +40,28 @@ stdin.addListener('data', (message) => {
         console.log(response);
     });
 });
+
+function splitStringAtNewline(inputString, maxLength) {
+    const lines = inputString.split('\n');
+    let result = [];
+    let currentLine = '';
+
+    for (let line of lines) {
+        if (currentLine.length + line.length + 1 <= maxLength) {
+            // Add the line to the current chunk
+            currentLine += (currentLine.length > 0 ? '\n' : '') + line;
+        } else {
+            // Save the current chunk
+            result.push(currentLine);
+            // Start a new chunk with the current line
+            currentLine = line;
+        }
+    }
+
+    // Add the last chunk if there is any
+    if (currentLine.length > 0) {
+        result.push(currentLine);
+    }
+
+    return result;
+}
