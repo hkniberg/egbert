@@ -1,7 +1,7 @@
 require('dotenv').config(); // Initialize dotenv
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { maybeRespond } = require('./chatLogic'); // Import maybeRespond from chatLogic.js
-
+const { sendChatToMinecraftServer } = require('./minecraft');
 
 const discord = new Client({
     intents: [
@@ -65,3 +65,20 @@ function splitStringAtNewline(inputString, maxLength) {
 
     return result;
 }
+
+const Tail = require('tail').Tail;
+
+const logFilePath = process.env.MINECRAFT_LOG;
+const tail = new Tail(logFilePath);
+
+const MINECRAFT_MEMORY_SERVER_NAME = process.env.MINECRAFT_MEMORY_SERVER_NAME
+
+tail.on('line', (line) => {
+    maybeRespond(line.toString().trim(), 'UnknownMCPlayer',MINECRAFT_MEMORY_SERVER_NAME, (response) => {
+        sendChatToMinecraftServer(response)
+    });
+});
+
+tail.on('error', (error) => {
+    console.error(`Error: ${error}`);
+});
