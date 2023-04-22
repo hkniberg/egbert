@@ -73,9 +73,13 @@ const tail = new Tail(logFilePath);
 
 const MINECRAFT_MEMORY_SERVER_NAME = process.env.MINECRAFT_MEMORY_SERVER_NAME
 
+const rconHost = process.env.MINECRAFT_RCON_HOST;
+const rconPort = process.env.MINECRAFT_RCON_PORT;
+const rconPassword = process.env.MINECRAFT_RCON_PASSWORD;
+
 tail.on('line', (line) => {
     maybeRespond(line.toString().trim(), 'UnknownMCPlayer',MINECRAFT_MEMORY_SERVER_NAME, (response) => {
-        sendChatToMinecraftServer(response)
+        sendChatToMinecraftServer(response,host, port, password)
     });
 });
 
