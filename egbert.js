@@ -31,7 +31,7 @@ discord.on(Events.MessageCreate, (msg) => {
 });
 
 // Log in to Discord with your client's token
-discord.login(process.env.CLIENT_TOKEN);
+discord.login(process.env.DISCORD_CLIENT_TOKEN);
 
 // This is for testing in the console
 const stdin = process.openStdin();
