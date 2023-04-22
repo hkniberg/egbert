@@ -9,7 +9,7 @@ const gptHeaders = {
 };
 const defaultSystemMessage = process.env.DEFAULT_GPT_SYSTEM_MESSAGE;
 
-const temperature = 0.7;
+const temperature = 1.0;
 
 /**
  * @param messages array of objects with role and content. Role should be 'system' or 'user' or 'assistant'.
