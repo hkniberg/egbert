@@ -79,7 +79,7 @@ const rconPassword = process.env.MINECRAFT_RCON_PASSWORD;
 
 tail.on('line', (line) => {
     maybeRespond(line.toString().trim(), 'UnknownMCPlayer',MINECRAFT_MEMORY_SERVER_NAME, (response) => {
-        sendChatToMinecraftServer(response,host, port, password)
+        sendChatToMinecraftServer(response, rconHost, rconPort, rconPassword)
     });
 });
 
