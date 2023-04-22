@@ -69,7 +69,6 @@ function splitStringAtNewline(inputString, maxLength) {
 const Tail = require('tail').Tail;
 
 const logFilePath = process.env.MINECRAFT_LOG;
-const tail = new Tail(logFilePath);
 
 const MINECRAFT_MEMORY_SERVER_NAME = process.env.MINECRAFT_MEMORY_SERVER_NAME
 
@@ -77,12 +76,17 @@ const rconHost = process.env.MINECRAFT_RCON_HOST;
 const rconPort = process.env.MINECRAFT_RCON_PORT;
 const rconPassword = process.env.MINECRAFT_RCON_PASSWORD;
 
-tail.on('line', (line) => {
-    maybeRespond(line.toString().trim(), 'UnknownMCPlayer',MINECRAFT_MEMORY_SERVER_NAME, (response) => {
-        sendChatToMinecraftServer(response, rconHost, rconPort, rconPassword)
+console.log('logFilePath', logFilePath);
+if (logFilePath != null && logFilePath.length > 0) {
+    const tail = new Tail(logFilePath);
+    tail.on('line', (line) => {
+        maybeRespond(line.toString().trim(), '',MINECRAFT_MEMORY_SERVER_NAME, (response) => {
+            sendChatToMinecraftServer(response, rconHost, rconPort, rconPassword)
+        });
     });
-});
 
-tail.on('error', (error) => {
-    console.error(`Error: ${error}`);
-});
+    tail.on('error', (error) => {
+        console.error(`Error: ${error}`);
+    });
+}
+
