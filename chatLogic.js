@@ -5,9 +5,9 @@ const path = require('path');
 const gptUrl = 'https://api.openai.com/v1/chat/completions';
 const gptHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${process.env.GPT_KEY}`,
+    'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
 };
-const defaultSystemMessage = process.env.DEFAULT_GPT_SYSTEM_MESSAGE;
+const defaultSystemMessage = process.env.DEFAULT_PERSONALITY;
 
 const temperature = 1.0;
 

@@ -44,7 +44,7 @@ stdin.addListener('data', (message) => {
 
 const Tail = require('tail').Tail;
 
-const logFilePath = process.env.MINECRAFT_LOG;
+const logFilePath = process.env.MINECRAFT_LOG_PATH;
 
 const MINECRAFT_MEMORY_SERVER_NAME = process.env.MINECRAFT_MEMORY_SERVER_NAME
 

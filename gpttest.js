@@ -1,12 +1,12 @@
 require('dotenv').config(); //initialize dotenv
 const axios = require('axios');
 
-console.log("Token: " + process.env.GPT_KEY);
+console.log("Token: " + process.env.OPENAI_API_KEY);
 
 const gptUrl = 'https://api.openai.com/v1/chat/completions';
 const gptHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + process.env.GPT_KEY,
+    'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY,
 };
 async function callGpt(url, body) {
     try {
