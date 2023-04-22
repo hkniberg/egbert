@@ -7,10 +7,11 @@ async function sendChatToMinecraftServer(message, host, port, password) {
         password: password,
     });
 
-    console.log("Sending message to Minecraft server...")
+    console.log("Sending message to Minecraft server: " + message)
 
-    let formattedMessage = `{"text":"[Egbert] ${message}", "color":"white"}`;
-    let response = await rcon.send(`tellraw @a ${formattedMessage}`);
+    let escapedMessage = JSON.stringify(`[Egbert] ${message}`);
+    let response = await rcon.send(`tellraw @a {"text":${escapedMessage}, "color":"white"}`);
+
     console.log(".... sent message, got response: ", response);
 
     rcon.end();
