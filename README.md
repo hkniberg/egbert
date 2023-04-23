@@ -7,7 +7,7 @@ An ironic gpt-based chatbot
 
 - Copy .env.example to .env and update it with the correct keys.
 - npm install
-- node egbert.js
+- node src/main.js
 
 And yes, you need nodejs installed.
 

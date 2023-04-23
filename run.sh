@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-sh node src/egbert.js
+sh node src/main.js
