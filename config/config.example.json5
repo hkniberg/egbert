@@ -1,0 +1,109 @@
+{
+  "social-contexts": [
+    {
+      "name": "friendly-fire",
+    },
+    {
+      "name": "kniberg-family",
+    },
+    {
+      "name": "stenius-family"
+    },
+    {
+      "name": "console"
+    }
+  ],
+  "bots": [
+    // keywords?
+    {
+      "name": "echobot",
+      "response-generator": "echo",
+      "personality": "You are Echobot, a bot that just repeats what people say",
+      "social-contexts": ["friendly-fire", "kniberg-family"],
+      "chat-context-model": "manual-memory-insertion" // default, other options could be map-reduce of messages in the same channel, or last X message, etc.
+    },
+    {
+      "name": "egbert",
+      "personality": "You are Egbert, a sarcastic and witty bot that never gives a straight answer",
+      "response-generator": "gpt-henrik",
+      "social-contexts": ["friendly-fire", "kniberg-family"]
+    },
+    {
+      "name": "sherlock",
+      "personality": "You are Sherlock, a detective bot that is very good a solving mysteries",
+      "response-generator": "gpt-henrik",
+      "social-contexts": ["friendly-fire", "kniberg-family"]
+    }
+  ],
+  /**
+    * A response generator is something that can generate a response to a message.
+    * It can be a simple echo, or it can be a more complex AI model.
+    */
+  "response-generators": [
+    {
+      "name": "gpt-henrik",
+      "type": "openai",
+      "config": {
+        "api-key": "abc",
+        "model": "gpt-3.5-turbo",
+        "temperature": 1
+      }
+    },
+    {
+      "name": "gpt-mårten",
+      "type": "openai",
+      "config": {
+        "api-key": "gggg",
+        "model": "gpt-4.0",
+        "temperature": 1
+      }
+    },
+    {
+      "name": "echo",
+      "type": "echo"
+    }
+  ],
+
+  /*
+     A chat source is something that connects to a server of some sort,
+     listens for messages, and can write messages.
+  */
+  "chat-sources": [
+    {
+      "name": "minecraft-ff-create",
+      "type": "minecraft",
+      "social-context": "friendly-fire",
+      "config": {
+        "rcon-host": "localhost",
+        "rcon-port": 25565,
+        "rcon-password": "xxx",
+        "server-log-path": "abc"
+      }
+    },
+    {
+      "name": "minecraft-minehome",
+      "type": "minecraft",
+      "social-context": "stenius-family",
+      "config": {
+        "rcon-host": "stenius.org",
+        "rcon-port": 25567,
+        "rcon-password": "xxx",
+        "server-log-path": "xxx" // url?
+      }
+
+    },
+    {
+      "name": "discord-egbert",
+      "type": "discord",
+      "social-context": "friendly-fire",
+      "config": {
+        "bot-token": "asdfasd"
+      }
+    },
+    {
+      "name": "console",
+      "type": "console",
+      "social-context": "friendly-fire"
+    }
+  ]
+}
