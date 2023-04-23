@@ -1,0 +1,27 @@
+{
+  "social-contexts": [
+    {
+      "name": "local",
+      "chat-sources": ["console"],
+      "bots": ["echobot"]
+    },
+  ],
+  "bots": [
+    {
+      "name": "echobot",
+      "response-generator": "echo-generator"
+    }
+  ],
+  "response-generators": [
+    {
+      "name": "echo-generator",
+      "type": "echo"
+    }
+  ],
+  "chat-sources": [
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ]
+}
