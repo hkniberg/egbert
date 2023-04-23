@@ -56,7 +56,6 @@ async function saveMemory(message, serverName) {
     const sanitizedFilename = sanitizeFilename(serverName);
     const memoriesFilePath = path.join(memoriesFolder, `${sanitizedFilename}.json`);
 
-
     try {
         await fs.promises.mkdir(memoriesFolder, { recursive: true });
 

@@ -2,7 +2,7 @@ require('dotenv').config(); // Initialize dotenv
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { maybeRespond } = require('./chatLogic'); // Import maybeRespond from chatLogic.js
 const { sendChatToMinecraftServer } = require('./minecraft');
-const { splitStringAtNewline } = require('./utils');
+const { splitStringAtNewline } = require('../utils');
 
 const discord = new Client({
     intents: [
