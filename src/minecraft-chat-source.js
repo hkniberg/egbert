@@ -20,10 +20,12 @@ async function sendChatToMinecraftServer(message, host, port, password) {
 }
 
 function startWatchingLogFile(logFilePath, serverName, rconHost, rconPort, rconPassword) {
+    const regexPattern = /]:\s(.*)/;    // Clean line from log time stamps etc
+    const regex = new RegExp(regexPattern);
     if (logFilePath != null && logFilePath.length > 0) {
         const tail = new Tail(logFilePath);
         tail.on('line', (line) => {
-            maybeRespond(line.toString().trim(), '', serverName, (response) => {
+            maybeRespond(line.toString().match(regex)[1].trim(), '', serverName, (response) => {
                 sendChatToMinecraftServer(response, rconHost, rconPort, rconPassword)
             });
         });
