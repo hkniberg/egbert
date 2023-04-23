@@ -29,8 +29,6 @@ async function gptChat(messages, callback) {
     }
 }
 
-
-
 async function maybeRespond(message, author, serverName, callback) {
     const messageContainsEgbert = message.toLowerCase().includes('egbert');
     const messageContainsRemember = message.toLowerCase().includes('remember:');
@@ -50,13 +48,6 @@ async function maybeRespond(message, author, serverName, callback) {
     }
 }
 
-
-
-// ...
-
-
-
 module.exports = {
-    maybeRespond,
-    gptChat,
+    maybeRespond
 };
