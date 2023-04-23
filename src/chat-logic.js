@@ -1,6 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 const {saveMemory, loadMemories} = require("./memory");
 
 const gptUrl = 'https://api.openai.com/v1/chat/completions';
