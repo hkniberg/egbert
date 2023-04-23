@@ -1,38 +1,13 @@
 require('dotenv').config(); // Initialize dotenv
-const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { maybeRespond } = require('./chat-logic'); // Import maybeRespond from chat-logic.js
 const { sendChatToMinecraftServer } = require('./minecraft');
-const { splitStringAtNewline } = require('../utils');
+const discordChatSource = require('./discord-chat-source');
 
-const discord = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-    ],
-});
 require('axios');
-discord.once(Events.ClientReady, (client) => {
-    console.log(`Ready! Logged in as ${client.user.tag}. I see ${client.channels.cache.size} channels.`);
+
+discordChatSource.login(process.env.DISCORD_CLIENT_TOKEN).catch((error) => {
+    console.error(`Error logging in to Discord: ${error}`);
 });
-
-discord.on(Events.MessageCreate, (msg) => {
-    const messageContent = msg.content;
-    if (msg.author.username === 'Egbert') return; // Don't respond to yourself (or other bots)
-
-    console.log(`Message created: ${messageContent}`);
-    maybeRespond(messageContent, msg.author.username, msg.guild.name, (response) => {
-        const replyChunks = splitStringAtNewline(response, 2000);
-        for (let replyChunk of replyChunks) {
-            // ignore if the message is empty
-            if (replyChunk.length === 0) continue;
-            msg.reply(replyChunk);
-        }
-    });
-});
-
-// Log in to Discord with your client's token
-discord.login(process.env.DISCORD_CLIENT_TOKEN);
 
 // This is for testing in the console
 const stdin = process.openStdin();

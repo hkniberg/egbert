@@ -50,5 +50,8 @@ async function loadMemories(serverName) {
         return { memories: [], customSystemMessage: null };
     }
 }
+function sanitizeFilename(name) {
+    return name.replace(/[^a-z0-9_\-]/gi, '_');
+}
 
 module.exports = { saveMemory, loadMemories };

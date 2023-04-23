@@ -54,9 +54,6 @@ async function maybeRespond(message, author, serverName, callback) {
 
 // ...
 
-function sanitizeFilename(name) {
-    return name.replace(/[^a-z0-9_\-]/gi, '_');
-}
 
 
 module.exports = {
