@@ -25,9 +25,12 @@ function startWatchingLogFile(logFilePath, serverName, rconHost, rconPort, rconP
     if (logFilePath != null && logFilePath.length > 0) {
         const tail = new Tail(logFilePath);
         tail.on('line', (line) => {
-            maybeRespond(line.toString().match(regex)[1].trim(), '', serverName, (response) => {
-                sendChatToMinecraftServer(response, rconHost, rconPort, rconPassword)
-            });
+            const strmatch = line.toString().match(regex)
+            if (strmatch != null) {                            
+                maybeRespond(strmatch[1].trim(), '', serverName, (response) => {
+                    sendChatToMinecraftServer(response, rconHost, rconPort, rconPassword)
+                });
+            }
         });
 
         tail.on('error', (error) => {
