@@ -1,2 +1,3 @@
 #!/usr/bin/env sh
-sh node src/main.js
+sh npm install
+sh mpm start
