@@ -1,4 +1,4 @@
-function splitStringAtNewline(inputString, maxLength) {
+export function splitStringAtNewline(inputString, maxLength) {
     const lines = inputString.split('\n');
     let result = [];
     let currentLine = '';
@@ -18,7 +18,3 @@ function splitStringAtNewline(inputString, maxLength) {
 
     return result;
 }
-
-module.exports = {
-    splitStringAtNewline,
-};

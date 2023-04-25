@@ -1,6 +1,7 @@
-const { Client, Events, GatewayIntentBits } = require('discord.js');
-const { maybeRespond } = require('./chat-logic');
-const { splitStringAtNewline } = require('../utils');
+import { Client, Events, GatewayIntentBits } from 'discord.js';
+import {maybeRespond} from "./chat-logic";
+
+import {splitStringAtNewline} from "./utils";
 
 const discordClient = new Client({
     intents: [
@@ -28,10 +29,6 @@ discordClient.on(Events.MessageCreate, (msg) => {
     });
 });
 
-function login(token) {
+export function login(token) {
     return discordClient.login(token);
 }
-
-module.exports = {
-    login,
-};

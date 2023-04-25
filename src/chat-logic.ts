@@ -1,11 +1,14 @@
 const axios = require('axios');
-const {saveMemory, loadMemories} = require("./memory");
+import {saveMemory, loadMemories} from "./memory";
 
 const gptUrl = 'https://api.openai.com/v1/chat/completions';
 const gptHeaders = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
 };
+console.log("OpenAI key: " + process.env.OPENAI_API_KEY)
+
+
 const defaultSystemMessage = process.env.DEFAULT_PERSONALITY;
 
 const temperature = 1.0;
@@ -29,7 +32,7 @@ async function gptChat(messages, callback) {
     }
 }
 
-async function maybeRespond(message, author, serverName, callback) {
+export async function maybeRespond(message, author, serverName, callback) {
     const messageContainsEgbert = message.toLowerCase().includes('egbert');
     const messageContainsRemember = message.toLowerCase().includes('remember:');
     if (messageContainsEgbert) {
@@ -47,7 +50,3 @@ async function maybeRespond(message, author, serverName, callback) {
         await gptChat(messages, callback);
     }
 }
-
-module.exports = {
-    maybeRespond
-};

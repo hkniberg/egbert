@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const MEMORIES_DIR_RELATIVE_TO_HERE = "../memories";
-async function saveMemory(message, serverName) {
+export async function saveMemory(message, serverName) {
     const memoriesFolder = path.join(__dirname, MEMORIES_DIR_RELATIVE_TO_HERE);
     const sanitizedFilename = sanitizeFilename(serverName);
     const memoriesFilePath = path.join(memoriesFolder, `${sanitizedFilename}.json`);
@@ -33,7 +33,7 @@ async function saveMemory(message, serverName) {
     }
 }
 
-async function loadMemories(serverName) {
+export async function loadMemories(serverName) {
     const sanitizedFilename = sanitizeFilename(serverName);
     const memoriesFilePath = path.join(__dirname, MEMORIES_DIR_RELATIVE_TO_HERE, `${sanitizedFilename}.json`);
 
@@ -53,5 +53,3 @@ async function loadMemories(serverName) {
 function sanitizeFilename(name) {
     return name.replace(/[^a-z0-9_\-]/gi, '_');
 }
-
-module.exports = { saveMemory, loadMemories };

@@ -1,14 +1,17 @@
-# egbert
-An ironic gpt-based chatbot
+# Egbert
+A sarcastic gpt-based chat bot
 
 ![](docs/egbert.png)
 
-# Dev environment setup
+# How to set up your environment
 
-- Copy .env.example to .env and update it with the correct keys.
-- npm install
-- node src/main.js
+- Make sure you have a reasonably fresh version of nodejs
+- Copy `.env.example` to `.env` and update it with the correct keys.
+- `npm install`
 
-And yes, you need nodejs installed.
+# How to run
 
-# How it works
+- `npm start`
+
+This will run `src/main.ts`.
+That's a typescript file, but the module ts-node will magically auto-compile it to javascript on the fly.

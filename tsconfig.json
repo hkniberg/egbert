@@ -1,0 +1,23 @@
+// TypeScript options. See https://aka.ms/tsconfig
+{
+  "compilerOptions": {
+    // Set the JavaScript language version for emitted JavaScript and include compatible library declarations.
+    "target": "es2016",
+
+    // Specify what module code is generated
+    "module": "commonjs",
+
+    // Output file for generated .js files
+    "outDir": "./build",
+
+    // Ensure that casing is correct in imports.
+     "forceConsistentCasingInFileNames": true,
+
+    // Enable all strict type-checking options.
+    "strict": false,
+
+    // Skip type checking all .d.ts files. So it doesn't but us about third party modules in node_modules
+    "skipLibCheck": true
+
+  }
+}

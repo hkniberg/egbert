@@ -1,5 +1,5 @@
 require('dotenv').config(); // Initialize dotenv
-const { maybeRespond } = require('./chat-logic'); // Import maybeRespond from chat-logic.js
+const { maybeRespond } = require('./chat-logic'); // Import maybeRespond from chat-logic.ts
 const discordChatSource = require('./discord-chat-source');
 
 require('axios');

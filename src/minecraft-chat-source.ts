@@ -1,6 +1,6 @@
-const { Rcon } = require('rcon-client');
-const Tail = require('tail').Tail;
-const { maybeRespond } = require('./chat-logic');
+import {maybeRespond} from "./chat-logic";
+import {Rcon} from "rcon-client";
+import {Tail} from "tail";
 
 async function sendChatToMinecraftServer(message, host, port, password) {
     const rcon = await Rcon.connect({
@@ -19,7 +19,7 @@ async function sendChatToMinecraftServer(message, host, port, password) {
     rcon.end();
 }
 
-function startWatchingLogFile(logFilePath, serverName, rconHost, rconPort, rconPassword) {
+export function startWatchingLogFile(logFilePath, serverName, rconHost, rconPort, rconPassword) {
     const regexPattern = /]:\s(.*)/;    // Clean line from log time stamps etc
     const regex = new RegExp(regexPattern);
     if (logFilePath != null && logFilePath.length > 0) {
@@ -39,4 +39,3 @@ function startWatchingLogFile(logFilePath, serverName, rconHost, rconPort, rconP
     }
 }
 
-module.exports = { sendChatToMinecraftServer, startWatchingLogFile };

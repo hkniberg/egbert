@@ -8,5 +8,29 @@
     "json5": "^2.2.3",
     "rcon-client": "^4.2.3",
     "tail": "^2.2.6"
-  }
+  },
+  "description": "An ironic gpt-based chatbot",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.0",
+    "ts-node": "^10.9.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hkniberg/egbert.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hkniberg/egbert/issues"
+  },
+  "homepage": "https://github.com/hkniberg/egbert#readme"
 }
