@@ -43,7 +43,7 @@
     {
       "name": "gptHenrik",
       "type": "openai",
-      "config": {
+      "typeSpecificConfig": {
         "apiKey": "abc",
         "model": "gpt-3.5-turbo",
         "temperature": 1
@@ -52,7 +52,7 @@
     {
       "name": "gptMårten",
       "type": "openai",
-      "config": {
+      "typeSpecificConfig": {
         "api-key": "gggg",
         "model": "gpt-4.0",
         "temperature": 1
@@ -73,7 +73,7 @@
       "name": "minecraftFFCreate",
       "type": "minecraft",
       "socialContext": "friendlyFire",
-      "config": {
+      "typeSpecificConfig": {
         "rconHost": "localhost",
         "rconPort": 25565,
         "rconPassword": "xxx",
@@ -84,7 +84,7 @@
       "name": "minecraftMinehome",
       "type": "minecraft",
       "socialContext": "stenius-family",
-      "config": {
+      "typeSpecificConfig": {
         "rconHost": "stenius.org",
         "rconPort": 25567,
         "rconPassword": "xxx",
@@ -96,7 +96,7 @@
       "name": "discordEgbert",
       "type": "discord",
       "socialContext": "friendlyFire",
-      "config": {
+      "typeSpecificConfig": {
         "botToken": "asdfasd"
       }
     },
