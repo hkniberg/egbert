@@ -6,8 +6,6 @@ const defaultPersonality = utils.readRequiredConfigProperty('DEFAULT_PERSONALITY
 
 require('axios');
 
-console.log("OPENAI_API_KEY: " + process.env.OPENAI_API_KEY);
-
 discordChatSource.login(process.env.DISCORD_CLIENT_TOKEN, defaultPersonality).catch((error : unknown) => {
     console.error(`Error logging in to Discord: ${error}. Will ignore Discord.`);
 });
@@ -24,3 +22,5 @@ minecraft.startWatchingLogFile(process.env.MINECRAFT_LOG_PATH,
     process.env.MINECRAFT_MEMORY_SERVER_NAME, process.env.MINECRAFT_RCON_HOST, process.env.MINECRAFT_RCON_PORT, process.env.MINECRAFT_RCON_PASSWORD,
     defaultPersonality
 );
+
+console.log("Egbert is up and running!");
