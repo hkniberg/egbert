@@ -1,10 +1,12 @@
-require('dotenv').config({path: "../.env"}); // Initialize dotenv
+require('dotenv').config(); // Initialize dotenv
 const { maybeRespond } = require('./chat-logic'); // Import maybeRespond from chat-logic.ts
 const discordChatSource = require('./discord-chat-source');
 const utils = require('./utils');
 const defaultPersonality = utils.readRequiredConfigProperty('DEFAULT_PERSONALITY');
 
 require('axios');
+
+console.log("OPENAI_API_KEY: " + process.env.OPENAI_API_KEY);
 
 discordChatSource.login(process.env.DISCORD_CLIENT_TOKEN, defaultPersonality).catch((error : unknown) => {
     console.error(`Error logging in to Discord: ${error}. Will ignore Discord.`);
