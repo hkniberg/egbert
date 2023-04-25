@@ -148,4 +148,5 @@ fabric.properties
 
 memories/
 /config/config.json5
-build
+build/**/*
+/src/**/*.js
