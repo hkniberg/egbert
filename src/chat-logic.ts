@@ -6,8 +6,6 @@ const gptHeaders = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
 };
-console.log("OpenAI key: " + process.env.OPENAI_API_KEY)
-
 
 const defaultSystemMessage = process.env.DEFAULT_PERSONALITY;
 
