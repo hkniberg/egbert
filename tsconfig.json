@@ -14,10 +14,13 @@
      "forceConsistentCasingInFileNames": true,
 
     // Enable all strict type-checking options.
-    "strict": false,
+    "strict": true,
 
     // Skip type checking all .d.ts files. So it doesn't but us about third party modules in node_modules
-    "skipLibCheck": true
+    "skipLibCheck": true,
 
+    // This means we have files that keep track of how the JS lines map to the TS lines,
+    // which makes debug breakpoints work in IDEs like Webstorm.
+    "sourceMap": true,
   }
 }

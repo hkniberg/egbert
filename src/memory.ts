@@ -2,14 +2,19 @@ const fs = require("fs");
 const path = require("path");
 
 const MEMORIES_DIR_RELATIVE_TO_HERE = "../memories";
-export async function saveMemory(message, serverName) {
+
+export type MemoryBank = {
+    memories: string[];
+    customSystemMessage: string | null;
+}
+
+export async function saveMemory(message : string, serverName : string) {
     const memoriesFolder = path.join(__dirname, MEMORIES_DIR_RELATIVE_TO_HERE);
     const sanitizedFilename = sanitizeFilename(serverName);
     const memoriesFilePath = path.join(memoriesFolder, `${sanitizedFilename}.json`);
 
     try {
         await fs.promises.mkdir(memoriesFolder, { recursive: true });
-
 
         let serverData;
 
@@ -33,7 +38,7 @@ export async function saveMemory(message, serverName) {
     }
 }
 
-export async function loadMemories(serverName) {
+export async function loadMemories(serverName : string) : Promise<MemoryBank> {
     const sanitizedFilename = sanitizeFilename(serverName);
     const memoriesFilePath = path.join(__dirname, MEMORIES_DIR_RELATIVE_TO_HERE, `${sanitizedFilename}.json`);
 
@@ -46,10 +51,9 @@ export async function loadMemories(serverName) {
             customSystemMessage: serverData.customSystemMessage || null,
         };
     } catch (error) {
-        //console.error('Error loading memories:', error);
         return { memories: [], customSystemMessage: null };
     }
 }
-function sanitizeFilename(name) {
+function sanitizeFilename(name : string) : string {
     return name.replace(/[^a-z0-9_\-]/gi, '_');
 }

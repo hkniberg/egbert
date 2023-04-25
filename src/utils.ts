@@ -1,4 +1,4 @@
-export function splitStringAtNewline(inputString, maxLength) {
+export function splitStringAtNewline(inputString : string, maxLength : number) : string[] {
     const lines = inputString.split('\n');
     let result = [];
     let currentLine = '';
@@ -17,4 +17,12 @@ export function splitStringAtNewline(inputString, maxLength) {
     }
 
     return result;
+}
+
+export function readRequiredConfigProperty(propertyName : string) : string {
+    const value = process.env[propertyName];
+    if (value == null || value.length === 0) {
+        throw new Error(`.env is missing required property: ${propertyName}`);
+    }
+    return value;
 }
