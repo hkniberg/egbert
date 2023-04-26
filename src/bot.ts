@@ -1,4 +1,6 @@
 import {ResponseGenerator} from "./response-generators/response-generator";
+import {loadMemories} from "./memory";
+import {saveMemory} from "./memory";
 
 export class Bot {
     private name : string;
@@ -17,12 +19,15 @@ export class Bot {
         return this.name;
     }
 
-    async generateResponse(incomingMessage: string) : Promise<string | null> {
+    async generateResponse(socialContext : string, incomingMessage: string) : Promise<string | null> {
+        const memoriesFolder = "./memories"
+        if (!this.isMemberOfSocialContext(socialContext)) {
+            return null;
+        }
+        let memories = await loadMemories(this.name, socialContext, memoriesFolder);
+        let response = await this.responseGenerator.generateResponse(incomingMessage, this.name, this.personality, memories);
 
-
-
-        let memories : Array<string> = []; // TODO load/save memories
-        return this.responseGenerator.generateResponse(incomingMessage, this.name, this.personality, memories);
+        return response;
     }
 
     isMemberOfSocialContext(socialContext: string) {

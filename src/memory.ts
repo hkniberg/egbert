@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 const path = require("path");
 
-export async function loadMemories(botName : string, socialContext : string, memoriesFolder : string) : Promise<Array<String>> {
+export async function loadMemories(botName : string, socialContext : string, memoriesFolder : string) : Promise<Array<string>> {
     const memoriesFilePath = await getMemoriesFilePath(botName, socialContext, memoriesFolder)
     return getStoredMemoriesOrEmptyList(memoriesFilePath);
 }
@@ -14,11 +14,11 @@ export async function saveMemory(memory : string, botName : string, socialContex
     saveMemoryFile(memories, memoriesFilePath);
 }
 
-async function getStoredMemoriesOrEmptyList(memoriesFilePath: string) : Promise<Array<String>> {
+async function getStoredMemoriesOrEmptyList(memoriesFilePath: string) : Promise<Array<string>> {
     if (await fileExists(memoriesFilePath)) {
         const fileContent = await fs.readFile(memoriesFilePath, 'utf8');
         try {
-            return JSON.parse(fileContent) as Array<String>;
+            return JSON.parse(fileContent) as Array<string>;
         } catch (error) {
             throw(`Failed to parse memories file at ${memoriesFilePath}. Error: ${error}`);
         }
