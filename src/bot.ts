@@ -18,8 +18,9 @@ export class Bot {
     }
 
     async generateResponse(incomingMessage: string) : Promise<string | null> {
-
-
+        if (!incomingMessage.toLowerCase().includes(this.name.toLowerCase())) {
+            return null;
+        }
 
         let memories : Array<string> = []; // TODO load/save memories
         return this.responseGenerator.generateResponse(incomingMessage, this.name, this.personality, memories);

@@ -8,7 +8,10 @@ export class ConsoleChatSource extends ChatSource {
             // send the message to each bot, and then each bot decides whether or not to respond
             // for example depending on if the message contains the bot's name.
             for (const bot of this.bots) {
-                const responseMessage = await bot.generateResponse(incomingMessage);
+                // for some reason incomingMessage is a character buffer or something like that,
+                // so we convert it to string before sending it to the bot
+                const incomingMessageAsString = "" + incomingMessage;
+                const responseMessage = await bot.generateResponse(incomingMessageAsString);
                 if (responseMessage) {
                     console.log(bot.getName() + ": " + responseMessage);
                 }
