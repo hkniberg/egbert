@@ -1,5 +1,4 @@
 import {ChatSource} from "./chat-source";
-import {Bot} from "../bot";
 
 export class ConsoleChatSource extends ChatSource {
     start(): void {
@@ -11,7 +10,7 @@ export class ConsoleChatSource extends ChatSource {
                 // for some reason incomingMessage is a character buffer or something like that,
                 // so we convert it to string before sending it to the bot
                 const incomingMessageAsString = "" + incomingMessage;
-                const responseMessage = await bot.generateResponse(incomingMessageAsString);
+                const responseMessage = await bot.generateResponse(this.socialContext, incomingMessageAsString);
                 if (responseMessage) {
                     console.log(bot.getName() + ": " + responseMessage);
                 }

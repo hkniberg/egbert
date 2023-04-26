@@ -1,5 +1,4 @@
 import {ChatSource} from "./chat-source";
-import {Bot} from "../bot";
 import {Client, Events, GatewayIntentBits, Message} from 'discord.js';
 import {splitStringAtNewline} from "../utils";
 import {DiscordChatSourceConfig} from "../config";
@@ -34,7 +33,7 @@ export class DiscordChatSource extends ChatSource {
             for (const bot of this.bots) {
                 if (discordMessage.author.username === bot.getName()) return;
 
-                const responseMessage = await bot.generateResponse(incomingMessage);
+                const responseMessage = await bot.generateResponse(this.socialContext, incomingMessage);
                 if (responseMessage) {
                     sendDiscordResponse(discordMessage, responseMessage);
                 }

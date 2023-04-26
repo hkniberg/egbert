@@ -21,7 +21,7 @@ export class MinecraftChatSource extends ChatSource {
             if (strmatch != null) {
                 const messageToSendToBot = strmatch[1].trim()
                 for (const bot of this.bots) {
-                    const responseMessage = await bot.generateResponse(messageToSendToBot);
+                    const responseMessage = await bot.generateResponse(this.socialContext, messageToSendToBot);
                     if (responseMessage) {
                         this.sendChatToMinecraftServer(bot.getName(), responseMessage);
                     }
