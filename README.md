@@ -8,6 +8,8 @@ A sarcastic gpt-based chat bot
 - Make sure you have a reasonably fresh version of nodejs
 - Copy `.env.example` to `.env` and update it with the correct keys.
 - `npm install`
+- `npm install -g typescript`
+- `npm install -g ts-node`
 
 # How to run
 
