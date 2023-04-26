@@ -1,5 +1,9 @@
 // TypeScript options. See https://aka.ms/tsconfig
 {
+
+  // Which ts files to compile into js
+
+
   "compilerOptions": {
     // Set the JavaScript language version for emitted JavaScript and include compatible library declarations.
     "target": "es2016",

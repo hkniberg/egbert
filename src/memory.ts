@@ -1,59 +1,62 @@
-const fs = require("fs");
+import * as fs from 'fs/promises';
 const path = require("path");
 
-const MEMORIES_DIR_RELATIVE_TO_HERE = "../memories";
-
-export type MemoryBank = {
-    memories: string[];
-    customSystemMessage: string | null;
+export async function loadMemories(botName : string, socialContext : string, memoriesFolder : string) : Promise<Array<String>> {
+    const memoriesFilePath = await getMemoriesFilePath(botName, socialContext, memoriesFolder)
+    return getStoredMemoriesOrEmptyList(memoriesFilePath);
 }
 
-export async function saveMemory(message : string, serverName : string) {
-    const memoriesFolder = path.join(__dirname, MEMORIES_DIR_RELATIVE_TO_HERE);
-    const sanitizedFilename = sanitizeFilename(serverName);
-    const memoriesFilePath = path.join(memoriesFolder, `${sanitizedFilename}.json`);
+export async function saveMemory(memory : string, botName : string, socialContext : string, memoriesFolder : string) {
+    const memoriesFilePath = await getMemoriesFilePath(botName, socialContext, memoriesFolder);
 
-    try {
-        await fs.promises.mkdir(memoriesFolder, { recursive: true });
+    const memories = await getStoredMemoriesOrEmptyList(memoriesFilePath);
+    memories.push(memory);
+    saveMemoryFile(memories, memoriesFilePath);
+}
 
-        let serverData;
-
+async function getStoredMemoriesOrEmptyList(memoriesFilePath: string) : Promise<Array<String>> {
+    if (await fileExists(memoriesFilePath)) {
+        const fileContent = await fs.readFile(memoriesFilePath, 'utf8');
         try {
-            await fs.promises.access(memoriesFilePath);
-            const fileContent = await fs.promises.readFile(memoriesFilePath, 'utf-8');
-            serverData = JSON.parse(fileContent) || {};
+            return JSON.parse(fileContent) as Array<String>;
         } catch (error) {
-            console.log('No existing memories file found, creating a new one.');
-            serverData = { memories: [], customSystemMessage: null };
-            await fs.promises.writeFile(memoriesFilePath, JSON.stringify(serverData, null, 2), 'utf-8');
+            throw(`Failed to parse memories file at ${memoriesFilePath}. Error: ${error}`);
         }
-
-        serverData.memories = serverData.memories || [];
-
-        serverData.memories.push(message);
-
-        await fs.promises.writeFile(memoriesFilePath, JSON.stringify(serverData, null, 2), 'utf-8');
-    } catch (error) {
-        console.error('Error saving memory:', error);
+    } else {
+        return new Array<string>()
     }
 }
 
-export async function loadMemories(serverName : string) : Promise<MemoryBank> {
-    const sanitizedFilename = sanitizeFilename(serverName);
-    const memoriesFilePath = path.join(__dirname, MEMORIES_DIR_RELATIVE_TO_HERE, `${sanitizedFilename}.json`);
-
-    try {
-        const fileContent = await fs.promises.readFile(memoriesFilePath, 'utf-8');
-        const serverData = JSON.parse(fileContent);
-
-        return {
-            memories: serverData.memories || [],
-            customSystemMessage: serverData.customSystemMessage || null,
-        };
-    } catch (error) {
-        return { memories: [], customSystemMessage: null };
-    }
+function saveMemoryFile(memories: Array<String>, memoriesFilePath: string) {
+    fs.writeFile(memoriesFilePath, JSON.stringify(memories, null, 2), 'utf-8');
 }
+
 function sanitizeFilename(name : string) : string {
     return name.replace(/[^a-z0-9_\-]/gi, '_');
 }
+
+async function getMemoriesFilePath(botName: string, socialContext: string, memoriesFolder: string) {
+    const fileName = `memories-${botName}-${socialContext}.json`;
+    const memoriesFilePath = path.join(memoriesFolder, sanitizeFilename(fileName));
+
+    await createFolderIfItDoesntAlreadyExist(memoriesFolder);
+    return memoriesFilePath;
+}
+
+async function createFolderIfItDoesntAlreadyExist(memoriesFolder: string) {
+    try {
+        await fs.mkdir(memoriesFolder, {recursive: true});
+    } catch (error) {
+        throw (`Could not create memories folder at ${memoriesFolder}. Error: ${error}`);
+    }
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+    try {
+        await fs.access(filePath);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
