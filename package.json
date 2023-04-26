@@ -7,7 +7,8 @@
     "dotenv": "^16.0.3",
     "json5": "^2.2.3",
     "rcon-client": "^4.2.3",
-    "tail": "^2.2.6"
+    "tail": "^2.2.6",
+    "typescript": "^5.0.4"
   },
   "description": "An ironic gpt-based chatbot",
   "main": "index.js",
@@ -16,8 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.16.0",
-    "@types/tail": "^2.2.1",
-    "ts-node": "^10.9.1"
+    "@types/tail": "^2.2.1"
   },
   "scripts": {
     "build": "tsc",
