@@ -150,3 +150,4 @@ memories/
 /config/config.json5
 build/**/*
 /src/**/*.js
+/configtemp/**/*
