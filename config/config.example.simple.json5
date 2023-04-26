@@ -1,0 +1,34 @@
+{
+  "memoriesFolder": "memories",
+
+  "socialContexts": [
+    {
+      "name": "sampleSocialContext",
+    }
+  ],
+
+  "bots": [
+    {
+      "name": "echobot",
+      "responseGenerator": "echo",
+      "personality": "You are Echobot, a bot that just repeats what people say",
+      "socialContexts": ["sampleSocialContext"],
+      "chatContext-model": "noMemory"
+    }
+  ],
+
+  "responseGenerators": [
+    {
+      "name": "echo",
+      "type": "echo"
+    }
+  ],
+
+  "chatSources": [
+    {
+      "name": "console",
+      "type": "console",
+      "socialContext": "sampleSocialContext"
+    }
+  ]
+}
