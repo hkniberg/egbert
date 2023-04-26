@@ -3,7 +3,6 @@ const JSON5 = require('json5')
 
 export interface Config {
     memoriesFolder: string;
-    socialContexts: Array<SocialContextConfig>;
     bots: Array<BotConfig>;
     responseGenerators: Array<ResponseGeneratorConfig>;
     chatSources: Array<ChatSourceConfig>;
@@ -14,11 +13,6 @@ export interface BotConfig {
     responseGenerator: string;
     personality: string;
     socialContexts: Array<string>;
-}
-
-export interface SocialContextConfig {
-    name: string;
-    displayName: string;
 }
 
 export interface OpenAiResponseGeneratorConfig {

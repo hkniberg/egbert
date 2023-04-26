@@ -1,12 +1,6 @@
 {
   "memoriesFolder": "memories",
 
-  "socialContexts": [
-    {
-      "name": "sampleSocialContext",
-    }
-  ],
-
   "bots": [
     {
       "name": "echobot",
