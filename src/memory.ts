@@ -36,8 +36,8 @@ function sanitizeFilename(name : string) : string {
 }
 
 async function getMemoriesFilePath(botName: string, socialContext: string, memoriesFolder: string) {
-    const fileName = `memories-${botName}-${socialContext}.json`;
-    const memoriesFilePath = path.join(memoriesFolder, sanitizeFilename(fileName));
+    const fileName = `memories-${botName}-${socialContext}`;
+    const memoriesFilePath = path.join(memoriesFolder, sanitizeFilename(fileName) + ".json");
 
     await createFolderIfItDoesntAlreadyExist(memoriesFolder);
     return memoriesFilePath;

@@ -9,8 +9,8 @@ export class ConsoleChatSource extends ChatSource {
             for (const bot of this.bots) {
                 // for some reason incomingMessage is a character buffer or something like that,
                 // so we convert it to string before sending it to the bot
-                const incomingMessageAsString = "" + incomingMessage;
-                const responseMessage = await bot.generateResponse(this.socialContext, incomingMessageAsString);
+                const incomingMessageAsTrimmedString = ("" + incomingMessage).trim();
+                const responseMessage = await bot.generateResponse(this.socialContext, incomingMessageAsTrimmedString);
                 if (responseMessage) {
                     console.log(bot.getName() + ": " + responseMessage);
                 }
