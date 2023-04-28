@@ -3,20 +3,20 @@ import {Client, Events, GatewayIntentBits, Message} from 'discord.js';
 import {splitStringAtNewline} from "../utils";
 import {DiscordChatSourceConfig} from "../config";
 
-const discordClient = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-    ],
-});
-
 export class DiscordChatSource extends ChatSource {
     private readonly typeSpecificConfig: DiscordChatSourceConfig;
     private discordServerToSocialContextMap: Map<string, string> = new Map();
+    private discordClient : Client;
 
     constructor(name : string, defaultSocialContext : string | null, typeSpecificConfig: DiscordChatSourceConfig) {
         super(name, defaultSocialContext);
+        this.discordClient = new Client({
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.MessageContent,
+            ],
+        });
         this.typeSpecificConfig = typeSpecificConfig;
         if (typeSpecificConfig.discordServers) {
             // loop through typeSpecificConfig.discordServers and add each server to the map
@@ -35,13 +35,13 @@ export class DiscordChatSource extends ChatSource {
     }
 
     start(): void {
-        discordClient.login(this.typeSpecificConfig.botToken);
+        this.discordClient.login(this.typeSpecificConfig.botToken);
 
-        discordClient.once(Events.ClientReady, (client) => {
+        this.discordClient.once(Events.ClientReady, (client) => {
             console.log(`Ready! Logged in as ${client.user.tag}. I see ${client.channels.cache.size} channels.`);
         });
 
-        discordClient.on(Events.MessageCreate, async (discordMessage: Message) => {
+        this.discordClient.on(Events.MessageCreate, async (discordMessage: Message) => {
             const incomingMessage = discordMessage.content;
             console.log(`Received message ${incomingMessage} from server ${discordMessage.guild?.name}`);
 
