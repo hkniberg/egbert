@@ -74,6 +74,7 @@ export class DiscordChatSource extends ChatSource {
                 }
             }
         });
+        console.log('Discord chat source started: ', this.name);
     }
 }
 
