@@ -6,8 +6,11 @@ import {Tail} from "tail";
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
 
-    constructor(name : string, socialContext : string, typeSpecificConfig: MinecraftChatSourceConfig) {
-        super(name, socialContext);
+    constructor(name : string, defaultSocialContext : string | null, typeSpecificConfig: MinecraftChatSourceConfig) {
+        super(name, defaultSocialContext);
+        if (!defaultSocialContext) {
+            throw new Error("MinecraftChatSource must have a default social context");
+        }
         this.typeSpecificConfig = typeSpecificConfig;
     }
 
@@ -21,7 +24,7 @@ export class MinecraftChatSource extends ChatSource {
             if (strmatch != null) {
                 const messageToSendToBot = strmatch[1].trim()
                 for (const bot of this.bots) {
-                    const responseMessage = await bot.generateResponse(this.socialContext, messageToSendToBot);
+                    const responseMessage = await bot.generateResponse(this.defaultSocialContext as string, messageToSendToBot);
                     if (responseMessage) {
                         this.sendChatToMinecraftServer(bot.getName(), responseMessage);
                     }

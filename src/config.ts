@@ -28,14 +28,20 @@ export interface ResponseGeneratorConfig {
 }
 
 export interface ChatSourceConfig {
-    name: string; // TODO discuss if we really need this, since we never reference it
+    name: string; // only needed for logging
     type: string;
-    socialContext: string;
+    defaultSocialContext?: string;
     typeSpecificConfig?: DiscordChatSourceConfig | MinecraftChatSourceConfig;
 }
 
 export interface DiscordChatSourceConfig {
     botToken: string;
+    discordServers? : Array<DiscordServerConfig>;
+}
+
+export interface DiscordServerConfig {
+    serverName: string;
+    socialContext: string;
 }
 
 export interface MinecraftChatSourceConfig {

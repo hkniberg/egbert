@@ -26,3 +26,10 @@ export function readRequiredConfigProperty(propertyName : string) : string {
     }
     return value;
 }
+
+export function noEmptyString(input : string | null) : string | null {
+    if (input) {
+        return input.trim() === "" ? null : input;
+    }
+    return null;
+}

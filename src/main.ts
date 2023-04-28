@@ -33,11 +33,18 @@ const chatSources: Array<ChatSource> = [];
 for (const chatSourceConfig of config.chatSources) {
     let chatSource: ChatSource;
     if (chatSourceConfig.type === "discord") {
-        chatSource = new DiscordChatSource(chatSourceConfig.name, chatSourceConfig.socialContext, chatSourceConfig.typeSpecificConfig as DiscordChatSourceConfig);
+        chatSource = new DiscordChatSource(
+            chatSourceConfig.name,
+            chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
+            chatSourceConfig.typeSpecificConfig as DiscordChatSourceConfig);
     } else if (chatSourceConfig.type === "minecraft") {
-        chatSource = new MinecraftChatSource(chatSourceConfig.name, chatSourceConfig.socialContext, chatSourceConfig.typeSpecificConfig as MinecraftChatSourceConfig);
+        chatSource = new MinecraftChatSource(
+            chatSourceConfig.name,
+            chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
+            chatSourceConfig.typeSpecificConfig as MinecraftChatSourceConfig);
     } else if (chatSourceConfig.type === "console") {
-        chatSource = new ConsoleChatSource(chatSourceConfig.name, chatSourceConfig.socialContext,);
+        chatSource = new ConsoleChatSource(chatSourceConfig.name,
+            chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null);
     } else {
         throw("Unknown chat source type: " + chatSourceConfig.type);
     }
@@ -50,9 +57,9 @@ for (const botConfig of config.bots) {
     const bot = new Bot(botConfig.name, botConfig.personality, config.memoriesFolder, botConfig.socialContexts, responseGenerator);
     console.log(`Created bot ${bot.getName()}`);
     for (const chatSource of chatSources.values()) {
-        if (bot.isMemberOfSocialContext(chatSource.getSocialContext())) {
+        if (bot.isMemberOfAnySocialContext(chatSource.getSocialContexts())) {
             chatSource.addBot(bot);
-            console.log(`  Added bot ${bot.getName()} to chat source ${chatSource.getName()}, since both are members of social context ${chatSource.getSocialContext()}`);
+            console.log(`  Added bot ${bot.getName()} to chat source ${chatSource.getName()}, since both are members of social context ${chatSource.getDefaultSocialContext()}`);
         }
     }
 }

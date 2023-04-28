@@ -54,6 +54,11 @@ export class Bot {
             console.log(`${this.name} saved memory for context ${socialContext}: ${memory}`);
         }
     }
+
+    isMemberOfAnySocialContext(socialContexts: string[]) {
+        // check if there is any overlap between the given array and this.socialContexts
+        return socialContexts.some((socialContext) => this.isMemberOfSocialContext(socialContext));
+    }
 }
 
 function contains(outerString: string, innerString: string) {

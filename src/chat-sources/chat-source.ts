@@ -1,19 +1,20 @@
 import {Bot} from "../bot";
-
+import {noEmptyString} from "../utils";
 export abstract class ChatSource {
     protected readonly name: string;
-    protected readonly socialContext: string;
+    // will never be empty string
+    protected readonly defaultSocialContext: string | null;
     protected bots: Array<Bot> = [];
 
-    constructor(name : string, socialContext : string) {
+    constructor(name : string, defaultSocialContext : string | null) {
         this.name = name;
-        this.socialContext = socialContext;
+        this.defaultSocialContext = noEmptyString(defaultSocialContext);
     }
 
     abstract start() : void;
 
-    getSocialContext(): string {
-        return this.socialContext;
+    getDefaultSocialContext(): string | null {
+        return this.defaultSocialContext;
     }
 
     addBot(bot: Bot) {
@@ -22,5 +23,9 @@ export abstract class ChatSource {
 
     getName(): string {
         return this.name;
+    }
+
+    getSocialContexts() : string[] {
+        return this.defaultSocialContext ? [this.defaultSocialContext] : [];
     }
 }
