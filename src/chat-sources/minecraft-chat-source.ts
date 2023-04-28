@@ -12,6 +12,7 @@ export class MinecraftChatSource extends ChatSource {
             throw new Error("MinecraftChatSource must have a default social context");
         }
         this.typeSpecificConfig = typeSpecificConfig;
+        console.log("Minecraft chat source created: ", this.name);
     }
 
     start(): void {
@@ -35,6 +36,8 @@ export class MinecraftChatSource extends ChatSource {
         tail.on('error', (error) => {
             console.error(`Error: ${error}`);
         });
+
+        console.log("Minecraft chat source started: ", this.typeSpecificConfig.serverLogPath);
     }
 
     async sendChatToMinecraftServer(botName : string, message : string) {

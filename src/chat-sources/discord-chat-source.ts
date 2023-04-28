@@ -24,6 +24,7 @@ export class DiscordChatSource extends ChatSource {
                 this.discordServerToSocialContextMap.set(discordServer.serverName, discordServer.socialContext);
             }
         }
+        console.log('Discord chat source created: ', this.name);
     }
 
     getSocialContexts() : string[] {
