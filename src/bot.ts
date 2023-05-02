@@ -23,20 +23,21 @@ export class Bot {
         return this.name;
     }
 
-    async generateResponse(socialContext : string, incomingMessage: string) : Promise<string | null> {
-        if (!contains(incomingMessage, this.name)) {
+    public willRespond(socialContext : string, incomingMessage: string) : boolean {
+        return contains(incomingMessage, this.name) && this.isMemberOfSocialContext(socialContext);
+    }
+
+    public async generateResponse(socialContext : string, incomingMessage: string, chatHistory: string[]) : Promise<string | null> {
+        if (!this.willRespond(socialContext, incomingMessage)) {
             return null;
         }
         console.log(`${this.name} received message "${incomingMessage}" in social context ${socialContext}`);
         this.maybeSaveMemory(incomingMessage, socialContext);
 
         const memoriesFolder = "./memories"
-        if (!this.isMemberOfSocialContext(socialContext)) {
-            return null;
-        }
         let memories = await loadMemories(this.name, socialContext, memoriesFolder);
-        console.log(`   ${this.name} has ${memories.length} memories`)
-        let response = await this.responseGenerator.generateResponse(incomingMessage, this.name, this.personality, memories);
+        console.log(`   ${this.name} has ${memories.length} memories, and a chat history of length ${chatHistory?.length}`)
+        let response = await this.responseGenerator.generateResponse(incomingMessage, this.name, this.personality, memories, chatHistory);
         console.log(`   ${this.name} will respond: ${response}`)
         return response;
     }

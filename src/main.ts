@@ -1,4 +1,5 @@
-import {DiscordChatSourceConfig, MinecraftChatSourceConfig, OpenAiResponseGeneratorConfig, parseConfig} from "./config";
+import {DiscordChatSourceConfig, MinecraftChatSourceConfig, OpenAiResponseGeneratorConfig} from "./config";
+import {parseConfig} from "./config";
 import {ChatSource} from "./chat-sources/chat-source";
 import {DiscordChatSource} from "./chat-sources/discord-chat-source";
 import {MinecraftChatSource} from "./chat-sources/minecraft-chat-source";
@@ -36,15 +37,22 @@ for (const chatSourceConfig of config.chatSources) {
         chatSource = new DiscordChatSource(
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
-            chatSourceConfig.typeSpecificConfig as DiscordChatSourceConfig);
+            chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
+            chatSourceConfig.typeSpecificConfig as DiscordChatSourceConfig
+        );
     } else if (chatSourceConfig.type === "minecraft") {
         chatSource = new MinecraftChatSource(
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
-            chatSourceConfig.typeSpecificConfig as MinecraftChatSourceConfig);
+            chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
+            chatSourceConfig.typeSpecificConfig as MinecraftChatSourceConfig
+        );
     } else if (chatSourceConfig.type === "console") {
-        chatSource = new ConsoleChatSource(chatSourceConfig.name,
-            chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null);
+        chatSource = new ConsoleChatSource(
+            chatSourceConfig.name,
+            chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
+            chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
+        );
     } else {
         throw("Unknown chat source type: " + chatSourceConfig.type);
     }

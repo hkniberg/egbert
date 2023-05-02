@@ -31,6 +31,7 @@ export interface ChatSourceConfig {
     name: string; // only needed for logging
     type: string;
     defaultSocialContext?: string;
+    maxChatHistoryLength?: number;
     typeSpecificConfig?: DiscordChatSourceConfig | MinecraftChatSourceConfig;
 }
 

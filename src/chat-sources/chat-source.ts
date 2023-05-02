@@ -5,10 +5,12 @@ export abstract class ChatSource {
     // will never be empty string
     protected readonly defaultSocialContext: string | null;
     protected bots: Array<Bot> = [];
+    protected maxChatHistoryLength: number;
 
-    constructor(name : string, defaultSocialContext : string | null) {
+    constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number) {
         this.name = name;
         this.defaultSocialContext = noEmptyString(defaultSocialContext);
+        this.maxChatHistoryLength = maxChatHistoryLength;
     }
 
     abstract start() : void;
