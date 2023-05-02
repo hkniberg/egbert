@@ -66,6 +66,7 @@ export class DiscordChatSource extends ChatSource {
             const respondingBots : Bot[] = this.getRespondingBots(discordMessage)
             if (respondingBots.length === 0) {
                 // early out so we don't waste time reading the chat history when we aren't going to respond anyway
+                console.log("No bots want to respond to this message");
                 return;
             }
             let chatHistory = await this.loadDiscordChatHistory(discordMessage);
