@@ -61,8 +61,14 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
             temperature: this.typeSpecificConfig.temperature,
         };
 
-        const response = await axios.post(openAiUrl, body, { headers: headers });
+        try {
+            const response = await axios.post(openAiUrl, body, { headers: headers });
+            return response.data.choices[0].message.content;
+        } catch (error) {
+            console.log("Oops, something went wrong when talking to GPT!!! ", error);
+            console.error(error);
+            return "Oops, something went wrong when talking to GPT.";
+        }
 
-        return response.data.choices[0].message.content;
     }
 }
