@@ -20,7 +20,8 @@ export class MinecraftChatSource extends ChatSource {
     }
 
     start(): void {
-        const regexPattern = /]:\s(.*)/;    // Clean line from log time stamps etc
+        // matches either "DedicatedServer/]:" or "[Bot server]:" and captures the rest of the line
+        const regexPattern = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;    // Clean line from log time stamps etc
         const regex = new RegExp(regexPattern);
 
         const tail = new Tail(this.typeSpecificConfig.serverLogPath);
@@ -33,9 +34,12 @@ export class MinecraftChatSource extends ChatSource {
 
             const messageToSendToBot = strmatch[1].trim()
 
+            console.log(`Got message from Minecraft server log: ${messageToSendToBot}`);
+
             const respondingBots : Bot[] = this.getRespondingBots(messageToSendToBot)
             if (respondingBots.length === 0) {
                 // early out so we don't waste time reading the chat history when we aren't going to respond anyway
+                console.log("No bots want to respond to this message");
                 return;
             }
 
@@ -86,9 +90,6 @@ export class MinecraftChatSource extends ChatSource {
     }
 
     private async addLineToServerLog(line : string) {
-        // a slightly silly thing here is that the [Bot server]:
-        // prefix makes is to that the regexp in start() triggers on bot messages.
-        // Not sure if we want that, but I guess that means bots could respond to each other.
         return fs.writeFile(this.typeSpecificConfig.serverLogPath, '[Bot server]: ' + line + '\n', { flag: 'a' });
     }
 
