@@ -102,7 +102,7 @@ export class MinecraftChatSource extends ChatSource {
     async getServerLogHistory(): Promise<string[]> {
         const buffer = await readLastLines(this.typeSpecificConfig.serverLogPath, this.maxChatHistoryLength + 1);
         const content = buffer.toString('utf-8');
-        const lines = content.split('\n').filter(line => line !== '');
+        const lines = content.split('\n').filter((line: string) => line !== '');
         // skip the last line, since that it is the current message being processed
         return lines.slice(0, lines.length - 1);
     }
