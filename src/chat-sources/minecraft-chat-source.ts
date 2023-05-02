@@ -2,15 +2,13 @@ import {ChatSource} from "./chat-source";
 import {MinecraftChatSourceConfig} from "../config";
 import {Rcon} from "rcon-client";
 import {Tail} from "tail";
-import {readLastLines} from "read-last-lines-ts";
 import {Bot} from "../bot";
-import * as fs from 'fs/promises';
 import {CappedArray} from "../util/capped-array";
-
 
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
     private readonly minecraftLogRegExp: RegExp;
+    private readonly chatHistory: CappedArray<string>;
 
     constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number, typeSpecificConfig: MinecraftChatSourceConfig) {
         super(name, defaultSocialContext, maxChatHistoryLength);
@@ -18,6 +16,7 @@ export class MinecraftChatSource extends ChatSource {
             throw new Error("MinecraftChatSource must have a default social context");
         }
         this.typeSpecificConfig = typeSpecificConfig;
+        this.chatHistory = new CappedArray<string>(maxChatHistoryLength);
         console.log("Minecraft chat source created: ", this.name);
 
         // This regexp is used to filter the messages in the server log to only the ones we care about
@@ -39,22 +38,29 @@ export class MinecraftChatSource extends ChatSource {
 
             console.log(`Got message from Minecraft server log: ${messageToSendToBot}`);
 
+            const messagesToAddToChatHistory : string[] = [messageToSendToBot];
+
             const respondingBots : Bot[] = this.getRespondingBots(messageToSendToBot)
             if (respondingBots.length === 0) {
                 // early out so we don't waste time reading the chat history when we aren't going to respond anyway
                 console.log("No bots want to respond to this message");
+                // We will add this message to our chat history even if no bots respond
+                // That way, when we talk to a bot it will be aware of the context of the conversation
+                this.chatHistory.addAll(messagesToAddToChatHistory);
                 return;
             }
 
-            let chatHistory = await this.getServerLogHistory();
-
             for (const bot of respondingBots) {
-                const responseMessage = await bot.generateResponse(this.defaultSocialContext as string, messageToSendToBot, chatHistory);
+                const responseMessage = await bot.generateResponse(this.defaultSocialContext as string, messageToSendToBot, this.chatHistory.getAll());
                 if (responseMessage) {
                     // technically we could skip await and do these in paralell, but for now I'm choosing the path of least risk
-                    await this.sendChatToMinecraftServer(bot.getName(), responseMessage);
+                    const responseMessageWithBotName = `<${bot.getName()}> ${responseMessage}`;
+                    messagesToAddToChatHistory.push(responseMessageWithBotName);
+                    await this.sendChatToMinecraftServer(responseMessageWithBotName);
                 }
             }
+            // We defer this to the end so that the chat history doesn't get updated while we are still generating responses
+            this.chatHistory.addAll(messagesToAddToChatHistory);
         });
 
         tail.on('error', (error) => {
@@ -70,30 +76,21 @@ export class MinecraftChatSource extends ChatSource {
             .filter(bot => !this.isMessageFromBot(message, bot));
     }
 
-    private async sendChatToMinecraftServer(botName : string, message : string) {
+    private async sendChatToMinecraftServer(responseMessageWithBotName : string) {
         const rcon = await Rcon.connect({
             host: this.typeSpecificConfig.rconHost,
             port: this.typeSpecificConfig.rconPort,
             password: this.typeSpecificConfig.rconPassword,
         });
 
-        console.log("Sending message to Minecraft server: " + message)
+        console.log("Sending message to Minecraft server: " + responseMessageWithBotName)
 
-        const messageWithBotName = `<${botName}> ${message}`;
-        let escapedMessageWithBotName = JSON.stringify(messageWithBotName);
+        let escapedMessageWithBotName = JSON.stringify(responseMessageWithBotName);
         let response = await rcon.send(`tellraw @a {"text":${escapedMessageWithBotName}, "color":"white"}`);
 
         console.log(".... sent message, got response: ", response);
 
         await rcon.end();
-
-        // we need to do this because tellRaw doesn't write to server.log,
-        // and we want the bot's responses to be included in the chat history for later calls
-        await this.addLineToServerLog(messageWithBotName);
-    }
-
-    private async addLineToServerLog(line : string) {
-        return fs.writeFile(this.typeSpecificConfig.serverLogPath, '[Bot server]: ' + line + '\n', { flag: 'a' });
     }
 
     /**
@@ -101,21 +98,6 @@ export class MinecraftChatSource extends ChatSource {
      */
     private isMessageFromBot(message: string, bot : Bot) {
         return message.indexOf(`<${bot.getName()}>`) >= 0;
-    }
-
-    async getServerLogHistory(): Promise<string[]> {
-        const linesToKeep = new CappedArray<string>(this.maxChatHistoryLength);
-        const buffer = await readLastLines(this.typeSpecificConfig.serverLogPath, this.typeSpecificConfig.serverLogLinesToRead);
-        const content = buffer.toString('utf-8');
-        content.split('\n').forEach(line => {
-            const match = line.match(this.minecraftLogRegExp)
-            if (match) {
-                linesToKeep.add(match[1].trim() )
-            }
-        });
-        // skip the last line, since that it is the current message being processed
-        linesToKeep.removeLast();
-        return linesToKeep.getAll();
     }
 }
 
