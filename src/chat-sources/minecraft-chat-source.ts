@@ -5,10 +5,12 @@ import {Tail} from "tail";
 import {readLastLines} from "read-last-lines-ts";
 import {Bot} from "../bot";
 import * as fs from 'fs/promises';
+import {CappedArray} from "../util/capped-array";
 
 
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
+    private readonly minecraftLogRegExp: RegExp;
 
     constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number, typeSpecificConfig: MinecraftChatSourceConfig) {
         super(name, defaultSocialContext, maxChatHistoryLength);
@@ -17,18 +19,19 @@ export class MinecraftChatSource extends ChatSource {
         }
         this.typeSpecificConfig = typeSpecificConfig;
         console.log("Minecraft chat source created: ", this.name);
+
+        // This regexp is used to filter the messages in the server log to only the ones we care about
+        // matches either "DedicatedServer/]:" or "[Bot server]:" and captures the rest of the line
+        const regexPattern = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;    // Clean line from log time stamps etc
+        this.minecraftLogRegExp = new RegExp(regexPattern);
     }
 
     start(): void {
-        // matches either "DedicatedServer/]:" or "[Bot server]:" and captures the rest of the line
-        const regexPattern = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;    // Clean line from log time stamps etc
-        const regex = new RegExp(regexPattern);
-
         const tail = new Tail(this.typeSpecificConfig.serverLogPath);
         tail.on('line', async (line) => {
-            const strmatch = line.toString().match(regex)
+            const strmatch = line.toString().match(this.minecraftLogRegExp)
             if (!strmatch) {
-                // not sure why this would happen, but just in case
+                // this is a log message that we don't care about
                 return;
             }
 
@@ -101,11 +104,18 @@ export class MinecraftChatSource extends ChatSource {
     }
 
     async getServerLogHistory(): Promise<string[]> {
-        const buffer = await readLastLines(this.typeSpecificConfig.serverLogPath, this.maxChatHistoryLength + 1);
+        const linesToKeep = new CappedArray<string>(this.maxChatHistoryLength);
+        const buffer = await readLastLines(this.typeSpecificConfig.serverLogPath, this.typeSpecificConfig.serverLogLinesToRead);
         const content = buffer.toString('utf-8');
-        const lines = content.split('\n').filter((line: string) => line !== '');
+        content.split('\n').forEach(line => {
+            const match = line.match(this.minecraftLogRegExp)
+            if (match) {
+                linesToKeep.add(match[1].trim() )
+            }
+        });
         // skip the last line, since that it is the current message being processed
-        return lines.slice(0, lines.length - 1);
+        linesToKeep.removeLast();
+        return linesToKeep.getAll();
     }
 }
 

@@ -36,4 +36,7 @@ export class CappedArray<T> {
         return this.items;
     }
 
+    public removeLast() {
+        this.items.pop();
+    }
 }
