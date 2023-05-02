@@ -2,6 +2,8 @@
 
 import axios from 'axios';
 import {ResponseGenerator} from './response-generator';
+import {encode} from "gpt-3-encoder";
+
 
 const openAiUrl = "https://api.openai.com/v1/chat/completions";
 
@@ -63,12 +65,22 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         try {
             const response = await axios.post(openAiUrl, body, { headers: headers });
-            return response.data.choices[0].message.content;
+
+            const responseContent = response.data.choices[0].message.content
+            const requestTokens = this.getTokenCount(JSON.stringify(messages));
+            const responseTokens = this.getTokenCount(responseContent)
+            console.log(`Request tokens: ${requestTokens}, Response tokens: ${responseTokens}, Total tokens: ${requestTokens + responseTokens}`);
+
+            return responseContent;
         } catch (error) {
             console.log("Oops, something went wrong when talking to GPT!!! ", error);
             console.error(error);
             return "Oops, something went wrong when talking to GPT.";
         }
 
+    }
+
+    private getTokenCount(str: string) : number {
+        return encode(str).length;
     }
 }
