@@ -63,7 +63,7 @@ export class DiscordChatSource extends ChatSource {
                 return;
             }
 
-            const respondingBots : Bot[] = this.getRespondingBots(discordMessage)
+            const respondingBots : Bot[] = this.getRespondingBots(socialContextToUse, discordMessage)
             if (respondingBots.length === 0) {
                 // early out so we don't waste time reading the chat history when we aren't going to respond anyway
                 console.log("No bots want to respond to this message");
@@ -82,9 +82,9 @@ export class DiscordChatSource extends ChatSource {
         console.log('Discord chat source started: ', this.name);
     }
 
-    private getRespondingBots(discordMessage: Message) {
+    private getRespondingBots(socialContext: string, discordMessage: Message) {
         return this.bots
-            .filter(bot => bot.willRespond(this.defaultSocialContext as string, discordMessage.content))
+            .filter(bot => bot.willRespond(socialContext, discordMessage.content))
             .filter(bot => !this.isMessageFromBot(discordMessage, bot));
     }
 
