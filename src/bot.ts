@@ -14,7 +14,7 @@ export class Bot {
     constructor(name : string, personality : string, memoriesFolder : string | null, socialContexts : Array<string>, responseGenerator : ResponseGenerator) {
         this.name = name;
         this.personality = personality;
-        this.memoriesFolder = memoriesFolder;
+        this.memoriesFolder = memoriesFolder ? memoriesFolder : 'memories';
         this.socialContexts = socialContexts;
         this.responseGenerator = responseGenerator;
     }

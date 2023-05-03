@@ -16,7 +16,7 @@ const chatSources = createChatSources(config.chatSources);
 // Create each Bot and add to their respective chat sources (based on social context)
 for (const botConfig of config.bots) {
     const responseGenerator = getResponseGeneratorByName(botConfig.responseGenerator);
-    const bot = new Bot(botConfig.name, botConfig.personality, config.memoriesFolder, botConfig.socialContexts, responseGenerator);
+    const bot = new Bot(botConfig.name, botConfig.personality, config.memoriesFolder as string, botConfig.socialContexts, responseGenerator);
     console.log(`Created bot '${bot.getName()}'`);
     for (const chatSource of chatSources.values()) {
         if (bot.isMemberOfAnySocialContext(chatSource.getSocialContexts())) {
