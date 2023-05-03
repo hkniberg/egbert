@@ -27,39 +27,7 @@ export class MinecraftChatSource extends ChatSource {
     start(): void {
         const tail = new Tail(this.typeSpecificConfig.serverLogPath);
         tail.on('line', async (line) => {
-            const strmatch = line.toString().match(this.minecraftLogRegExp)
-            if (!strmatch) {
-                // this is a log message that we don't care about
-                return;
-            }
-
-            const messageToSendToBot = strmatch[1].trim()
-
-            console.log(`Got message from Minecraft server log: ${messageToSendToBot}`);
-
-            const messagesToAddToChatHistory : string[] = [messageToSendToBot];
-
-            const respondingBots : Bot[] = this.getRespondingBots(messageToSendToBot)
-            if (respondingBots.length === 0) {
-                // early out so we don't waste time reading the chat history when we aren't going to respond anyway
-                console.log("No bots want to respond to this message");
-                // We will add this message to our chat history even if no bots respond
-                // That way, when we talk to a bot it will be aware of the context of the conversation
-                this.chatHistory.addAll(messagesToAddToChatHistory);
-                return;
-            }
-
-            for (const bot of respondingBots) {
-                const responseMessage = await bot.generateResponse(this.defaultSocialContext as string, messageToSendToBot, this.chatHistory.getAll());
-                if (responseMessage) {
-                    // technically we could skip await and do these in paralell, but for now I'm choosing the path of least risk
-                    const responseMessageWithBotName = `<${bot.getName()}> ${responseMessage}`;
-                    messagesToAddToChatHistory.push(responseMessageWithBotName);
-                    await this.sendChatToMinecraftServer(responseMessageWithBotName);
-                }
-            }
-            // We defer this to the end so that the chat history doesn't get updated while we are still generating responses
-            this.chatHistory.addAll(messagesToAddToChatHistory);
+            await this.processLine(line.toString());
         });
 
         tail.on('error', (error) => {
@@ -67,6 +35,42 @@ export class MinecraftChatSource extends ChatSource {
         });
 
         console.log("Minecraft chat source started: ", this.typeSpecificConfig.serverLogPath);
+    }
+
+    async processLine(line : string) {
+        const strmatch = line.match(this.minecraftLogRegExp)
+        if (!strmatch) {
+            // this is a log message that we don't care about
+            return;
+        }
+
+        const messageToSendToBot = strmatch[1].trim()
+
+        console.log(`Got message from Minecraft server log: ${messageToSendToBot}`);
+
+        const messagesToAddToChatHistory: string[] = [messageToSendToBot];
+
+        const respondingBots: Bot[] = this.getRespondingBots(messageToSendToBot)
+        if (respondingBots.length === 0) {
+            // early out so we don't waste time reading the chat history when we aren't going to respond anyway
+            console.log("No bots want to respond to this message");
+            // We will add this message to our chat history even if no bots respond
+            // That way, when we talk to a bot it will be aware of the context of the conversation
+            this.chatHistory.addAll(messagesToAddToChatHistory);
+            return;
+        }
+
+        for (const bot of respondingBots) {
+            const responseMessage = await bot.generateResponse(this.defaultSocialContext as string, messageToSendToBot, this.chatHistory.getAll());
+            if (responseMessage) {
+                // technically we could skip await and do these in paralell, but for now I'm choosing the path of least risk
+                const responseMessageWithBotName = `<${bot.getName()}> ${responseMessage}`;
+                messagesToAddToChatHistory.push(responseMessageWithBotName);
+                await this.sendChatToMinecraftServer(responseMessageWithBotName);
+            }
+        }
+        // We defer this to the end so that the chat history doesn't get updated while we are still generating responses
+        this.chatHistory.addAll(messagesToAddToChatHistory);
     }
 
     private getRespondingBots(message: string) {
