@@ -3,11 +3,12 @@ import {Bot} from "./bot";
 import {createChatSources} from "./chat-sources/chat-source-factory";
 import {createResponseGenerators} from "./response-generators/response-generator-factory";
 
-require('dotenv').config();
+const DEFAULT_CONFIG_PATH = "config/config.json5";
 
-const CONFIG_PATH = "config/config.json5";
-const config = parseConfig(CONFIG_PATH);
-console.log(`Loaded config from ${CONFIG_PATH}`);
+// load config from the file given in the command line, or DEFAULT_CONFIG_PATH if not given.
+const configPath = process.argv[2] ? process.argv[2] : DEFAULT_CONFIG_PATH;
+console.log("Loading config from " + configPath)
+const config = parseConfig(configPath);
 
 const responseGenerators = createResponseGenerators(config.responseGenerators);
 const chatSources = createChatSources(config.chatSources);
