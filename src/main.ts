@@ -17,16 +17,17 @@ const chatSources = createChatSources(config.chatSources);
 for (const botConfig of config.bots) {
     const responseGenerator = getResponseGeneratorByName(botConfig.responseGenerator);
     const bot = new Bot(botConfig.name, botConfig.personality, config.memoriesFolder, botConfig.socialContexts, responseGenerator);
-    console.log(`Created bot ${bot.getName()}`);
+    console.log(`Created bot '${bot.getName()}'`);
     for (const chatSource of chatSources.values()) {
         if (bot.isMemberOfAnySocialContext(chatSource.getSocialContexts())) {
             chatSource.addBot(bot);
-            console.log(`  Added bot ${bot.getName()} to chat source ${chatSource.getName()}, since both are members of social context ${chatSource.getDefaultSocialContext()}`);
+            console.log(`  Added bot '${bot.getName()}' to chat source '${chatSource.getName()}', since both are members of social context '${chatSource.getDefaultSocialContext()}'`);
         }
     }
 }
 
 for (const chatSource of chatSources.values()) {
+    console.log(`Starting chat source '${chatSource.getName()}'`);
     chatSource.start();
 }
 
