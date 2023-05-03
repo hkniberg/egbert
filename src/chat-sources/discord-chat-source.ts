@@ -1,6 +1,6 @@
 import {ChatSource} from "./chat-source";
 import {Client, Events, GatewayIntentBits, Message, TextChannel} from 'discord.js';
-import {splitStringAtNewline} from "../utils";
+import {splitStringAtNewline} from "../util/utils";
 import {DiscordChatSourceConfig} from "../config";
 import {Bot} from "../bot";
 
