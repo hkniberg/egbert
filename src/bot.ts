@@ -5,11 +5,11 @@ import {saveMemory} from "./memory";
 const REMEMBER_KEYWORD = "remember:"; // config param perhaps?
 
 export class Bot {
-    private name : string;
-    private personality : string;
-    private memoriesFolder: string;
-    private socialContexts : Array<string>;
-    private responseGenerator : ResponseGenerator;
+    private readonly name : string;
+    private readonly personality : string;
+    private readonly memoriesFolder: string | null;
+    private readonly socialContexts : Array<string>;
+    private readonly responseGenerator : ResponseGenerator;
 
     constructor(name : string, personality : string, memoriesFolder : string, socialContexts : Array<string>, responseGenerator : ResponseGenerator) {
         this.name = name;
