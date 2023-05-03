@@ -31,9 +31,9 @@ function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
 }
 
 export function createChatSources(chatSourceConfigs: Array<ChatSourceConfig>) {
-    const chatSources: Array<ChatSource> = [];
+    const chatSources: Map<String, ChatSource> = new Map();
     for (const chatSourceConfig of chatSourceConfigs) {
-        chatSources.push(createChatSource(chatSourceConfig));
+        chatSources.set(chatSourceConfig.name, createChatSource(chatSourceConfig));
     }
     return chatSources;
 }
