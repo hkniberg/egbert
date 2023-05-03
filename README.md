@@ -8,18 +8,17 @@ But Egbert was the first bot here and he won't let you forget it.
 
 ![](docs/egbert.png)
 
-# How to set up your environment
-Make sure you have a reasonably fresh version of nodejs
+# How to install
+- Make sure you have a reasonably fresh version of nodejs
 - `npm install`
-- `npm install -g typescript`
-- `npm install -g ts-node`
 
 You can check that it works by running a sample configuration that just has a console-based echobot.
-- `npm start config/config.example.simple.json`
-- Type `hello echobot` and check that you get a response.
+- `npm start config/config.example.simple.json5`
+
+Then type `hello echobot` and check that you get a response.
 
 # How to configure
-- Copy `config.example.json` to `config.json`, and edit it to your liking.
+- Copy `config.example.json5` to `config.json5`, and edit it to your liking.
 
 # How to run
 
@@ -27,3 +26,11 @@ You can check that it works by running a sample configuration that just has a co
 
 This will run `src/main.ts`.
 That's a typescript file, but the module ts-node will (hopefully) magically auto-compile it to javascript on the fly.
+
+# How to set up your environment for development
+- `npm install`
+- `npm install -D typescript`
+- `npm install -D ts-node`
+
+Then you can run this to automatically compile typescript to javascript in the background:
+- `tsc -w`

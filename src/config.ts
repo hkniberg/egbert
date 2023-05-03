@@ -1,5 +1,6 @@
 import * as fs from 'fs';
-const JSON5 = require('json5')
+const JSON5 = require('json5');
+const path = require('path');
 
 export interface Config {
     memoriesFolder: string;
@@ -53,9 +54,9 @@ export interface MinecraftChatSourceConfig {
     serverLogLinesToRead: number;
 }
 
-export function parseConfig(path: string): Config {
-    const configJson = fs.readFileSync(path, 'utf-8');
+export function parseConfig(configFilePath: string): Config {
+    const configFilePathRelativeToCurrentWorkingDir = path.resolve(process.cwd(), configFilePath);
+    const configJson = fs.readFileSync(configFilePathRelativeToCurrentWorkingDir, 'utf-8');
     return JSON5.parse(configJson);
 }
-
 
