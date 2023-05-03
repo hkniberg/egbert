@@ -1,7 +1,10 @@
 import * as fs from 'fs/promises';
 const path = require("path");
 
-export async function loadMemories(botName : string, socialContext : string, memoriesFolder : string) : Promise<Array<string>> {
+export async function loadMemories(botName : string, socialContext : string, memoriesFolder : string | null) : Promise<Array<string>> {
+    if (!memoriesFolder) {
+        return [];
+    }
     const memoriesFilePath = await getMemoriesFilePath(botName, socialContext, memoriesFolder)
     return getStoredMemoriesOrEmptyList(memoriesFilePath);
 }

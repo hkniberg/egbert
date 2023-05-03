@@ -3,7 +3,7 @@ const JSON5 = require('json5');
 const path = require('path');
 
 export interface Config {
-    memoriesFolder: string;
+    memoriesFolder?: string;
     bots: Array<BotConfig>;
     responseGenerators: Array<ResponseGeneratorConfig>;
     chatSources: Array<ChatSourceConfig>;
