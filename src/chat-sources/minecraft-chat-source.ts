@@ -19,10 +19,9 @@ export class MinecraftChatSource extends ChatSource {
         this.chatHistory = new CappedArray<string>(maxChatHistoryLength);
         console.log("Minecraft chat source created: ", this.name);
 
-        // This regexp is used to filter the messages in the server log to only the ones we care about
-        // matches either "DedicatedServer/]:" or "[Bot server]:" and captures the rest of the line
-        const regexPattern = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;    // Clean line from log time stamps etc
-        this.minecraftLogRegExp = new RegExp(regexPattern);
+        // This regexp is used to filter the messages in the server log to only the ones we care about.
+        // And also to strip out timestamp and other boilerplate.
+        this.minecraftLogRegExp = new RegExp(this.typeSpecificConfig.regexPattern);
     }
 
     start(): void {
