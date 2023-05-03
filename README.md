@@ -9,11 +9,14 @@ But Egbert was the first bot here and he won't let you forget it.
 ![](docs/egbert.png)
 
 # How to set up your environment
-
-- Make sure you have a reasonably fresh version of nodejs
+Make sure you have a reasonably fresh version of nodejs
 - `npm install`
 - `npm install -g typescript`
 - `npm install -g ts-node`
+
+You can check that it works by running a sample configuration that just has a console-based echobot.
+- `npm start config/config.example.simple.json`
+- Type `hello echobot` and check that you get a response.
 
 # How to configure
 - Copy `config.example.json` to `config.json`, and edit it to your liking.
@@ -23,4 +26,4 @@ But Egbert was the first bot here and he won't let you forget it.
 - `npm start`
 
 This will run `src/main.ts`.
-That's a typescript file, but the module ts-node will magically auto-compile it to javascript on the fly.
+That's a typescript file, but the module ts-node will (hopefully) magically auto-compile it to javascript on the fly.

@@ -6,8 +6,7 @@
       "name": "echobot",
       "responseGenerator": "echo",
       "personality": "You are Echobot, a bot that just repeats what people say",
-      "socialContexts": ["sampleSocialContext"],
-      "chatContext-model": "noMemory"
+      "socialContexts": ["localTesting"]
     }
   ],
 
@@ -22,7 +21,7 @@
     {
       "name": "console",
       "type": "console",
-      "socialContext": "sampleSocialContext"
+      "defaultSocialContext": "localTesting"
     }
   ]
 }
