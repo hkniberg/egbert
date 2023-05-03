@@ -21,7 +21,9 @@ export class MinecraftChatSource extends ChatSource {
 
         // This regexp is used to filter the messages in the server log to only the ones we care about.
         // And also to strip out timestamp and other boilerplate.
-        this.minecraftLogRegExp = new RegExp(this.typeSpecificConfig.regexPattern);
+        const defaultRegexPattern = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;
+        const regexPatternToUse = this.typeSpecificConfig.regexPattern as string ? this.typeSpecificConfig.regexPattern : defaultRegexPattern;
+        this.minecraftLogRegExp = new RegExp(regexPatternToUse);
     }
 
     start(): void {
