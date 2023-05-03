@@ -19,14 +19,6 @@ export function splitStringAtNewline(inputString : string, maxLength : number) :
     return result;
 }
 
-export function readRequiredConfigProperty(propertyName : string) : string {
-    const value = process.env[propertyName];
-    if (value == null || value.length === 0) {
-        throw new Error(`.env is missing required property: ${propertyName}`);
-    }
-    return value;
-}
-
 export function noEmptyString(input : string | null) : string | null {
     if (input) {
         return input.trim() === "" ? null : input;
