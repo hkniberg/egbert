@@ -4,7 +4,7 @@ import {DiscordChatSource} from "./discord-chat-source";
 import {MinecraftChatSource} from "./minecraft-chat-source";
 import {ConsoleChatSource} from "./console-chat-source";
 
-export function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
+function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
     if (chatSourceConfig.type === "discord") {
         return new DiscordChatSource(
             chatSourceConfig.name,
@@ -28,4 +28,12 @@ export function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource
     } else {
         throw("Unknown chat source type: " + chatSourceConfig.type);
     }
+}
+
+export function createChatSources(chatSourceConfigs: Array<ChatSourceConfig>) {
+    const chatSources: Array<ChatSource> = [];
+    for (const chatSourceConfig of chatSourceConfigs) {
+        chatSources.push(createChatSource(chatSourceConfig));
+    }
+    return chatSources;
 }

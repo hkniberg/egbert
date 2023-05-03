@@ -3,7 +3,7 @@ import {ResponseGenerator} from "./response-generator";
 import {OpenAiResponseGenerator} from "./openai-response-generator";
 import {EchoResponseGenerator} from "./echo-response-generator";
 
-export function createResponseGenerator(responseGeneratorConfig: ResponseGeneratorConfig): ResponseGenerator {
+function createResponseGenerator(responseGeneratorConfig: ResponseGeneratorConfig): ResponseGenerator {
     if (responseGeneratorConfig.type === "openai") {
         return new OpenAiResponseGenerator(responseGeneratorConfig.typeSpecificConfig as OpenAiResponseGeneratorConfig);
     } else if (responseGeneratorConfig.type === "echo") {
@@ -11,4 +11,12 @@ export function createResponseGenerator(responseGeneratorConfig: ResponseGenerat
     } else {
         throw("Unknown response generator type: " + responseGeneratorConfig.type);
     }
+}
+
+export function createResponseGenerators(responseGeneratorConfigs: Array<ResponseGeneratorConfig>) {
+    const responseGenerators: Map<string, ResponseGenerator> = new Map();
+    for (const responseGeneratorConfig of responseGeneratorConfigs) {
+        responseGenerators.set(responseGeneratorConfig.name, createResponseGenerator(responseGeneratorConfig));
+    }
+    return responseGenerators;
 }

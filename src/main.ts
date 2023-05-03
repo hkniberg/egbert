@@ -1,9 +1,7 @@
 import {parseConfig} from "./config";
-import {ChatSource} from "./chat-sources/chat-source";
-import {ResponseGenerator} from "./response-generators/response-generator";
 import {Bot} from "./bot";
-import {createChatSource} from "./chat-sources/chat-source-factory";
-import {createResponseGenerator} from "./response-generators/response-generator-factory";
+import {createChatSources} from "./chat-sources/chat-source-factory";
+import {createResponseGenerators} from "./response-generators/response-generator-factory";
 
 require('dotenv').config();
 
@@ -11,17 +9,8 @@ const CONFIG_PATH = "config/config.json5";
 const config = parseConfig(CONFIG_PATH);
 console.log(`Loaded config from ${CONFIG_PATH}`);
 
-// Create all ResponseGenerators
-const responseGenerators: Map<string, ResponseGenerator> = new Map();
-for (const responseGeneratorConfig of config.responseGenerators) {
-    responseGenerators.set(responseGeneratorConfig.name, createResponseGenerator(responseGeneratorConfig));
-}
-
-// Create all ChatSources
-const chatSources: Array<ChatSource> = [];
-for (const chatSourceConfig of config.chatSources) {
-    chatSources.push(createChatSource(chatSourceConfig));
-}
+const responseGenerators = createResponseGenerators(config.responseGenerators);
+const chatSources = createChatSources(config.chatSources);
 
 // Create each Bot and add to their respective chat sources (based on social context)
 for (const botConfig of config.bots) {
