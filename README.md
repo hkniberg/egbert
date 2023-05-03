@@ -9,7 +9,7 @@ But Egbert was the first bot here and he won't let you forget it.
 ![](docs/egbert.png)
 
 # How to install
-- Make sure you have a reasonably fresh version of nodejs
+Make sure you have a reasonably fresh version of nodejs, then run:
 - `npm install`
 
 You can check that it works by running a sample configuration that just has a console-based echobot.
@@ -21,16 +21,11 @@ Then type `hello echobot` and check that you get a response.
 - Copy `config.example.json5` to `config.json5`, and edit it to your liking.
 
 # How to run
-
 - `npm start`
 
-This will run `src/main.ts`.
+This will run `src/main.ts`
 That's a typescript file, but the module ts-node will (hopefully) magically auto-compile it to javascript on the fly.
 
-# How to set up your environment for development
-- `npm install`
-- `npm install -D typescript`
-- `npm install -D ts-node`
-
-Then you can run this to automatically compile typescript to javascript in the background:
-- `tsc -w`
+By default it will load `config/config.json5` (which you need to create, see above).
+You can specify a different config file to use, for example:
+- `npm start config/config.example.simple.json5`
