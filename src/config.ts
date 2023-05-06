@@ -38,7 +38,7 @@ export interface ChatSourceConfig {
 
 export interface DiscordChatSourceConfig {
     botToken: string;
-    discordServers? : Array<DiscordServerConfig>;
+    discordServers?: Array<DiscordServerConfig>;
 }
 
 export interface DiscordServerConfig {
@@ -59,4 +59,3 @@ export function parseConfig(configFilePath: string): Config {
     const configJson = fs.readFileSync(configFilePathRelativeToCurrentWorkingDir, 'utf-8');
     return JSON5.parse(configJson);
 }
-
