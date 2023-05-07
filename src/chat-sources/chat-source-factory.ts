@@ -1,7 +1,13 @@
-import { ChatSourceConfig, DiscordChatSourceConfig, MinecraftChatSourceConfig } from '../config';
+import {
+    ChatSourceConfig,
+    DiscordChatSourceConfig,
+    MinecraftChatSourceConfig,
+    TelegramChatSourceConfig,
+} from '../config';
 import { ChatSource } from './chat-source';
 import { DiscordChatSource } from './discord-chat-source';
 import { MinecraftChatSource } from './minecraft-chat-source';
+import { TelegramChatSource } from './telegram-chat-source';
 import { ConsoleChatSource } from './console-chat-source';
 
 function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
@@ -24,6 +30,13 @@ function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
+        );
+    } else if (chatSourceConfig.type === 'telegram') {
+        return new TelegramChatSource(
+            chatSourceConfig.name,
+            chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
+            chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
+            chatSourceConfig.typeSpecificConfig as TelegramChatSourceConfig,
         );
     } else {
         throw 'Unknown chat source type: ' + chatSourceConfig.type;
