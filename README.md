@@ -29,8 +29,3 @@ That's a typescript file, but the module ts-node will (hopefully) magically auto
 By default it will load `config/config.json5` (which you need to create, see above).
 You can specify a different config file to use, for example:
 - `npm start config/config.example.simple.json5`
-
-adding something pointless here to test mob.sh
-even more pointless stuff
-
-This is really pointless but fun.
