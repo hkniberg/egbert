@@ -69,12 +69,19 @@
         ]
       }
     },
+    
+    /*
+      For the bot to work in Telegram groups, it needs to be promoted to an admin.
+      If you don't want to do that, you can still talk to it in 1:1 mode.
+
+      Get your API token for telegram by talking to @botfather at Telegram. :)
+    */
     {
       "name": "telegram",
       "type": "telegram", 
       "defaultSocialContext": "friends",
       "typeSpecificConfig": {
-         "botToken": "YOUR_BOT_TOKEN_HERE", // Get your API token for telegram by talking to @botfather at Telegram. :)
+         "botToken": "YOUR_BOT_TOKEN_HERE",
       }
     }
   ]
