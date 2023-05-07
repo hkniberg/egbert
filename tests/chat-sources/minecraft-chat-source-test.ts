@@ -22,8 +22,11 @@ jest.mock('rcon-client', () => {
 
 // Create a fake config. The only thing that is actually used is regexPattern.
 const minecraftChatSourceConfig: MinecraftChatSourceConfig = {
-    rconHost: 'localhost', rconPort: 25575, rconPassword: 'test', serverLogPath: 'test.log',
-    regexPattern: '(?:\\[Bot server\\]:|DedicatedServer\\/]:)\\s?(.*)'
+    rconHost: 'localhost',
+    rconPort: 25575,
+    rconPassword: 'test',
+    serverLogPath: 'test.log',
+    filter: '(?:\\[Bot server\\]:|DedicatedServer\\/]:)\\s?(.*)',
 };
 
 describe('MinecraftChatSource', () => {
@@ -38,13 +41,13 @@ describe('MinecraftChatSource', () => {
 
     test('Test 1: No response is sent for non-matching log line', async () => {
         const nonMatchingLine = 'Hi testBot';
-        await chatSource.processLine(nonMatchingLine)
+        await chatSource.processLine(nonMatchingLine);
         expect(Rcon.connect).not.toHaveBeenCalled();
     });
 
     test('Test 2: Response is sent for matching log line', async () => {
         const matchingLine = 'DedicatedServer/]: Hi testBot';
-        await chatSource.processLine(matchingLine)
+        await chatSource.processLine(matchingLine);
 
         expect(Rcon.connect).toHaveBeenCalled();
     });
