@@ -48,7 +48,7 @@
         "rconPort": 25575,
         "rconPassword": "YOUR_RCON_PASSWORD_HERE", // you set this in server.properties
         "serverLogPath": "/home/minecraft/server/logs/latest.log",
-        "regexPattern": "(?:DedicatedServer\\/]:\\s|\\[Bot server]:\\s)(.*)" // regexp for the chat messages you want to respond to.
+        "filter": "(?:DedicatedServer\\/]:\\s|\\[Bot server]:\\s)(.*)" // regexp for the chat messages that should be visible to the bot
       }
     },
     {

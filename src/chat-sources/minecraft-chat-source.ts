@@ -7,7 +7,7 @@ import { CappedArray } from '../util/capped-array';
 
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
-    private readonly minecraftLogRegExp: RegExp;
+    private readonly filter = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;
     private readonly chatHistory: CappedArray<string>;
 
     constructor(
@@ -26,11 +26,9 @@ export class MinecraftChatSource extends ChatSource {
 
         // This regexp is used to filter the messages in the server log to only the ones we care about.
         // And also to strip out timestamp and other boilerplate.
-        const defaultRegexPattern = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;
-        const regexPatternToUse = (this.typeSpecificConfig.regexPattern as string)
-            ? this.typeSpecificConfig.regexPattern
-            : defaultRegexPattern;
-        this.minecraftLogRegExp = new RegExp(regexPatternToUse);
+        if (this.typeSpecificConfig.filter) {
+            this.filter = new RegExp(this.typeSpecificConfig.filter);
+        }
     }
 
     start(): void {
@@ -47,7 +45,7 @@ export class MinecraftChatSource extends ChatSource {
     }
 
     async processLine(line: string) {
-        const strmatch = line.match(this.minecraftLogRegExp);
+        const strmatch = line.match(this.filter);
         if (!strmatch) {
             // this is a log message that we don't care about
             return;

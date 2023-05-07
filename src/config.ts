@@ -51,7 +51,7 @@ export interface MinecraftChatSourceConfig {
     rconPort: number;
     rconPassword: string;
     serverLogPath: string;
-    regexPattern: string;
+    filter: string;
 }
 
 export function parseConfig(configFilePath: string): Config {
