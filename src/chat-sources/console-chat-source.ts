@@ -1,5 +1,5 @@
-import {ChatSource} from "./chat-source";
-import {CappedArray} from "../util/capped-array";
+import { ChatSource } from './chat-source';
+import { CappedArray } from '../util/capped-array';
 
 export class ConsoleChatSource extends ChatSource {
     private readonly chatHistory: CappedArray<string>;
@@ -19,15 +19,19 @@ export class ConsoleChatSource extends ChatSource {
         stdin.addListener('data', async (incomingMessage) => {
             // for some reason incomingMessage is a character buffer or something like that,
             // so we convert it to string before sending it to the bot
-            const incomingMessageAsTrimmedString = ("" + incomingMessage).trim();
-            const messagesToAddToChatHistory : string[] = ["User: " + incomingMessageAsTrimmedString];
+            const incomingMessageAsTrimmedString = ('' + incomingMessage).trim();
+            const messagesToAddToChatHistory: string[] = ['User: ' + incomingMessageAsTrimmedString];
 
             // send the message to each bot, and then each bot decides whether or not to respond
             // for example depending on if the message contains the bot's name.
             for (const bot of this.bots) {
-                const responseMessage = await bot.generateResponse(this.defaultSocialContext as string, incomingMessageAsTrimmedString, this.chatHistory.getAll());
+                const responseMessage = await bot.generateResponse(
+                    this.defaultSocialContext as string,
+                    incomingMessageAsTrimmedString,
+                    this.chatHistory.getAll(),
+                );
                 if (responseMessage) {
-                    messagesToAddToChatHistory.push(bot.getName() + ": " + responseMessage);
+                    messagesToAddToChatHistory.push(bot.getName() + ': ' + responseMessage);
                     console.log(`[${this.defaultSocialContext as string}] ${bot.getName()}: ${responseMessage}`);
                 }
             }

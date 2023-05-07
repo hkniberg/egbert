@@ -1,22 +1,23 @@
-import {ChatSource} from "./chat-source";
-import {Client, Events, GatewayIntentBits, Message, TextChannel} from 'discord.js';
-import {splitStringAtNewline} from "../util/utils";
-import {DiscordChatSourceConfig} from "../config";
-import {Bot} from "../bot";
+import { ChatSource } from './chat-source';
+import { Client, Events, GatewayIntentBits, Message, TextChannel } from 'discord.js';
+import { splitStringAtNewline } from '../util/utils';
+import { DiscordChatSourceConfig } from '../config';
+import { Bot } from '../bot';
 
 export class DiscordChatSource extends ChatSource {
     private readonly typeSpecificConfig: DiscordChatSourceConfig;
     private discordServerToSocialContextMap: Map<string, string> = new Map();
-    private discordClient : Client;
+    private discordClient: Client;
 
-    constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number, typeSpecificConfig: DiscordChatSourceConfig) {
+    constructor(
+        name: string,
+        defaultSocialContext: string | null,
+        maxChatHistoryLength: number,
+        typeSpecificConfig: DiscordChatSourceConfig,
+    ) {
         super(name, defaultSocialContext, maxChatHistoryLength);
         this.discordClient = new Client({
-            intents: [
-                GatewayIntentBits.Guilds,
-                GatewayIntentBits.GuildMessages,
-                GatewayIntentBits.MessageContent,
-            ],
+            intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
         });
         this.typeSpecificConfig = typeSpecificConfig;
         if (typeSpecificConfig.discordServers) {
@@ -28,7 +29,7 @@ export class DiscordChatSource extends ChatSource {
         console.log('Discord chat source created: ', this.name);
     }
 
-    getSocialContexts() : string[] {
+    getSocialContexts(): string[] {
         if (this.defaultSocialContext) {
             return [this.defaultSocialContext, ...this.discordServerToSocialContextMap.values()];
         } else {
@@ -59,14 +60,16 @@ export class DiscordChatSource extends ChatSource {
             }
 
             if (!socialContextToUse || socialContextToUse.trim().length == 0) {
-                console.log(`Received a message on discord server ${discordMessage.guild?.name} but no social context is configured for that server, and we have no default social context, so we will ignore the message.`);
+                console.log(
+                    `Received a message on discord server ${discordMessage.guild?.name} but no social context is configured for that server, and we have no default social context, so we will ignore the message.`,
+                );
                 return;
             }
 
-            const respondingBots : Bot[] = this.getRespondingBots(socialContextToUse, discordMessage)
+            const respondingBots: Bot[] = this.getRespondingBots(socialContextToUse, discordMessage);
             if (respondingBots.length === 0) {
                 // early out so we don't waste time reading the chat history when we aren't going to respond anyway
-                console.log("No bots want to respond to this message");
+                console.log('No bots want to respond to this message');
                 return;
             }
             let chatHistory = await this.loadDiscordChatHistory(discordMessage);
@@ -84,8 +87,8 @@ export class DiscordChatSource extends ChatSource {
 
     private getRespondingBots(socialContext: string, discordMessage: Message) {
         return this.bots
-            .filter(bot => bot.willRespond(socialContext, discordMessage.content))
-            .filter(bot => !this.isMessageFromBot(discordMessage, bot));
+            .filter((bot) => bot.willRespond(socialContext, discordMessage.content))
+            .filter((bot) => !this.isMessageFromBot(discordMessage, bot));
     }
 
     /**
@@ -105,7 +108,7 @@ export class DiscordChatSource extends ChatSource {
             };
             const messages = await channel.messages.fetch(options);
             return Array.from(messages.values())
-                .map(message => `${message.author.username}: ${message.content}`)
+                .map((message) => `${message.author.username}: ${message.content}`)
                 .reverse(); // discord responds with newest messages first, but we want oldest first
         } else {
             return [];
@@ -117,7 +120,7 @@ export class DiscordChatSource extends ChatSource {
     }
 }
 
-async function sendDiscordResponse(discordMessage : Message, responseMessage: string) {
+async function sendDiscordResponse(discordMessage: Message, responseMessage: string) {
     console.log(`Sending response to discord: ${responseMessage}`);
     const DISCORD_MESSAGE_MAX_LENGTH = 2000;
     const replyChunks = splitStringAtNewline(responseMessage, DISCORD_MESSAGE_MAX_LENGTH);
@@ -126,5 +129,3 @@ async function sendDiscordResponse(discordMessage : Message, responseMessage: st
         await discordMessage.reply(replyChunk);
     }
 }
-
-

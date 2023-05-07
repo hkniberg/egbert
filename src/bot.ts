@@ -1,17 +1,23 @@
-import {ResponseGenerator} from "./response-generators/response-generator";
-import {loadMemories} from "./memory";
-import {saveMemory} from "./memory";
+import { ResponseGenerator } from './response-generators/response-generator';
+import { loadMemories } from './memory';
+import { saveMemory } from './memory';
 
-const REMEMBER_KEYWORD = "remember:"; // config param perhaps?
+const REMEMBER_KEYWORD = 'remember:'; // config param perhaps?
 
 export class Bot {
-    private readonly name : string;
-    private readonly personality : string;
+    private readonly name: string;
+    private readonly personality: string;
     private readonly memoriesFolder: string | null;
-    private readonly socialContexts : Array<string>;
-    private readonly responseGenerator : ResponseGenerator;
+    private readonly socialContexts: Array<string>;
+    private readonly responseGenerator: ResponseGenerator;
 
-    constructor(name : string, personality : string, memoriesFolder : string | null, socialContexts : Array<string>, responseGenerator : ResponseGenerator) {
+    constructor(
+        name: string,
+        personality: string,
+        memoriesFolder: string | null,
+        socialContexts: Array<string>,
+        responseGenerator: ResponseGenerator,
+    ) {
         this.name = name;
         this.personality = personality;
         this.memoriesFolder = memoriesFolder ? memoriesFolder : 'memories';
@@ -23,11 +29,15 @@ export class Bot {
         return this.name;
     }
 
-    public willRespond(socialContext : string, incomingMessage: string) : boolean {
+    public willRespond(socialContext: string, incomingMessage: string): boolean {
         return contains(incomingMessage, this.name) && this.isMemberOfSocialContext(socialContext);
     }
 
-    public async generateResponse(socialContext : string, incomingMessage: string, chatHistory: string[]) : Promise<string | null> {
+    public async generateResponse(
+        socialContext: string,
+        incomingMessage: string,
+        chatHistory: string[],
+    ): Promise<string | null> {
         if (!this.willRespond(socialContext, incomingMessage)) {
             return null;
         }
@@ -35,9 +45,17 @@ export class Bot {
         this.maybeSaveMemory(incomingMessage, socialContext);
 
         let memories = await loadMemories(this.name, socialContext, this.memoriesFolder);
-        console.log(`   ${this.name} has ${memories.length} memories, and a chat history of length ${chatHistory?.length}`)
-        let response = await this.responseGenerator.generateResponse(incomingMessage, this.name, this.personality, memories, chatHistory);
-        console.log(`   ${this.name} will respond: ${response}`)
+        console.log(
+            `   ${this.name} has ${memories.length} memories, and a chat history of length ${chatHistory?.length}`,
+        );
+        let response = await this.responseGenerator.generateResponse(
+            incomingMessage,
+            this.name,
+            this.personality,
+            memories,
+            chatHistory,
+        );
+        console.log(`   ${this.name} will respond: ${response}`);
         return response;
     }
 

@@ -1,5 +1,5 @@
-import {Bot} from "../bot";
-import {noEmptyString} from "../util/utils";
+import { Bot } from '../bot';
+import { noEmptyString } from '../util/utils';
 
 /**
  * A ChatSource is a source of chat messages. For example Discord server, a Minecraft server, or a console.
@@ -20,7 +20,7 @@ export abstract class ChatSource {
         this.maxChatHistoryLength = maxChatHistoryLength;
     }
 
-    abstract start() : void;
+    abstract start(): void;
 
     getDefaultSocialContext(): string | null {
         return this.defaultSocialContext;
@@ -34,7 +34,7 @@ export abstract class ChatSource {
         return this.name;
     }
 
-    getSocialContexts() : string[] {
+    getSocialContexts(): string[] {
         return this.defaultSocialContext ? [this.defaultSocialContext] : [];
     }
 }
