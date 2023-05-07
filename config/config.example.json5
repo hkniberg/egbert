@@ -68,6 +68,14 @@
           },
         ]
       }
+    },
+    {
+      "name": "telegram",
+      "type": "telegram", 
+      "defaultSocialContext": "friends",
+      "typeSpecificConfig": {
+         "botToken": "YOUR_BOT_TOKEN_HERE", // Get your API token for telegram by talking to @botfather at Telegram. :)
+      }
     }
   ]
 }
