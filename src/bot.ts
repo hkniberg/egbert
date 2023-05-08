@@ -127,8 +127,11 @@ function doesTriggerApply(trigger: BotTrigger, socialContext: string, message: s
     if (trigger.socialContext && trigger.socialContext !== socialContext) {
         return false;
     }
-    if (Math.random() > trigger.probability) {
-        console.log(`Randomly ignoring this message (probability of response is ${trigger.probability})`);
+    const randomNumber = Math.random();
+    if (randomNumber > trigger.probability) {
+        console.log(
+            `Randomly ignoring this message (probability of response is ${trigger.probability}, I rolled a ${randomNumber})`,
+        );
         return false;
     }
     return trigger.pattern.test(message);
