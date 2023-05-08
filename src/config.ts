@@ -14,6 +14,13 @@ export interface BotConfig {
     responseGenerator: string;
     personality: string;
     socialContexts: Array<string>;
+    triggers: Array<BotTriggerConfig>;
+}
+
+export interface BotTriggerConfig {
+    pattern: string;
+    socialContext?: string;
+    probability?: number;
 }
 
 export interface OpenAiResponseGeneratorConfig {

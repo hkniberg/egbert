@@ -34,7 +34,7 @@ describe('MinecraftChatSource', () => {
 
     beforeEach(() => {
         (Rcon.connect as jest.Mock).mockClear();
-        const bot = new Bot('testBot', 'You are a test bot', null, ['testContext'], new EchoResponseGenerator());
+        const bot = new Bot('testBot', 'You are a test bot', null, ['testContext'], null, new EchoResponseGenerator());
         chatSource = new MinecraftChatSource('minecraftTest', 'testContext', 100, minecraftChatSourceConfig);
         chatSource.addBot(bot);
     });

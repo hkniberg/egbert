@@ -2,6 +2,7 @@
   "bots": [
     {
       "name": "egbert",
+      // the personality is included in the beginning of each prompt to GPT
       "personality": "You are Egbert, a sarcastic and witty bot that never gives a straight answer",
       "responseGenerator": "gpt",
       "socialContexts": ["friends", "family"]
@@ -10,7 +11,19 @@
       "name": "sherlock",
       "personality": "You are Sherlock, a detective bot that is very good a solving mysteries.",
       "responseGenerator": "gpt",
-      "socialContexts": ["friends"]
+      "socialContexts": ["friends"],
+      "triggers": [
+        // triggers are optional. They define what the bot responds to.
+        // If you don't provide triggers, it will by default trigger on the bot's name.
+        {
+          "pattern": "clue", // regexp defining which messages the bot responds to
+          "socialContext": "friends", // optionally limit the trigger to one social context
+          "probability": 0.5 // optionally set a probability of responding. 1.0 by default.
+        },
+        {
+          "pattern": "murder" // sherlock always responds to 'murder', regardless of social context
+        }
+      ]
     }
   ],
   /**
@@ -54,6 +67,7 @@
     {
       "name": "discord",
       "type": "discord", // this means it will connect to discord, listen for messages and respond when the bot name is mentioned.
+      // no defaultSocialContext here, since we map each discord server to a social context below.
       "typeSpecificConfig": {
         "botToken": "YOUR_BOT_TOKEN_HERE", // https://discord.com/developers/applications
         // since the bot logs in to ALL discord servers it has access to, we need to set which server is associated with which social context.
@@ -69,7 +83,7 @@
         ]
       }
     },
-    
+
     /*
       For the bot to work in Telegram groups, it needs to be promoted to an admin.
       If you don't want to do that, you can still talk to it in 1:1 mode.
@@ -78,7 +92,7 @@
     */
     {
       "name": "telegram",
-      "type": "telegram", 
+      "type": "telegram",
       "defaultSocialContext": "friends",
       "typeSpecificConfig": {
          "botToken": "YOUR_BOT_TOKEN_HERE",

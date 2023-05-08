@@ -1,8 +1,17 @@
 import { ResponseGenerator } from './response-generators/response-generator';
 import { loadMemories } from './memory';
 import { saveMemory } from './memory';
+import { BotTriggerConfig } from './config';
 
 const REMEMBER_KEYWORD = 'remember:'; // config param perhaps?
+
+// Used to define which types of messages the bot will respond to,
+// and the probability of responding.
+interface BotTrigger {
+    pattern: RegExp;
+    socialContext?: string; // optionally we could limit respones to one social context
+    probability: number;
+}
 
 export class Bot {
     private readonly name: string;
@@ -10,18 +19,33 @@ export class Bot {
     private readonly memoriesFolder: string | null;
     private readonly socialContexts: Array<string>;
     private readonly responseGenerator: ResponseGenerator;
+    private readonly botTriggers: Array<BotTrigger>;
 
     constructor(
         name: string,
         personality: string,
         memoriesFolder: string | null,
         socialContexts: Array<string>,
+        botTriggerConfigs: Array<BotTriggerConfig> | null,
         responseGenerator: ResponseGenerator,
     ) {
         this.name = name;
         this.personality = personality;
         this.memoriesFolder = memoriesFolder ? memoriesFolder : 'memories';
         this.socialContexts = socialContexts;
+
+        if (botTriggerConfigs && botTriggerConfigs.length > 0) {
+            this.botTriggers = botTriggerConfigs.map(createBotTrigger);
+        } else {
+            // No bot triggers were given, so make a default trigger that matches the bot name
+            this.botTriggers = [
+                {
+                    pattern: new RegExp(`\\b${this.name}\\b`, 'i'),
+                    probability: 1.0,
+                },
+            ];
+        }
+
         this.responseGenerator = responseGenerator;
     }
 
@@ -29,8 +53,12 @@ export class Bot {
         return this.name;
     }
 
+    /**
+     * Checks all bot triggers to see if any will respond to the given message & socialContext.
+     * Takes probability into account.
+     */
     public willRespond(socialContext: string, incomingMessage: string): boolean {
-        return contains(incomingMessage, this.name) && this.isMemberOfSocialContext(socialContext);
+        return this.botTriggers.some((botTrigger) => doesTriggerApply(botTrigger, socialContext, incomingMessage));
     }
 
     public async generateResponse(
@@ -83,6 +111,25 @@ export class Bot {
     }
 }
 
-function contains(outerString: string, innerString: string) {
-    return outerString.toLowerCase().includes(innerString.toLowerCase());
+function createBotTrigger(botTriggerConfig: BotTriggerConfig) {
+    return {
+        pattern: new RegExp(botTriggerConfig.pattern, 'i'),
+        socialContext: botTriggerConfig.socialContext,
+        probability: botTriggerConfig.probability ? botTriggerConfig.probability : 1,
+    };
+}
+
+/**
+ * Checks if the given bot trigger will respond to the given message in the given social context.
+ * Also takes probability into account.
+ */
+function doesTriggerApply(trigger: BotTrigger, socialContext: string, message: string) {
+    if (trigger.socialContext && trigger.socialContext !== socialContext) {
+        return false;
+    }
+    if (Math.random() > trigger.probability) {
+        console.log(`Randomly ignoring this message (probability of response is ${trigger.probability})`);
+        return false;
+    }
+    return trigger.pattern.test(message);
 }

@@ -21,6 +21,7 @@ for (const botConfig of config.bots) {
         botConfig.personality,
         config.memoriesFolder as string,
         botConfig.socialContexts,
+        botConfig.triggers,
         responseGenerator,
     );
     console.log(`Created bot '${bot.getName()}'`);
