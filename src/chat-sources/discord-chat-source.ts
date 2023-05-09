@@ -65,7 +65,7 @@ export class DiscordChatSource extends ChatSource {
             const incomingMessage = discordMessage.content;
             console.log(`Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${incomingMessage}`);
 
-            const messageToSend = `${discordMessage.author.username}: ${incomingMessage}}`;
+            const messageToSend = `${discordMessage.author.username}: ${incomingMessage}`;
 
             // check which discord server this message came from, and use the corresponding social context
             let socialContextToUse = this.defaultSocialContext;
