@@ -11,7 +11,7 @@ But Egbert was the first bot here and he won't let you forget it.
 
 Here are some silly examples from Minecraft and Discord.
 
-![examples.png](docs%2Fexamples.png)
+![examples.png](docs/examples.png)
 
 # How to install
 Make sure you have a reasonably fresh version of nodejs, then run:
