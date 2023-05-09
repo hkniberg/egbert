@@ -1,4 +1,10 @@
 {
+  /** 
+    * A bot is a chat agent with an optional personality.
+    * It needs to belong to one or more social contexts where it reacts and responts to 
+    * messages in any associated chat sources.
+    * If it is triggered to make a response it will use a response generator.
+   */
   "bots": [
     {
       "name": "egbert",
@@ -9,7 +15,7 @@
     },
     {
       "name": "sherlock",
-      "personality": "You are Sherlock, a detective bot that is very good a solving mysteries.",
+      "personality": "You are Sherlock, a detective bot that is very good at solving mysteries.",
       "responseGenerator": "gpt",
       "socialContexts": ["friends"],
       "triggers": [
@@ -26,9 +32,10 @@
       ]
     }
   ],
+
   /**
     * A response generator is something that receives messages and generates a response.
-    */
+  */
   "responseGenerators": [
     {
       "name": "gpt",
@@ -41,10 +48,10 @@
     }
   ],
 
-  /*
-     A chat source is something that connects to a server, listens for messages,
-     asks the bot to generate a response, and sends it back.
-     All bots in the same social context are given a chance to generate a response.
+  /**
+    * A chat source is something that connects to a server, listens for messages,
+    * asks the bot to generate a response, and sends it back.
+    * All bots in the same social context are given a chance to generate a response.
   */
   "chatSources": [
     {
@@ -52,6 +59,7 @@
       "type": "console", // this means you can type messages in the console and get chat responses. Useful for testing.
       "defaultSocialContext": "friends"
     },
+
     {
       "name": "minecraftFamilyServer",
       "type": "minecraft", // this means it will listen for messages on a minecraft server and respond using RCON and /tellraw
@@ -64,6 +72,7 @@
         "filter": "(?:DedicatedServer\\/]:\\s|\\[Bot server]:\\s)(.*)" // regexp for the chat messages that should be visible to the bot
       }
     },
+
     {
       "name": "discord",
       "type": "discord", // this means it will connect to discord, listen for messages and respond when the bot name is mentioned.
