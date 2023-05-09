@@ -84,7 +84,7 @@ export class DiscordChatSource extends ChatSource {
             }
 
             if (this.ignoreMessagesFrom.includes(discordMessage.author.username.toLowerCase())) {
-                console.log(`Ignoring message because it is from '${discordMessage.author.username}`);
+                console.log(`Ignoring message because it is from '${discordMessage.author.username}'`);
                 return;
             }
 
