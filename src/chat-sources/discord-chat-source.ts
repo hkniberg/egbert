@@ -8,6 +8,7 @@ export class DiscordChatSource extends ChatSource {
     private readonly typeSpecificConfig: DiscordChatSourceConfig;
     private discordServerToSocialContextMap: Map<string, string> = new Map();
     private discordClient: Client;
+    private ignoreMessagesFrom: string[] = [];
 
     constructor(
         name: string,
@@ -30,6 +31,9 @@ export class DiscordChatSource extends ChatSource {
     }
 
     addBot(bot: Bot) {
+        // we don't want to respond to other bots, since that can lead to infinite chat loops
+        this.ignoreMessagesFrom.push(bot.getName().toLowerCase());
+
         if (bot.getName() == this.typeSpecificConfig.bot) {
             super.addBot(bot);
         }
@@ -79,8 +83,8 @@ export class DiscordChatSource extends ChatSource {
                 return;
             }
 
-            if (discordMessage.author.username.toLowerCase() === bot.getName().toLowerCase()) {
-                console.log(`Ignoring message from myself`);
+            if (this.ignoreMessagesFrom.includes(discordMessage.author.username.toLowerCase())) {
+                console.log(`Ignoring message because it is from '${discordMessage.author.username}`);
                 return;
             }
 
