@@ -1,7 +1,7 @@
 {
-  /** 
+  /**
     * A bot is a chat agent with an optional personality.
-    * It needs to belong to one or more social contexts where it reacts and responts to 
+    * It needs to belong to one or more social contexts where it reacts and responts to
     * messages in any associated chat sources.
     * If it is triggered to make a response it will use a response generator.
    */
@@ -79,7 +79,10 @@
       // no defaultSocialContext here, since we map each discord server to a social context below.
       "typeSpecificConfig": {
         "botToken": "YOUR_BOT_TOKEN_HERE", // https://discord.com/developers/applications
-        // since the bot logs in to ALL discord servers it has access to, we need to set which server is associated with which social context.
+        "bot": "egbert",
+        // each discord connection will only talk to one bot, the bot associated with the discord botToken.
+        // Discord will login that bot on ALL discord servers it has access to,
+        // so we need to set which server is associated with which social context.
         "discordServers": [
           {
             serverName: "Johnson Friends",

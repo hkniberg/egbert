@@ -45,6 +45,7 @@ export interface ChatSourceConfig {
 
 export interface DiscordChatSourceConfig {
     botToken: string;
+    bot: string;
     discordServers?: Array<DiscordServerConfig>;
 }
 

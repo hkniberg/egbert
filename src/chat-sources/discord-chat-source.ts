@@ -29,6 +29,12 @@ export class DiscordChatSource extends ChatSource {
         console.log('Discord chat source created: ', this.name);
     }
 
+    addBot(bot: Bot) {
+        if (bot.getName() == this.typeSpecificConfig.bot) {
+            super.addBot(bot);
+        }
+    }
+
     getSocialContexts(): string[] {
         if (this.defaultSocialContext) {
             return [this.defaultSocialContext, ...this.discordServerToSocialContextMap.values()];
@@ -38,6 +44,13 @@ export class DiscordChatSource extends ChatSource {
     }
 
     start(): void {
+        // A discord chat source is directly associated with a single bot (since we connect to the discord API using a bot token).
+        // That is set in the type-specific config. Here we verify that the bot was actually added to the chat source.
+        const bot = this.bots.find((bot) => bot.getName() == this.typeSpecificConfig.bot);
+        if (!bot) {
+            throw new Error(`Bot '${this.typeSpecificConfig.bot}' not found for discord chat source ${this.name}`);
+        }
+
         this.discordClient.login(this.typeSpecificConfig.botToken);
 
         this.discordClient.once(Events.ClientReady, (client) => {
@@ -46,7 +59,7 @@ export class DiscordChatSource extends ChatSource {
 
         this.discordClient.on(Events.MessageCreate, async (discordMessage: Message) => {
             const incomingMessage = discordMessage.content;
-            console.log(`Received message ${incomingMessage} from server ${discordMessage.guild?.name}`);
+            console.log(`Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${incomingMessage}`);
 
             const messageToSend = `${discordMessage.author.username}: ${incomingMessage}}`;
 
@@ -66,29 +79,25 @@ export class DiscordChatSource extends ChatSource {
                 return;
             }
 
-            const respondingBots: Bot[] = this.getRespondingBots(socialContextToUse, discordMessage);
-            if (respondingBots.length === 0) {
-                // early out so we don't waste time reading the chat history when we aren't going to respond anyway
-                console.log('No bots want to respond to this message');
+            if (discordMessage.author.username.toLowerCase() === bot.getName().toLowerCase()) {
+                console.log(`Ignoring message from myself`);
                 return;
             }
-            let chatHistory = await this.loadDiscordChatHistory(discordMessage);
 
-            for (const bot of respondingBots) {
-                const responseMessage = await bot.generateResponse(socialContextToUse, messageToSend, chatHistory);
-                if (responseMessage) {
-                    // technically we could skip await and do these in paralell, but for now I'm choosing the path of least risk
-                    await sendDiscordResponse(discordMessage, responseMessage);
-                }
+            if (!bot.willRespond(socialContextToUse, discordMessage.content)) {
+                // early out so we don't waste time reading the chat history when we aren't going to respond anyway
+                console.log(`${bot.getName()} does not want to respond to this message`);
+                return;
+            }
+
+            let chatHistory = await this.loadDiscordChatHistory(discordMessage);
+            const responseMessage = await bot.generateResponse(socialContextToUse, messageToSend, chatHistory);
+            if (responseMessage) {
+                // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
+                await sendDiscordResponse(discordMessage, responseMessage);
             }
         });
         console.log('Discord chat source started: ', this.name);
-    }
-
-    private getRespondingBots(socialContext: string, discordMessage: Message) {
-        return this.bots
-            .filter((bot) => bot.willRespond(socialContext, discordMessage.content))
-            .filter((bot) => !this.isMessageFromBot(discordMessage, bot));
     }
 
     /**
@@ -115,9 +124,6 @@ export class DiscordChatSource extends ChatSource {
         }
     }
 
-    private isMessageFromBot(discordMessage: Message, bot: Bot) {
-        return discordMessage.author.username.toLowerCase() === bot.getName().toLowerCase();
-    }
 }
 
 async function sendDiscordResponse(discordMessage: Message, responseMessage: string) {
