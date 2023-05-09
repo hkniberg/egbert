@@ -28,7 +28,8 @@
     "ts-node": "^10.9.1"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
+    "watch": "npx tsc -w",
     "start": "npx ts-node src/main.ts",
     "test": "jest",
     "prettier": "prettier --check src",

@@ -34,3 +34,7 @@ That's a typescript file, but the module ts-node will (hopefully) magically auto
 By default it will load `config/config.json5` (which you need to create, see above).
 You can specify a different config file to use, for example:
 - `npm start config/config.example.simple.json5`
+
+# Development tips
+
+- `npm run watch` will run the typescript compiler in watch mode, so it will auto-recompile when you change a file.
