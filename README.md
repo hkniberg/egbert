@@ -1,12 +1,17 @@
 # Egbert
 A sarcastic gpt-based chat bot. 
 
-Actually no, its a platform where you can define your own gpt-based bots, give them memories, and have them
-talk on Discord and Minecraft and (hopefully in the future) other platforms.
+Actually no, its a platform where you can define your own gpt-based bots,
+give them personalities and memories,
+and have them talk on Discord, Minecraft, and places.
 
 But Egbert was the first bot here and he won't let you forget it.
 
 ![](docs/egbert.png)
+
+Here are some silly examples from Minecraft and Discord.
+
+![examples.png](docs%2Fexamples.png)
 
 # How to install
 Make sure you have a reasonably fresh version of nodejs, then run:
