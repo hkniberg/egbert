@@ -1,11 +1,12 @@
 import { ChatSource } from './chat-source';
-import { Message } from 'node-telegram-bot-api';
+import { Context, Telegraf } from 'telegraf';
+import { Update } from 'typegram';
 import { Bot } from '../bot';
 import { TelegramChatSourceConfig } from '../config';
 
 export class TelegramChatSource extends ChatSource {
     private readonly typeSpecificConfig: TelegramChatSourceConfig;
-    private telegramClient: any;
+    private telegramClient: Telegraf<Context<Update>>;
     constructor(
         name: string,
         defaultSocialContext: string | null,
@@ -15,25 +16,24 @@ export class TelegramChatSource extends ChatSource {
         super(name, defaultSocialContext, maxChatHistoryLength);
         this.typeSpecificConfig = typeSpecificConfig;
 
-        const TelegramBot = require('node-telegram-bot-api');
-        this.telegramClient = new TelegramBot(this.typeSpecificConfig.botToken, { polling: true });
+        this.telegramClient = new Telegraf(this.typeSpecificConfig.botToken);
 
         console.log('Telegram chat source created: ', this.name);
     }
 
     start(): void {
-        this.telegramClient.on('message', async (msg: Message) => {
-            const incomingMessage = msg.text;
-            console.log(`Received message ${incomingMessage} from user ${msg.from?.username}`);
+        this.telegramClient.on('text', async (ctx) => {
+            const incomingMessage = ctx.message.text;
+            console.log(`Received message ${incomingMessage} from user ${ctx.from?.first_name}`);
 
-            const messageToSend = `${msg.from?.username}: ${incomingMessage}`;
+            const messageToSend = `${ctx.from?.first_name}: ${incomingMessage}`;
 
             if (!this.defaultSocialContext) {
                 console.log('No default social context configured, so we will ignore the message.');
                 return;
             }
 
-            const respondingBots: Bot[] = this.getRespondingBots(this.defaultSocialContext, msg);
+            const respondingBots: Bot[] = this.getRespondingBots(this.defaultSocialContext, incomingMessage);
             if (respondingBots.length === 0) {
                 console.log('No bots want to respond to this message');
                 return;
@@ -42,24 +42,25 @@ export class TelegramChatSource extends ChatSource {
             for (const bot of respondingBots) {
                 const responseMessage = await bot.generateResponse(this.defaultSocialContext, messageToSend, []);
                 if (responseMessage) {
-                    await this.sendTelegramResponse(msg, responseMessage);
+                    await this.sendTelegramResponse(ctx, responseMessage);
                 }
             }
         });
+        this.telegramClient.launch();
         console.log('Telegram chat source started: ', this.name);
     }
 
-    private getRespondingBots(socialContext: string, msg: Message) {
-        return this.bots.filter((bot) => bot.willRespond(socialContext, msg.text || ''));
+    private getRespondingBots(socialContext: string, msg: string) {
+        return this.bots.filter((bot) => bot.willRespond(socialContext, msg || ''));
     }
 
-    private async sendTelegramResponse(msg: Message, responseMessage: string) {
+    private async sendTelegramResponse(ctx: Context, responseMessage: string) {
         console.log(`Sending response to telegram: ${responseMessage}`);
         const TELEGRAM_MESSAGE_MAX_LENGTH = 4096;
         const replyChunks = this.splitStringAtNewline(responseMessage, TELEGRAM_MESSAGE_MAX_LENGTH);
         for (let replyChunk of replyChunks) {
             if (replyChunk.length === 0) continue;
-            await this.telegramClient.sendMessage(msg.chat.id, replyChunk);
+            await ctx.reply(replyChunk);
         }
     }
 

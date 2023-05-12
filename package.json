@@ -10,6 +10,8 @@
     "path": "^0.12.7",
     "rcon-client": "^4.2.3",
     "tail": "^2.2.6",
+    "telegraf": "^4.12.2",
+    "typegram": "^5.0.0",
     "typescript": "^5.0.4"
   },
   "description": "An ironic gpt-based chatbot",
