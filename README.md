@@ -25,23 +25,14 @@ You can check that it works by running a sample configuration that just has a co
 
 Then, in the console, type `hello echobot` and it should reply.
 
+# How to create bot that uses GPT
 
-# Other notes
-## How to configure
+- Get an OpenAI API key at `https://platform.openai.com/account/api-keys`
+  If you don't already have an OpenAI account you will need to create one.
+- Copy 'config/examples/config.echobot.json5' to 'config/config.json5'
+- Replace `YOUR_API_KEY_HERE` with your OpenAI API key.
+- Run it! `npm start` (it uses config/config.json5 by default, but you can specify another file like above)
 
-To get something up and running immediately, you can copy the echobot config:
-- Copy `config/examples/config.echobot.json5` to `config.json5`, and edit it to your liking.
-
-## How to run
-- `npm start`
-
-This will run `src/main.ts`
-That's a typescript file, but the module ts-node will (hopefully) magically auto-compile it to javascript on the fly.
-
-By default it will load `config/config.json5` (which you need to create, see above).
-You can specify a different config file to use, for example:
-- `npm start config/config.example.simple.json5`
-
-## Development tips
+# Development tips
 
 - `npm run watch` will run the typescript compiler in watch mode, so it will auto-recompile when you change a file.
