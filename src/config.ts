@@ -66,6 +66,13 @@ export interface TelegramChatSourceConfig {
     botToken: string;
 }
 
+export interface SlackChatSourceConfig {
+    botToken: string;
+    bot: string;
+    signingSecret: string;
+    appToken: string;
+}
+
 export function parseConfig(configFilePath: string): Config {
     const configFilePathRelativeToCurrentWorkingDir = path.resolve(process.cwd(), configFilePath);
     const configJson = fs.readFileSync(configFilePathRelativeToCurrentWorkingDir, 'utf-8');
