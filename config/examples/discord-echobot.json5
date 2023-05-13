@@ -19,16 +19,19 @@
     {
       "name": "discord",
       "type": "discord",
-      
+      "defaultSocialContext": "friends",
       "typeSpecificConfig": {
         "botToken": "YOUR_BOT_TOKEN_HERE", // https://discord.com/developers/applications
-        "bot": "egbert",
+        "bot": "echobot",
+        /*
+        Optionally, you can define a separate social context for each discord server this bot connects to.
         "discordServers": [
           {
             serverName: "YOUR_DISCORD_SERVER_NAME_HERE",
             socialContext: "friends"
           },
         ]
+        */
       }
     }
   ]
