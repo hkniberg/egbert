@@ -63,7 +63,9 @@ export class DiscordChatSource extends ChatSource {
 
         this.discordClient.on(Events.MessageCreate, async (discordMessage: Message) => {
             const incomingMessage = discordMessage.content;
-            console.log(`Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${incomingMessage}`);
+            console.log(
+                `Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${incomingMessage}`,
+            );
 
             const messageToSend = `${discordMessage.author.username}: ${incomingMessage}`;
 
@@ -127,7 +129,6 @@ export class DiscordChatSource extends ChatSource {
             return [];
         }
     }
-
 }
 
 async function sendDiscordResponse(discordMessage: Message, responseMessage: string) {
