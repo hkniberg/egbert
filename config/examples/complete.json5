@@ -1,5 +1,8 @@
 {
   /**
+    * This sample config demonstrates just about everything you can do, and includes explanations.
+    * It kind of works like a reference.
+    *
     * A bot is a chat agent with an optional personality.
     * It needs to belong to one or more social contexts where it reacts and responts to
     * messages in any associated chat sources.
