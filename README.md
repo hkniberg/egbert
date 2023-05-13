@@ -25,7 +25,7 @@ You can check that it works by running a sample configuration that just has a co
 
 Then, in the console, type `hello echobot` and it should reply.
 
-# How to create bot that uses GPTd
+# How to create bot that uses GPT
 
 - Get an OpenAI API key at `https://platform.openai.com/account/api-keys`
   If you don't already have an OpenAI account you will need to create one.
