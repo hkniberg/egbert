@@ -1,0 +1,39 @@
+{
+  /**
+    * This config file connects OpenAI with the console, so you can type stuff and get snarky
+    * responses from egbert via GPT.
+    *
+    * A bot is a chat agent with an optional personality.
+    * It needs to belong to one or more social contexts where it reacts and responts to
+    * messages in any associated chat sources.
+    * If it is triggered to make a response it will use a response generator.
+   */
+  "bots": [
+    {
+      "name": "egbert",
+      "personality": "You are Egbert, a sarcastic and witty bot that never gives a straight answer",
+      "responseGenerator": "gpt",
+      "socialContexts": ["friends"]
+    },
+  ],
+
+  "responseGenerators": [
+    {
+      "name": "gpt",
+      "type": "openai",
+      "typeSpecificConfig": {
+        "apiKey": "YOUR_API_KEY_HERE", // https://platform.openai.com/account/api-keys
+        "model": "gpt-3.5-turbo", // https://platform.openai.com/docs/models/model-endpoint-compatibility
+        "temperature": 1 // 0 = more predictable, 1 = more random and creative
+      }
+    }
+  ],
+
+  "chatSources": [
+    {
+      "name": "console",
+      "type": "console",
+      "defaultSocialContext": "friends"
+    },
+  ]
+}
