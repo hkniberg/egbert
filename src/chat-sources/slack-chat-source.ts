@@ -57,12 +57,12 @@ export class SlackChatSource extends ChatSource {
             }
 
             if (!message.user) {
-                console.log(`Ignoring message because it has no user`);
+                console.log(`Slack chat source '${this.name}': Ignoring message because it has no user`);
                 return;
             }
 
             if (this.ignoreMessagesFrom.includes(message.user)) {
-                console.log(`Ignoring message because it is from '${message.user}'`);
+                console.log(`Slack chat source '${this.name}': Ignoring message because it is from '${message.user}'`);
                 return;
             }
 
@@ -77,7 +77,7 @@ export class SlackChatSource extends ChatSource {
                 [],
             );
             if (responseMessage) {
-                await say(`Hey there <@${message.user}>, you said ${responseMessage}!`);
+                await say(`${responseMessage}`);
             }
         });
 
