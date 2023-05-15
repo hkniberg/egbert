@@ -73,8 +73,27 @@ export interface SlackChatSourceConfig {
     appToken: string;
 }
 
+
+
+// Recursively load a json5 config file with the include directive
 export function parseConfig(configFilePath: string): Config {
-    const configFilePathRelativeToCurrentWorkingDir = path.resolve(process.cwd(), configFilePath);
-    const configJson = fs.readFileSync(configFilePathRelativeToCurrentWorkingDir, 'utf-8');
-    return JSON5.parse(configJson);
+
+    const resolvedConfigFilePath = path.resolve(process.cwd(), configFilePath);
+    const configJson = fs.readFileSync(resolvedConfigFilePath, 'utf-8');
+    const config = JSON5.parse(configJson);
+
+    if (config.include) {
+        if (Array.isArray(config.include)) {
+            config.include.forEach((subPath: string) => {
+                const subConfig = parseConfig(subPath);
+                Object.assign(config, subConfig);
+            });
+        } else {
+            const subConfig = parseConfig(config.include);
+            Object.assign(config, subConfig);
+        }
+        delete config.include;
+    }
+
+    return config;
 }

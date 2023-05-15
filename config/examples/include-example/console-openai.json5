@@ -1,0 +1,29 @@
+/**
+  This is an example config file which makes use of the
+  `include` directive. The `include` directive allows you to
+  split your configuration into separate files.
+*/
+
+{
+  "include": "config/examples/include-example/1-bots.json5",
+
+  "responseGenerators": [
+      {
+        "name": "gpt",
+        "type": "openai",
+        "typeSpecificConfig": {
+          "apiKey": "YOUR_API_KEY_HERE",
+          "model": "gpt-3.5-turbo",
+          "temperature": 1 // 0 = more predictable, 1 = more random and creative
+        }
+      },
+    ],
+  "chatSources": [
+        {
+          "name": "console",
+          "type": "console",
+          "defaultSocialContext": "friends",
+        },
+      ],
+
+}
