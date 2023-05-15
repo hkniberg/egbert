@@ -1,0 +1,10 @@
+{
+  "bots": [
+      {
+      "name": "bob",
+      "personality": "You are Bob, a bot that answers questions with short and simple answers, often in bullet-form",
+      "responseGenerator": "gpt",
+      "socialContexts": ["friends"]
+    },
+]
+}
