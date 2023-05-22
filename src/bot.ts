@@ -61,14 +61,17 @@ export class Bot {
         return this.botTriggers.some((botTrigger) => doesTriggerApply(botTrigger, socialContext, incomingMessage));
     }
 
+    /**
+     * Uses the response generator to generate a response to the given message.
+     * Includes chat history and any saved memories in the prompt.
+     * It is up to the caller to call willRespond() first to check if the bot wants to respond.
+     * That's a separate call to avoid having to load the chat history unnecessarily if the bot isn't going to respond.
+     */
     public async generateResponse(
         socialContext: string,
         incomingMessage: string,
         chatHistory: string[],
     ): Promise<string | null> {
-        if (!this.willRespond(socialContext, incomingMessage)) {
-            return null;
-        }
         console.log(`${this.name} received message "${incomingMessage}" in social context ${socialContext}`);
         this.maybeSaveMemory(incomingMessage, socialContext);
 
