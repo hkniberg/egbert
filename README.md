@@ -25,7 +25,7 @@ You can check that it works by running a sample configuration that just has a co
 
 Then, in the console, type `hello echobot` and it should reply.
 
-# How to create bot that uses GPT
+## How to create bot that uses GPT
 
 - Get an OpenAI API key at `https://platform.openai.com/account/api-keys`
   If you don't already have an OpenAI account you will need to create one.
@@ -34,7 +34,7 @@ Then, in the console, type `hello echobot` and it should reply.
 - Run it! `npm start` (it uses config/config.json5 by default, but you can specify another file like above)
 - Then, in the console, type `hello Egbert` and you should get a snarky reply.
 
-# How to connect your bot to Discord
+## How to connect your bot to Discord
 - Create a Discord bot account at `https://discord.com/developers/applications`, and invite the bot to your discord server.
   Here is a [useful tutorial](https://www.ionos.com/digitalguide/server/know-how/creating-discord-bot/).
 - Open `config/discord-echobot.json5`. Copy the discord chat source config under `"chat-sources"` into your `config/config.json5`, and add your bot key.
