@@ -1,0 +1,33 @@
+{
+  "bots": [
+    {
+      "name": "echobot",
+      "responseGenerator": "echo",
+      "personality": "You are Echobot, a bot that just repeats what people say",
+      "socialContexts": ["friends"]
+    }
+  ],
+
+  "responseGenerators": [
+    {
+      "name": "echo",
+      "type": "echo"
+    }
+  ],
+
+  "chatSources": [
+    {
+      // A Minecraft chat source watches a server log and responds to the chat using RCON and /tellraw
+      "name": "minecraft",
+      "type": "minecraft",
+      "defaultSocialContext": "friends",
+      "typeSpecificConfig": {
+        "rconHost": "localhost",
+        "rconPort": 25575,
+        "rconPassword": "YOUR_RCON_PASSWORD_HERE", // this is defined in Minecraft server.properties
+        "serverLogPath": "/home/minecraft/server/logs/latest.log",
+        "filter": "(?:DedicatedServer\\/]:\\s|\\[Bot server]:\\s)(.*)" // regexp for the chat messages that should be visible to the bot
+      }
+    }
+  ]
+}

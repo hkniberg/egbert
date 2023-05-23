@@ -1,0 +1,31 @@
+{
+  "bots": [
+    {
+      "name": "echobot",
+      "responseGenerator": "echo",
+      "personality": "You are Echobot, a bot that just repeats what people say",
+      "socialContexts": ["friends"]
+    }
+  ],
+
+  "responseGenerators": [
+    {
+      "name": "echo",
+      "type": "echo"
+    }
+  ],
+
+  "chatSources": [
+    {
+      "name": "slack",
+      "type": "slack",
+      "defaultSocialContext": "friends",
+      "typeSpecificConfig": {
+        "bot": "echobot",
+        "botToken": "YOUR_BOT_TOKEN",
+        "signingSecret": "YOUR_SIGNING_SECRET",
+        "appToken": "YOUR_APP_TOKEN"
+      }
+    }
+  ]
+}

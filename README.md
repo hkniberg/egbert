@@ -44,12 +44,23 @@ Then, in the console, type `hello echobot` and it should reply.
 - Run it! `npm start`
 - Go to your discord server and type `hello egbert`. You should get a snarky reply.
 
+## How to connect your bot to Slack
+- Create a slack app on https://api.slack.com/apps. Get a hold of your `bot token`, `signing secret`, and `app token`.
+- Open `config/slack-echobot.json5`. Copy the slack chat source config under `chat-sources` into your `config/config.json5`, and update as needed.
+- Run it! `npm start`
+- Go to your slack workspace and type `hello egbert`. You should get a snarky reply.
+
+## How to connect your bot to Minecraft
+- Bots can listen to a Minecraft server log, and respond to messages in-game using RCon and /tellraw commands.
+- Open `config/minecraft-echobot.json5`. Copy the minecraft chat source config under `chat-sources` into your `config/config.json5`, and edit it as needed.
+- Run it! `npm start`
+- Log in to your Minecraft server and type `hello egbert`. You should get a snarky reply.
+
 # How it works
 
 * A **chat source** is a place where a bot can chat. For example a Discord server or Slack workspace.
-* A chat source contains one or more bots, each one with its own personality.
 * When a message is detected (for example someone writes on a discord channel), 
-the chat source relays the message to the associated bots and give them a chance to generate a response.
+the chat source relays the message to the associated bots (see Social Context below) and gives them a chance to generate a response.
 * If a bot wants to respond (for example because its name was mentioned), 
 it will connect to OpenAI and generate a response using chat gpt (we may add support for other response generators in the future).
 * The chat source relays the response back, for example as a discord message response.
