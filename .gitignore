@@ -153,3 +153,5 @@ build/**/*
 /configtemp/**/*
 
 .gitmessage
+
+config/docker-compose.yml
