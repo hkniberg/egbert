@@ -15,6 +15,9 @@ Here are some silly examples from Minecraft and Discord.
 
 # Getting started
 
+**Disclaimer:** This is very much work-in-progress, and we're doing it mostly for fun and learning.
+So expect things to change and sometimes break. Any tips & suggestions are welcome!
+
 ## How to install
 Make sure you have a reasonably fresh version of nodejs, then run:
 - `npm install`
