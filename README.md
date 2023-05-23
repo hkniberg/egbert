@@ -7,11 +7,11 @@ and have them talk on Discord, Minecraft, and places.
 
 But Egbert was the first bot here and he won't let you forget it.
 
-![](docs/egbert.png)
+![](docs/images/egbert.png)
 
 Here are some silly examples from Minecraft and Discord.
 
-![examples.png](docs/examples.png)
+![examples.png](docs/images/examples.png)
 
 # Getting started
 
