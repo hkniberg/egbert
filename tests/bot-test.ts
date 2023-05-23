@@ -12,8 +12,8 @@ describe('Bot', () => {
 
     test('Responds to its own name', async () => {
         const message = `Hi testBot`;
-        const response = await bot.generateResponse(testSocialContext, message, []);
-        expect(response).toEqual(`Echo ${message}`);
+        const willRespond = bot.willRespond(testSocialContext, message);
+        expect(willRespond).toEqual(true);
     });
 
     test('Responds to custom bot trigger', async () => {
@@ -32,16 +32,14 @@ describe('Bot', () => {
             new EchoResponseGenerator(),
         );
 
-        const incomingMessage = 'OK hello there how are you?';
-        const response = await botWithCustomTrigger.generateResponse(testSocialContext, incomingMessage, []);
-
-        expect(response).toEqual(`Echo ${incomingMessage}`);
+        const message = 'OK hello there how are you?';
+        const willRespond = botWithCustomTrigger.willRespond(testSocialContext, message);
+        expect(willRespond).toEqual(true);
     });
 
     test("Does not respond when the message doesn't match any botTriggers", async () => {
-        const incomingMessage = 'Wonder what the weather is going to be tomorrow';
-        const response = await bot.generateResponse(testSocialContext, incomingMessage, []);
-
-        expect(response).toBeNull();
+        const message = 'Wonder what the weather is going to be tomorrow';
+        const willRespond = bot.willRespond(testSocialContext, message);
+        expect(willRespond).toEqual(false);
     });
 });
