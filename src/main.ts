@@ -1,7 +1,8 @@
-import { parseConfig } from './config';
-import { Bot } from './bot';
-import { createChatSources } from './chat-sources/chat-source-factory';
-import { createResponseGenerators } from './response-generators/response-generator-factory';
+import {parseConfig} from './config';
+import {Bot} from './bot';
+import {createChatSources} from './chat-sources/chat-source-factory';
+import {createResponseGenerators} from './response-generators/response-generator-factory';
+import {createMemoryManagers} from "./memory-managers/memory-manager-factory";
 
 const DEFAULT_CONFIG_PATH = 'config/config.json5';
 
@@ -12,14 +13,17 @@ const config = parseConfig(configPath);
 
 const responseGenerators = createResponseGenerators(config.responseGenerators);
 const chatSources = createChatSources(config.chatSources);
+const memoryManagers = createMemoryManagers(config.memoryManagers);
 
 // Create each Bot and add to their respective chat sources (based on social context)
 for (const botConfig of config.bots) {
     const responseGenerator = getResponseGeneratorByName(botConfig.responseGenerator);
+    const memoryManager = getMemoryManagerByName(botConfig.memoryManager);
+
     const bot = new Bot(
         botConfig.name,
         botConfig.personality,
-        config.memoriesFolder as string,
+        memoryManager,
         botConfig.socialContexts,
         botConfig.triggers,
         responseGenerator,
@@ -46,6 +50,18 @@ function getResponseGeneratorByName(name: string) {
         return result;
     }
     throw 'No response generator found with name: ' + name;
+}
+
+function getMemoryManagerByName(name: string | null) {
+    if (!name) {
+        return null;
+    }
+
+    const result = memoryManagers.get(name);
+    if (result) {
+        return result;
+    }
+    throw 'No memory manager found with name: ' + name;
 }
 
 console.log('The bot server is up and running!');

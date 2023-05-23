@@ -1,22 +1,19 @@
-import { ResponseGenerator } from './response-generators/response-generator';
-import { loadMemories } from './memory';
-import { saveMemory } from './memory';
-import { BotTriggerConfig } from './config';
-
-const REMEMBER_KEYWORD = 'remember:'; // config param perhaps?
+import {ResponseGenerator} from './response-generators/response-generator';
+import {BotTriggerConfig} from './config';
+import {MemoryManager} from "./memory-managers/memory-manager";
 
 // Used to define which types of messages the bot will respond to,
 // and the probability of responding.
 interface BotTrigger {
     pattern: RegExp;
-    socialContext?: string; // optionally we could limit respones to one social context
+    socialContext?: string; // optionally we could limit responses to one social context
     probability: number;
 }
 
 export class Bot {
     private readonly name: string;
     private readonly personality: string;
-    private readonly memoriesFolder: string | null;
+    private readonly memoryManager: MemoryManager | null;
     private readonly socialContexts: Array<string>;
     private readonly responseGenerator: ResponseGenerator;
     private readonly botTriggers: Array<BotTrigger>;
@@ -24,14 +21,14 @@ export class Bot {
     constructor(
         name: string,
         personality: string,
-        memoriesFolder: string | null,
+        memoryManager: MemoryManager | null,
         socialContexts: Array<string>,
         botTriggerConfigs: Array<BotTriggerConfig> | null,
         responseGenerator: ResponseGenerator,
     ) {
         this.name = name;
         this.personality = personality;
-        this.memoriesFolder = memoriesFolder ? memoriesFolder : 'memories';
+        this.memoryManager = memoryManager;
         this.socialContexts = socialContexts;
 
         if (botTriggerConfigs && botTriggerConfigs.length > 0) {
@@ -63,49 +60,36 @@ export class Bot {
 
     /**
      * Uses the response generator to generate a response to the given message.
-     * Includes chat history and any saved memories in the prompt.
+     * Includes chat context (recent chat messages before the incoming message) and any relevant memories in the prompt.
      * It is up to the caller to call willRespond() first to check if the bot wants to respond.
-     * That's a separate call to avoid having to load the chat history unnecessarily if the bot isn't going to respond.
+     * That's a separate call to avoid having to load the chat context unnecessarily if the bot isn't going to respond.
      */
     public async generateResponse(
+        chatSource: string,
         socialContext: string,
-        incomingMessage: string,
-        chatHistory: string[],
+        triggerMessage: string,
+        chatContext: string[],
     ): Promise<string | null> {
-        console.log(`${this.name} received message "${incomingMessage}" in social context ${socialContext}`);
-        this.maybeSaveMemory(incomingMessage, socialContext);
+        console.log(`${this.name} received message "${triggerMessage}" in social context ${socialContext}`);
 
-        let memories = await loadMemories(this.name, socialContext, this.memoriesFolder);
-        console.log(
-            `   ${this.name} has ${memories.length} memories, and a chat history of length ${chatHistory?.length}`,
-        );
+        let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSource, this.name, socialContext, chatContext, triggerMessage) : [];
+
         let response = await this.responseGenerator.generateResponse(
-            incomingMessage,
+            triggerMessage,
             this.name,
             this.personality,
             memories,
-            chatHistory,
+            chatContext,
         );
+
+        this.memoryManager?.maybeSaveMemory(chatSource, this.name, socialContext, triggerMessage, response);
+
         console.log(`   ${this.name} will respond: ${response}`);
         return response;
     }
 
     isMemberOfSocialContext(socialContext: string) {
         return this.socialContexts.includes(socialContext);
-    }
-
-    // not async because we don't need to wait for this to finish
-    private maybeSaveMemory(incomingMessage: string, socialContext: string) {
-        if (!this.memoriesFolder) {
-            return;
-        }
-
-        const indexOfRemember = incomingMessage.toLowerCase().indexOf(REMEMBER_KEYWORD);
-        if (indexOfRemember > -1) {
-            const memory = incomingMessage.substring(indexOfRemember + REMEMBER_KEYWORD.length + 1);
-            saveMemory(memory, this.name, socialContext, this.memoriesFolder);
-            console.log(`${this.name} saved memory for context ${socialContext}: ${memory}`);
-        }
     }
 
     isMemberOfAnySocialContext(socialContexts: string[]) {

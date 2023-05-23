@@ -19,6 +19,7 @@
     {
       "name": "discord",
       "type": "discord",
+      "maxChatHistoryLength": 20,
       "defaultSocialContext": "friends",
       "typeSpecificConfig": {
         "botToken": "YOUR_BOT_TOKEN_HERE", // https://discord.com/developers/applications

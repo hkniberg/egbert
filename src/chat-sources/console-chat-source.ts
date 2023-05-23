@@ -26,6 +26,7 @@ export class ConsoleChatSource extends ChatSource {
             // for example depending on if the message contains the bot's name.
             for (const bot of this.bots) {
                 const responseMessage = await bot.generateResponse(
+                    this.name,
                     this.defaultSocialContext as string,
                     incomingMessageAsTrimmedString,
                     this.chatHistory.getAll(),

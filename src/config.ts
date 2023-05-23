@@ -3,8 +3,8 @@ const JSON5 = require('json5');
 const path = require('path');
 
 export interface Config {
-    memoriesFolder?: string;
     bots: Array<BotConfig>;
+    memoryManagers: Array<MemoryManagerConfig> | null;
     responseGenerators: Array<ResponseGeneratorConfig>;
     chatSources: Array<ChatSourceConfig>;
 }
@@ -12,6 +12,7 @@ export interface Config {
 export interface BotConfig {
     name: string;
     responseGenerator: string;
+    memoryManager: string | null;
     personality: string;
     socialContexts: Array<string>;
     triggers: Array<BotTriggerConfig>;
@@ -67,13 +68,22 @@ export interface TelegramChatSourceConfig {
 }
 
 export interface SlackChatSourceConfig {
-    botToken: string;
     bot: string;
+    botToken: string;
     signingSecret: string;
     appToken: string;
 }
 
+export interface MemoryManagerConfig {
+    name: string;
+    type: string;
+    typeSpecificConfig?: KeywordTriggeredMemoryManagerConfig;
+}
 
+export interface KeywordTriggeredMemoryManagerConfig {
+    memoriesFolder: string;
+    pattern: string;
+}
 
 // Recursively load a json5 config file with the include directive
 export function parseConfig(configFilePath: string): Config {

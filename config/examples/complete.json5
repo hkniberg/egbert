@@ -13,8 +13,9 @@
       "name": "egbert",
       // the personality is included in the beginning of each prompt to GPT
       "personality": "You are Egbert, a sarcastic and witty bot that never gives a straight answer",
-      "responseGenerator": "gpt",
-      "socialContexts": ["friends", "family"]
+      "responseGenerator": "gpt", // how we decided what to respond. See response-generators below.
+      "memoryManager": "keywordTriggered", // optional field if you want this bot to remember stuff between messages. See memoryManagers below.
+      "socialContexts": ["friends", "family"] // which social contexts within which this bot can respond (see chat-sources below)
     },
     {
       "name": "sherlock",
@@ -34,6 +35,25 @@
         }
       ]
     }
+  ],
+
+  /**
+  * A memory manager is responsible for deciding what kind of information that a bot should save
+  * when it sees a message. It also figures out what information to add to the chat prompt based on this.
+  */
+  "memoryManagers": [
+    {
+      // This type of memory lets you manually inject long-term memory to a bot, using keywords.
+      // The memories are stored on disk, one memory file per social context it is part of.
+      // All memories will be included in every chat prompt, so this only works if we don't have too many memories
+      // and we stay within token limits.
+      "name": "keywordTriggered",
+      "type": "keywordTriggered",
+      "typeSpecificConfig": {
+        "memoriesFolder": "memories", // where on disk we should store memory files
+        "pattern": "remember:(.*)" // regexp defining which messages should cause a memory to be saved, and which part should be saved
+      }
+    },
   ],
 
   /**
@@ -79,6 +99,7 @@
     {
       "name": "discord",
       "type": "discord", // this means it will connect to discord, listen for messages and respond when the bot name is mentioned.
+      "maxChatHistoryLength": 20, // how many recent chat messages to include in the response generator prompt
       // no defaultSocialContext here, since we map each discord server to a social context below.
       "typeSpecificConfig": {
         "botToken": "YOUR_BOT_TOKEN_HERE", // https://discord.com/developers/applications

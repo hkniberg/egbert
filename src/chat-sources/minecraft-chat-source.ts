@@ -69,6 +69,7 @@ export class MinecraftChatSource extends ChatSource {
 
         for (const bot of respondingBots) {
             const responseMessage = await bot.generateResponse(
+                this.name,
                 this.defaultSocialContext as string,
                 messageToSendToBot,
                 this.chatHistory.getAll(),

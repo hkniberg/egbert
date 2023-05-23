@@ -3,6 +3,7 @@
 import axios from 'axios';
 import { ResponseGenerator } from './response-generator';
 import { encode } from 'gpt-3-encoder';
+import {MemoryEntry} from "../memory-managers/memory-manager";
 
 const openAiUrl = 'https://api.openai.com/v1/chat/completions';
 
@@ -32,7 +33,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         userPrompt: string,
         botName: string,
         personality: string,
-        memories: string[],
+        memories: MemoryEntry[],
         chatHistory: string[],
     ): Promise<string> {
         // OpenAI spec here: https://platform.openai.com/docs/api-reference/chat/create
@@ -47,7 +48,9 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         // Add the memories
         if (memories.length > 0) {
-            messages.push({ role: 'user', content: `You have the following memories:\n${memories.join('\n')}` });
+            const memoryTriggers = memories.map((memory) => memory.trigger);
+
+            messages.push({ role: 'user', content: `You have the following memories:\n${memoryTriggers.join('\n')}` });
             messages.push({
                 role: 'assistant',
                 content: `Ok, I will take those memories into account when responding`,
