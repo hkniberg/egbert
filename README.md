@@ -178,4 +178,5 @@ Coming soon:
 
 # Development tips
 
+- `npm test` runs unit tests
 - `npm run watch` will run the typescript compiler in watch mode, so it will auto-recompile when you change a file.
