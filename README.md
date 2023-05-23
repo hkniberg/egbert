@@ -141,6 +141,24 @@ The prompt to GPT includes both recent chat context and all memories.
 > Respond to this:
 > * [Henrik] Hey Egbert, you seem a bit buggy today.
 
+To enable memories, add a ```memoryManagers``` section to your config:
+```json5
+{
+  "memoryManagers": [
+    {
+      "name": "keywordTriggered",
+      "type": "keywordTriggered",
+      "typeSpecificConfig": {
+        "memoriesFolder": "memories", // memory files will be added to this folder
+        "pattern": "remember:(.*)" 
+      }
+    }
+  ]
+}
+```
+
+And add ```"memoryManager": "keywordTriggered"``` to your bot config entry.
+
 # Social context
 
 When you have the same bot connecting to multiple chat sources,
