@@ -4,7 +4,7 @@
     * responses from egbert via GPT.
     *
     * A bot is a chat agent with an optional personality.
-    * It needs to belong to one or more social contexts where it reacts and responts to
+    * It needs to belong to one or more social contexts where it reacts and responds to
     * messages in any associated chat sources.
     * If it is triggered to make a response it will use a response generator.
    */
