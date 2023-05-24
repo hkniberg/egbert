@@ -48,9 +48,15 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         // Add the memories
         if (memories.length > 0) {
-            const memoryTriggers = memories.map((memory) => memory.trigger);
+            const simplifiedMemories = memories.map(memory => ({
+                date: memory.date,
+                trigger: memory.trigger,
+                response: `[${memory.bot}]: ${memory.response}`,
+            }));
 
-            messages.push({ role: 'user', content: `You have the following memories:\n${memoryTriggers.join('\n')}` });
+            const memoriesAsString = simplifiedMemories.map(entry => JSON.stringify(entry)).join('\n');
+
+            messages.push({ role: 'user', content: `You have the following memories:\n${memoriesAsString}` });
             messages.push({
                 role: 'assistant',
                 content: `Ok, I will take those memories into account when responding`,
