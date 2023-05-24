@@ -151,6 +151,8 @@ memories/
 build/**/*
 /src/**/*.js
 /configtemp/**/*
+/spikes
+
 
 .gitmessage
 
