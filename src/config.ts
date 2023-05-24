@@ -90,6 +90,7 @@ export interface WeaviateMemoryManagerConfig {
     host: string;
     openAiKey: string;
     limit: number;
+    groupingForce: number;
 }
 
 // Recursively load a json5 config file with the include directive

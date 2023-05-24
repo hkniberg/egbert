@@ -10,11 +10,13 @@ const SCHEMA_CLASS_NAME = 'Memory';
 export class WeaviateMemoryManager extends MemoryManager {
     private readonly weaviateClient: WeaviateClient;
     private readonly limit: number;
+    private readonly groupingForce: number;
 
     constructor(name: string, typeSpecificConfig: WeaviateMemoryManagerConfig) {
         super(name);
 
         this.limit = typeSpecificConfig.limit;
+        this.groupingForce = typeSpecificConfig.groupingForce;
 
         this.weaviateClient = weaviate.client({
             scheme: typeSpecificConfig.scheme,
@@ -30,6 +32,8 @@ export class WeaviateMemoryManager extends MemoryManager {
             .get()
             .withClassName(SCHEMA_CLASS_NAME)
             .withFields('date bot chatSource socialContext trigger response')
+            .withGroup({type: 'closest', force: this.groupingForce}) // this removes duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
+            .withSort([{ path: ['date'], order: 'asc' }])
             .withNearText({ concepts: [triggerMessage] })
             .withLimit(this.limit) // TODO
             .do();
