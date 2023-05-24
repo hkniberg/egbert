@@ -37,7 +37,7 @@ export class ConsoleChatSource extends ChatSource {
                 );
                 if (responseMessage) {
                     messagesToAddToChatHistory.push(bot.getName() + ': ' + responseMessage);
-                    console.log(`[${this.defaultSocialContext as string}] ${bot.getName()}: ${responseMessage}`);
+                    console.log(`[${this.name} ${this.defaultSocialContext as string}] ${bot.getName()}: ${responseMessage}`);
                 }
             }
             // We add the messages to the chat history after all bots have had a chance to respond

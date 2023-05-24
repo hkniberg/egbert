@@ -42,6 +42,7 @@ export class TelegramChatSource extends ChatSource {
             for (const bot of respondingBots) {
                 const responseMessage = await bot.generateResponse(this.name, this.defaultSocialContext, messageToSend, []);
                 if (responseMessage) {
+                    console.log(`[${this.name} ${this.defaultSocialContext}] ${bot.getName()}: ${responseMessage}`);
                     await this.sendTelegramResponse(ctx, responseMessage);
                 }
             }

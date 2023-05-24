@@ -66,18 +66,20 @@ export class SlackChatSource extends ChatSource {
                 return;
             }
 
-            if (!bot.willRespond(this.defaultSocialContext as string, incomingMessage)) {
+            let socialContext = this.defaultSocialContext as string;
+            if (!bot.willRespond(socialContext, incomingMessage)) {
                 console.log(`${bot.getName()} does not want to respond to this message`);
                 return;
             }
 
             const responseMessage = await bot.generateResponse(
                 this.name,
-                this.defaultSocialContext as string,
+                socialContext,
                 incomingMessage,
                 [],
             );
             if (responseMessage) {
+                console.log(`[${this.name} ${socialContext}] ${bot.getName()}: ${responseMessage}`);
                 await say(`${responseMessage}`);
             }
         });

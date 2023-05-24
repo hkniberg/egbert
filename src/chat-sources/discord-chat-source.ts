@@ -100,6 +100,7 @@ export class DiscordChatSource extends ChatSource {
             const responseMessage = await bot.generateResponse(this.name, socialContextToUse, messageToSend, chatHistory);
             if (responseMessage) {
                 // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
+                console.log(`[${this.name} ${socialContextToUse}] ${bot.getName()}: ${responseMessage}`);
                 await sendDiscordResponse(discordMessage, responseMessage);
             }
         });

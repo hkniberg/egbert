@@ -1,6 +1,6 @@
 import {ResponseGenerator} from './response-generators/response-generator';
 import {BotTriggerConfig} from './config';
-import {MemoryEntry, MemoryManager} from "./memory-managers/memory-manager";
+import {MemoryManager} from "./memory-managers/memory-manager";
 
 // Used to define which types of messages the bot will respond to,
 // and the probability of responding.
@@ -89,7 +89,7 @@ export class Bot {
             });
         }
 
-        console.log(`   ${this.name} will respond: ${response}`);
+        console.log(`${this.name} will respond`);
         return response;
     }
 
