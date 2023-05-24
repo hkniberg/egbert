@@ -16,14 +16,14 @@ export class ConsoleChatSource extends ChatSource {
         }
 
         const stdin = process.openStdin();
-        stdin.addListener('data', async (incomingMessage) => {
-            // for some reason incomingMessage is a character buffer or something like that,
+        stdin.addListener('data', async (incomingMessageRaw) => {
+            // for some reason incomingMessageRaw is a character buffer or something like that,
             // so we convert it to string before sending it to the bot
-            const incomingMessageAsTrimmedString = ('' + incomingMessage).trim();
-            const messagesToAddToChatHistory: string[] = ['User: ' + incomingMessageAsTrimmedString];
+            const incomingMessage = '[ConsoleUser]: ' + ('' + incomingMessageRaw).trim();
+            const messagesToAddToChatHistory: string[] = [incomingMessage];
 
             // send the message to each responding bot
-            const respondingBots = this.getRespondingBots(incomingMessageAsTrimmedString);
+            const respondingBots = this.getRespondingBots(incomingMessage);
             if (respondingBots.length === 0) {
                 console.log(`No bots want to respond to this`);
             }
@@ -32,12 +32,13 @@ export class ConsoleChatSource extends ChatSource {
                 const responseMessage = await bot.generateResponse(
                     this.name,
                     this.defaultSocialContext as string,
-                    incomingMessageAsTrimmedString,
+                    incomingMessage,
                     this.chatHistory.getAll(),
                 );
                 if (responseMessage) {
-                    messagesToAddToChatHistory.push(bot.getName() + ': ' + responseMessage);
-                    console.log(`[${this.name} ${this.defaultSocialContext as string}] ${bot.getName()}: ${responseMessage}`);
+                    let responseMessageIncludingBotName = `[${bot.getName()}]: ${responseMessage}`;
+                    messagesToAddToChatHistory.push(responseMessageIncludingBotName);
+                    console.log(`[${this.name} ${this.defaultSocialContext as string}] ${responseMessageIncludingBotName}`);
                 }
             }
             // We add the messages to the chat history after all bots have had a chance to respond
