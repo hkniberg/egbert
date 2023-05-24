@@ -33,6 +33,7 @@
     {
       "name": "console",
       "type": "console",
+      "maxChatHistoryLength": 20, // how many previous chat messages to include in the prompt to the response generator
       "defaultSocialContext": "friends"
     },
   ]
