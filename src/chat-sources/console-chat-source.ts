@@ -22,9 +22,13 @@ export class ConsoleChatSource extends ChatSource {
             const incomingMessageAsTrimmedString = ('' + incomingMessage).trim();
             const messagesToAddToChatHistory: string[] = ['User: ' + incomingMessageAsTrimmedString];
 
-            // send the message to each bot, and then each bot decides whether or not to respond
-            // for example depending on if the message contains the bot's name.
-            for (const bot of this.bots) {
+            // send the message to each responding bot
+            const respondingBots = this.getRespondingBots(incomingMessageAsTrimmedString);
+            if (respondingBots.length === 0) {
+                console.log(`No bots want to respond to this`);
+            }
+
+            for (const bot of respondingBots) {
                 const responseMessage = await bot.generateResponse(
                     this.name,
                     this.defaultSocialContext as string,
@@ -39,5 +43,9 @@ export class ConsoleChatSource extends ChatSource {
             // We add the messages to the chat history after all bots have had a chance to respond
             this.chatHistory.addAll(messagesToAddToChatHistory);
         });
+    }
+
+    private getRespondingBots(incomingMessage: string) {
+        return this.bots.filter((bot) => bot.willRespond(this.defaultSocialContext as string, incomingMessage));
     }
 }
