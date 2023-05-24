@@ -23,7 +23,6 @@ export class WeaviateMemoryManager extends MemoryManager {
             host: typeSpecificConfig.host,
             headers: { 'X-OpenAI-Api-Key': typeSpecificConfig.openAiKey }
         });
-
     }
 
     async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: string[], triggerMessage: string): Promise<MemoryEntry[]> {
@@ -32,10 +31,11 @@ export class WeaviateMemoryManager extends MemoryManager {
             .get()
             .withClassName(SCHEMA_CLASS_NAME)
             .withFields('date bot chatSource socialContext trigger response')
+            .withWhere({operator: 'Equal', path: ['socialContext'], valueString: socialContext })
             .withGroup({type: 'closest', force: this.groupingForce}) // this removes duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
             .withSort([{ path: ['date'], order: 'asc' }])
             .withNearText({ concepts: [triggerMessage] })
-            .withLimit(this.limit) // TODO
+            .withLimit(this.limit)
             .do();
 
         return result.data.Get.Memory;
