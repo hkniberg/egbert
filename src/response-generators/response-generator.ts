@@ -2,7 +2,7 @@ import {MemoryEntry} from "../memory-managers/memory-manager";
 
 export interface ResponseGenerator {
     generateResponse(
-        userPrompt: string,
+        triggerMessage: string,
         botName: string,
         personality: string,
         memories: MemoryEntry[],

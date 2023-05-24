@@ -30,7 +30,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
     }
 
     async generateResponse(
-        userPrompt: string,
+        triggerMessage: string,
         botName: string,
         personality: string,
         memories: MemoryEntry[],
@@ -67,7 +67,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         }
 
         // Add the user prompt
-        messages.push({ role: 'user', content: `${userPrompt}\n${botName}:` });
+        messages.push({ role: 'user', content: `${triggerMessage}\n${botName}:` });
 
         console.log('This is what we will send to GPT:', messages);
 
