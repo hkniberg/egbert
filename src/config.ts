@@ -77,12 +77,19 @@ export interface SlackChatSourceConfig {
 export interface MemoryManagerConfig {
     name: string;
     type: string;
-    typeSpecificConfig?: KeywordTriggeredMemoryManagerConfig;
+    typeSpecificConfig?: KeywordTriggeredMemoryManagerConfig | WeaviateMemoryManagerConfig;
 }
 
 export interface KeywordTriggeredMemoryManagerConfig {
     memoriesFolder: string;
     pattern: string;
+}
+
+export interface WeaviateMemoryManagerConfig {
+    scheme: string;
+    host: string;
+    openAiKey: string;
+    limit: number;
 }
 
 // Recursively load a json5 config file with the include directive

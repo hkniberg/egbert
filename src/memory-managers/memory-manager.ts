@@ -1,5 +1,5 @@
 export interface MemoryEntry {
-    timestamp?: Date,
+    date?: Date,
     bot: string,
     chatSource: string,
     socialContext: string,
