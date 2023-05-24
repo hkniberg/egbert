@@ -4,11 +4,12 @@ import { Rcon } from 'rcon-client';
 import { Tail } from 'tail';
 import { Bot } from '../bot';
 import { CappedArray } from '../util/capped-array';
+import {ChatMessage} from "../response-generators/response-generator";
 
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
     private readonly filter = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;
-    private readonly chatHistory: CappedArray<string>;
+    private readonly chatHistory: CappedArray<ChatMessage>;
 
     constructor(
         name: string,
@@ -21,7 +22,7 @@ export class MinecraftChatSource extends ChatSource {
             throw new Error('MinecraftChatSource must have a default social context');
         }
         this.typeSpecificConfig = typeSpecificConfig;
-        this.chatHistory = new CappedArray<string>(maxChatHistoryLength);
+        this.chatHistory = new CappedArray<ChatMessage>(maxChatHistoryLength);
         console.log('Minecraft chat source created: ', this.name);
 
         // This regexp is used to filter the messages in the server log to only the ones we care about.
@@ -51,13 +52,14 @@ export class MinecraftChatSource extends ChatSource {
             return;
         }
 
-        const messageToSendToBot = strmatch[1].trim();
+        const sender = strmatch[1] ? strmatch[1].trim() : null;
+        const triggerMessage = strmatch[2].trim();
+        const senderString = sender ? `<${sender}> ` : '';
+        console.log(`Got message from Minecraft server log: ${senderString} ${triggerMessage}`);
 
-        console.log(`Got message from Minecraft server log: ${messageToSendToBot}`);
+        const messagesToAddToChatHistory: ChatMessage[] = [{sender: sender, message: triggerMessage}];
 
-        const messagesToAddToChatHistory: string[] = [messageToSendToBot];
-
-        const respondingBots: Bot[] = this.getRespondingBots(messageToSendToBot);
+        const respondingBots: Bot[] = this.getRespondingBots(triggerMessage);
         if (respondingBots.length === 0) {
             // early out so we don't waste time reading the chat history when we aren't going to respond anyway
             console.log('No bots want to respond to this message');
@@ -71,13 +73,14 @@ export class MinecraftChatSource extends ChatSource {
             const responseMessage = await bot.generateResponse(
                 this.name,
                 this.defaultSocialContext as string,
-                messageToSendToBot,
+                sender,
+                triggerMessage,
                 this.chatHistory.getAll(),
             );
             if (responseMessage) {
                 // technically we could skip await and do these in paralell, but for now I'm choosing the path of least risk
                 const responseMessageWithBotName = `<${bot.getName()}> ${responseMessage}`;
-                messagesToAddToChatHistory.push(responseMessageWithBotName);
+                messagesToAddToChatHistory.push({sender: bot.getName(), message: responseMessage});
                 await this.sendChatToMinecraftServer(responseMessageWithBotName);
             }
         }

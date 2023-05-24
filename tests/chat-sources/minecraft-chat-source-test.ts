@@ -26,7 +26,7 @@ const minecraftChatSourceConfig: MinecraftChatSourceConfig = {
     rconPort: 25575,
     rconPassword: 'test',
     serverLogPath: 'test.log',
-    filter: '(?:\\[Bot server\\]:|DedicatedServer\\/]:)\\s?(.*)',
+    filter: '(?:DedicatedServer\\/]:\\s|\\[Bot server]:\\s)(?:<(.+?)>)?(.*)',
 };
 
 describe('MinecraftChatSource', () => {

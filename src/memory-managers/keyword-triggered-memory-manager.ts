@@ -2,6 +2,7 @@ import {MemoryEntry, MemoryManager} from "./memory-manager";
 import {KeywordTriggeredMemoryManagerConfig} from "../config";
 import * as fs from "fs/promises";
 import * as path from "path";
+import {ChatMessage} from "../response-generators/response-generator";
 
 /**
  * A simple memory manager that saves memories to a file when a trigger message matches a pattern such as "Remember: "
@@ -16,7 +17,7 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
         this.pattern = new RegExp(typeSpecificConfig.pattern, 'i');
     }
 
-    async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: string[], triggerMessage: string): Promise<MemoryEntry[]> {
+    async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], triggerMessage: string): Promise<MemoryEntry[]> {
         const memoriesFilePath = await this.getMemoriesFilePath(botName, socialContext);
         const messageTriggers = await this.getStoredMemoriesOrEmptyList(memoriesFilePath);
         return messageTriggers.map(messageTrigger => {
@@ -33,7 +34,7 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
      * Save the given message if it matches the pattern. Also trims whitespace.
      * For example "Remember: I like pizza" would be saved as "I like pizza" if the pattern is "Remember:(.*)"
      */
-     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, triggerMessage: string, response: string) {
+     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string, triggerMessage: string, response: string) {
         const match = triggerMessage.match(this.pattern);
         if (!match) {
             return;

@@ -23,24 +23,23 @@ export class TelegramChatSource extends ChatSource {
 
     start(): void {
         this.telegramClient.on('text', async (ctx) => {
-            const incomingMessage = ctx.message.text;
-            console.log(`Received message ${incomingMessage} from user ${ctx.from?.first_name}`);
-
-            const messageToSend = `${ctx.from?.first_name}: ${incomingMessage}`;
+            const triggerMessage = ctx.message.text;
+            let sender = ctx.from?.first_name;
+            console.log(`Received message ${triggerMessage} from user ${sender}`);
 
             if (!this.defaultSocialContext) {
                 console.log('No default social context configured, so we will ignore the message.');
                 return;
             }
 
-            const respondingBots: Bot[] = this.getRespondingBots(this.defaultSocialContext, incomingMessage);
+            const respondingBots: Bot[] = this.getRespondingBots(this.defaultSocialContext, triggerMessage);
             if (respondingBots.length === 0) {
                 console.log('No bots want to respond to this message');
                 return;
             }
 
             for (const bot of respondingBots) {
-                const responseMessage = await bot.generateResponse(this.name, this.defaultSocialContext, messageToSend, []);
+                const responseMessage = await bot.generateResponse(this.name, this.defaultSocialContext, sender, triggerMessage, []);
                 if (responseMessage) {
                     console.log(`[${this.name} ${this.defaultSocialContext}] ${bot.getName()}: ${responseMessage}`);
                     await this.sendTelegramResponse(ctx, responseMessage);

@@ -3,6 +3,7 @@ import { Client, Events, GatewayIntentBits, Message, TextChannel } from 'discord
 import { splitStringAtNewline } from '../util/utils';
 import { DiscordChatSourceConfig } from '../config';
 import { Bot } from '../bot';
+import {ChatMessage} from "../response-generators/response-generator";
 
 export class DiscordChatSource extends ChatSource {
     private readonly typeSpecificConfig: DiscordChatSourceConfig;
@@ -62,12 +63,13 @@ export class DiscordChatSource extends ChatSource {
         });
 
         this.discordClient.on(Events.MessageCreate, async (discordMessage: Message) => {
-            const incomingMessage = discordMessage.content;
+            const triggerMessage = discordMessage.content;
             console.log(
-                `Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${incomingMessage}`,
+                `Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${triggerMessage}`,
             );
 
-            const messageToSend = `${discordMessage.author.username}: ${incomingMessage}`;
+            let sender = discordMessage.author.username;
+            const messageToSend = `${sender}: ${triggerMessage}`;
 
             // check which discord server this message came from, and use the corresponding social context
             let socialContextToUse = this.defaultSocialContext;
@@ -85,8 +87,8 @@ export class DiscordChatSource extends ChatSource {
                 return;
             }
 
-            if (this.ignoreMessagesFrom.includes(discordMessage.author.username.toLowerCase())) {
-                console.log(`Ignoring message because it is from '${discordMessage.author.username}'`);
+            if (this.ignoreMessagesFrom.includes(sender.toLowerCase())) {
+                console.log(`Ignoring message because it is from '${sender}'`);
                 return;
             }
 
@@ -97,7 +99,7 @@ export class DiscordChatSource extends ChatSource {
             }
 
             let chatHistory = await this.loadDiscordChatHistory(discordMessage);
-            const responseMessage = await bot.generateResponse(this.name, socialContextToUse, messageToSend, chatHistory);
+            const responseMessage = await bot.generateResponse(this.name, socialContextToUse, sender, messageToSend, chatHistory);
             if (responseMessage) {
                 // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
                 console.log(`[${this.name} ${socialContextToUse}] ${bot.getName()}: ${responseMessage}`);
@@ -111,7 +113,7 @@ export class DiscordChatSource extends ChatSource {
      * loads previous messages from the same discord channel, up to and not including the given message.
      * Oldest messages first.
      */
-    private async loadDiscordChatHistory(discordMessage: Message) {
+    private async loadDiscordChatHistory(discordMessage: Message) : Promise<ChatMessage[]> {
         if (this.maxChatHistoryLength === 0) {
             return [];
         }
@@ -122,10 +124,12 @@ export class DiscordChatSource extends ChatSource {
                 limit: this.maxChatHistoryLength,
                 before: discordMessage.id,
             };
-            const messages = await channel.messages.fetch(options);
-            return Array.from(messages.values())
-                .map((message) => `${message.author.username}: ${message.content}`)
-                .reverse(); // discord responds with newest messages first, but we want oldest first
+            const discordMessages = await channel.messages.fetch(options);
+            return Array.from(discordMessages.values())
+                // create a ChatMessage from each discord message
+                .map((discordMessage) => ({sender: discordMessage.author.username ? discordMessage.author.username : null, message: discordMessage.content}))
+                // reverse the array, since discord responds with newest messages first and we want oldest first
+                .reverse();
         } else {
             return [];
         }

@@ -1,7 +1,7 @@
 // response-generators/openai-response-generator.ts
 
 import axios from 'axios';
-import { ResponseGenerator } from './response-generator';
+import {ChatMessage, ResponseGenerator} from './response-generator';
 import { encode } from 'gpt-3-encoder';
 import {MemoryEntry} from "../memory-managers/memory-manager";
 
@@ -31,10 +31,11 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
     async generateResponse(
         triggerMessage: string,
+        sender: string | null,
         botName: string,
         personality: string,
         memories: MemoryEntry[],
-        chatHistory: string[],
+        chatHistory: ChatMessage[],
     ): Promise<string> {
         // OpenAI spec here: https://platform.openai.com/docs/api-reference/chat/create
 
@@ -44,36 +45,41 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         };
 
         // Add the personality
-        const messages: GptMessage[] = [{ role: 'system', content: personality }];
+        const messages: GptMessage[] = [{ role: 'system', content: personality}];
 
         // Add the memories
         if (memories.length > 0) {
-            const simplifiedMemories = memories.map(memory => ({
-                date: memory.date,
-                trigger: memory.trigger,
-                response: `[${memory.bot}]: ${memory.response}`,
-            }));
+            messages.push({ role: 'user', content: `Here are all your relevant memories:` })
 
-            const memoriesAsString = simplifiedMemories.map(entry => JSON.stringify(entry)).join('\n');
-
-            messages.push({ role: 'user', content: `You have the following memories:\n${memoriesAsString}` });
-            messages.push({
-                role: 'assistant',
-                content: `Ok, I will take those memories into account when responding`,
+            // Go through each memory and add each triggerMessage and response as separate messages in the prompt
+            memories.forEach(memory => {
+                messages.push({ role: 'user', content: (memory.sender ? `[${memory.sender}]: ${memory.trigger}` : memory.trigger) });
+                if (memory.response) {
+                    messages.push({ role: 'assistant', content: memory.response });
+                }
             });
         }
 
         // Add the chat history
         if (chatHistory.length > 0) {
-            messages.push({ role: 'user', content: `Here is the message history:\n${chatHistory.join('\n')}` });
-            messages.push({
-                role: 'assistant',
-                content: `Ok, I will take that message history into account when responding`,
+
+            messages.push({ role: 'user', content: `Here is the recent chat history.` })
+
+            // add each chat message to the prompt, separately. If the sender is the same as the bot, then use 'assistant' as the role
+            chatHistory.forEach(chatMessage => {
+                if (chatMessage.sender && chatMessage.sender.toLowerCase() == botName.toLowerCase()) {
+                    messages.push({ role: 'assistant', content: chatMessage.message });
+                } else {
+                    const namePrefix = chatMessage.sender ? `[${chatMessage.sender}]: ` : '';
+                    messages.push({ role: 'user', content: namePrefix + chatMessage.message });
+                }
             });
         }
 
         // Add the user prompt
-        messages.push({ role: 'user', content: `${triggerMessage}\n${botName}:` });
+        messages.push({ role: 'user', content: `Please respond to the following prompt:` })
+        const senderString = sender ? `[${sender}]: ` : '';
+        messages.push({ role: 'user', content: senderString + triggerMessage});
 
         console.log('This is what we will send to GPT:', messages);
 

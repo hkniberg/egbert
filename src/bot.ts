@@ -1,4 +1,4 @@
-import {ResponseGenerator} from './response-generators/response-generator';
+import {ChatMessage, ResponseGenerator} from './response-generators/response-generator';
 import {BotTriggerConfig} from './config';
 import {MemoryManager} from "./memory-managers/memory-manager";
 
@@ -67,8 +67,9 @@ export class Bot {
     public async generateResponse(
         chatSource: string,
         socialContext: string,
+        sender: string | null,
         triggerMessage: string,
-        chatContext: string[],
+        chatContext: ChatMessage[],
     ): Promise<string | null> {
         console.log(`${this.name} received message "${triggerMessage}" in social context ${socialContext}`);
 
@@ -76,6 +77,7 @@ export class Bot {
 
         let response = await this.responseGenerator.generateResponse(
             triggerMessage,
+            sender,
             this.name,
             this.personality,
             memories,
@@ -84,7 +86,7 @@ export class Bot {
 
         if (this.memoryManager) {
             // Save the memory asynchronously, but log if it fails for some reason
-            this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, triggerMessage, response).catch((error) => {
+            this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, sender, triggerMessage, response).catch((error) => {
                 console.error("Failed to save memory", error);
             });
         }

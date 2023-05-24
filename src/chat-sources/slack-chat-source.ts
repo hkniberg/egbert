@@ -75,6 +75,7 @@ export class SlackChatSource extends ChatSource {
             const responseMessage = await bot.generateResponse(
                 this.name,
                 socialContext,
+                message.user,
                 incomingMessage,
                 [],
             );
