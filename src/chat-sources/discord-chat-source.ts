@@ -69,7 +69,6 @@ export class DiscordChatSource extends ChatSource {
             );
 
             let sender = discordMessage.author.username;
-            const messageToSend = `${sender}: ${triggerMessage}`;
 
             // check which discord server this message came from, and use the corresponding social context
             let socialContextToUse = this.defaultSocialContext;
@@ -99,7 +98,7 @@ export class DiscordChatSource extends ChatSource {
             }
 
             let chatHistory = await this.loadDiscordChatHistory(discordMessage);
-            const responseMessage = await bot.generateResponse(this.name, socialContextToUse, sender, messageToSend, chatHistory);
+            const responseMessage = await bot.generateResponse(this.name, socialContextToUse, sender, triggerMessage, chatHistory);
             if (responseMessage) {
                 // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
                 console.log(`[${this.name} ${socialContextToUse}] ${bot.getName()}: ${responseMessage}`);
