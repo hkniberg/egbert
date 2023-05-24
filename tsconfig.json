@@ -26,5 +26,11 @@
     // This means we have files that keep track of how the JS lines map to the TS lines,
     // which makes debug breakpoints work in IDEs like Webstorm.
     "sourceMap": true,
-  }
+  },
+
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "spikes/**/*.ts"
+  ]
 }
