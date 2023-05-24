@@ -60,7 +60,7 @@ export interface MinecraftChatSourceConfig {
     rconPort: number;
     rconPassword: string;
     serverLogPath: string;
-    filter: string;
+    filter?: string;
 }
 
 export interface TelegramChatSourceConfig {

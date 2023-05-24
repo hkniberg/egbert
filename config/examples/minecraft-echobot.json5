@@ -26,13 +26,7 @@
         "rconPort": 25575,
         "rconPassword": "YOUR_RCON_PASSWORD_HERE", // this is defined in Minecraft server.properties
         "serverLogPath": "/home/minecraft/server/logs/latest.log",
-        // regexp for the chat messages that should be visible to the bot. First group should be the username (optional), second group should be the message
-        // Here is an example of two log messages and how the regexp below matches them:
-        // [02May2023 14:44:27.936] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: <MrHenrik> Hi there
-        //      => username is "MrHenrik", message is "Hi there"
-        // [02May2023 14:44:22.538] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: MrHenrik bled out
-        //      => no username, message is "MrHenrik bled out"
-        "filter": "(?:DedicatedServer\\/]:\\s|\\[Bot server]:\\s)(?:<(.+?)>)?(.*)"
+        // You can also add a 'filter' field. See description and default value in minecraft-chat-source.ts
       }
     }
   ]

@@ -6,9 +6,18 @@ import { Bot } from '../bot';
 import { CappedArray } from '../util/capped-array';
 import {ChatMessage} from "../response-generators/response-generator";
 
+// regexp for the chat messages that should be visible to the bot. This can be set in the config.
+// First group should be the username (optional), second group should be the message
+// Here is an example of two log messages and how the regexp below matches them:
+// [02May2023 14:44:27.936] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: <MrHenrik> Hi there
+//      => username is "MrHenrik", message is "Hi there"
+// [02May2023 14:44:22.538] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: MrHenrik bled out
+//      => no username, message is "MrHenrik bled out"
+const DEFAULT_FILTER = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(?:<(.+?)>)?(.*)/;
+
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
-    private readonly filter = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(.*)/;
+    private readonly filter = DEFAULT_FILTER;
     private readonly chatHistory: CappedArray<ChatMessage>;
 
     constructor(
