@@ -31,7 +31,12 @@ export class WeaviateMemoryManager extends MemoryManager {
             .get()
             .withClassName(SCHEMA_CLASS_NAME)
             .withFields('date bot chatSource socialContext trigger response')
-            .withWhere({operator: 'Equal', path: ['socialContext'], valueString: socialContext })
+            .withWhere({
+                operator: 'And',
+                operands: [
+                    {operator: 'Equal', path: ['socialContext'], valueString: socialContext },
+                    {operator: 'Equal', path: ['bot'], valueString: botName }
+                ]})
             .withNearText({ concepts: [triggerMessage] })
             .withGroup({type: 'closest', force: this.groupingForce}) // this removes duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
             //.withSort([{ path: ['date'], order: 'asc' }])
