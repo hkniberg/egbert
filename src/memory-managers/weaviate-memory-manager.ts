@@ -32,13 +32,15 @@ export class WeaviateMemoryManager extends MemoryManager {
             .withClassName(SCHEMA_CLASS_NAME)
             .withFields('date bot chatSource socialContext trigger response')
             .withWhere({operator: 'Equal', path: ['socialContext'], valueString: socialContext })
-            .withGroup({type: 'closest', force: this.groupingForce}) // this removes duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
-            .withSort([{ path: ['date'], order: 'asc' }])
             .withNearText({ concepts: [triggerMessage] })
-            .withLimit(this.limit)
+            .withGroup({type: 'closest', force: this.groupingForce}) // this removes duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
+            //.withSort([{ path: ['date'], order: 'asc' }])
+            //.withLimit(this.limit)
             .do();
 
-        return result.data.Get.Memory;
+        let memories = result.data.Get.Memory;
+        console.log(`Found ${memories.length} memories, will limit to ${this.limit}`)
+        return memories.slice(0, this.limit);
     }
 
     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, triggerMessage: string, response: string) {
