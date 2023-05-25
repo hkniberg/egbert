@@ -100,7 +100,7 @@ export class DiscordChatSource extends ChatSource {
             let chatHistory = await this.loadDiscordChatHistory(discordMessage);
             let onMessageRemembered = () => {
                 if (this.typeSpecificConfig.rememberEmoji) {
-                    discordMessage.react('💾');
+                    discordMessage.react(this.typeSpecificConfig.rememberEmoji);
                 }
             };
             const responseMessage = await bot.generateResponse(this.name, socialContextToUse, sender, triggerMessage, chatHistory, onMessageRemembered);
