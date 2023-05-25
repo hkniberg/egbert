@@ -86,7 +86,7 @@ export class Bot {
 
         if (this.memoryManager) {
             // Save the memory asynchronously, but log if it fails for some reason
-            this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, sender, triggerMessage, response).catch((error) => {
+            this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, sender, triggerMessage).catch((error) => {
                 console.error("Failed to save memory", error);
             });
         }

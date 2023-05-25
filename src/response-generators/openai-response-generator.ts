@@ -53,10 +53,8 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
             // Go through each memory and add each triggerMessage and response as separate messages in the prompt
             memories.forEach(memory => {
-                messages.push({ role: 'user', content: (memory.sender ? `[${memory.sender}]: ${memory.trigger}` : memory.trigger) });
-                if (memory.response) {
-                    messages.push({ role: 'assistant', content: memory.response });
-                }
+                const senderString = memory.sender ? `[${memory.sender}]: ` : '';
+                messages.push({ role: 'user', content: senderString + memory.message });
             });
         }
 

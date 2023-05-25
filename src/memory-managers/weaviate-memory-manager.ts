@@ -31,13 +31,13 @@ export class WeaviateMemoryManager extends MemoryManager {
         botName: string,
         socialContext: string,
         chatContext: ChatMessage[],
-        triggerMessage: string,
+        message: string,
     ): Promise<MemoryEntry[]> {
         await this.addSchemaIfMissing();
         const result = await this.weaviateClient.graphql
             .get()
             .withClassName(SCHEMA_CLASS_NAME)
-            .withFields('date bot chatSource socialContext sender trigger')
+            .withFields('date bot chatSource socialContext sender message')
             .withWhere({
                 operator: 'And',
                 operands: [
@@ -45,7 +45,7 @@ export class WeaviateMemoryManager extends MemoryManager {
                     { operator: 'Equal', path: ['bot'], valueString: botName },
                 ],
             })
-            .withNearText({ concepts: [triggerMessage] }) // TODO this should probably be the whole chat context, not just the trigger
+            .withNearText({ concepts: [message] })
             .withGroup({ type: 'closest', force: this.groupingForce }) // this removes duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
             .do();
 
@@ -69,9 +69,8 @@ export class WeaviateMemoryManager extends MemoryManager {
         botName: string,
         socialContext: string,
         sender: string | null,
-        triggerMessage: string,
-        response: string,
-    ) {
+        message: string,
+    ): Promise<void> {
         await this.addSchemaIfMissing();
         const objectToSave = {
             class: SCHEMA_CLASS_NAME,
@@ -81,7 +80,7 @@ export class WeaviateMemoryManager extends MemoryManager {
                 chatSource: chatSource,
                 socialContext: socialContext,
                 sender: sender,
-                trigger: triggerMessage,
+                message: message,
             },
         };
 
@@ -117,7 +116,7 @@ export class WeaviateMemoryManager extends MemoryManager {
                     dataType: ['string'],
                 },
                 {
-                    name: 'trigger',
+                    name: 'message',
                     dataType: ['string'],
                 },
             ],

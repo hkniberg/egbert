@@ -5,9 +5,8 @@ export interface MemoryEntry {
     bot: string,
     chatSource: string,
     socialContext: string,
-    sender?: string,
-    trigger: string,
-    response?: string
+    sender?: string, //sometimes there is no sender, for example death messages in minecraft
+    message: string
 }
 
 /**
@@ -21,7 +20,7 @@ export abstract class MemoryManager {
         this.name = name;
     }
 
-    abstract loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], triggerMessage: string): Promise<MemoryEntry[]>;
+    abstract loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], message: string): Promise<MemoryEntry[]>;
 
-    abstract maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, triggerMessage: string, response: string): Promise<void>;
+    abstract maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<void>;
 }

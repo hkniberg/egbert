@@ -17,15 +17,15 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
         this.pattern = new RegExp(typeSpecificConfig.pattern, 'i');
     }
 
-    async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], triggerMessage: string): Promise<MemoryEntry[]> {
+    async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], message: string): Promise<MemoryEntry[]> {
         const memoriesFilePath = await this.getMemoriesFilePath(botName, socialContext);
-        const messageTriggers = await this.getStoredMemoriesOrEmptyList(memoriesFilePath);
-        return messageTriggers.map(messageTrigger => {
+        const memories = await this.getStoredMemoriesOrEmptyList(memoriesFilePath);
+        return memories.map(memory => {
             return {
                 bot: botName,
                 chatSource: chatSource,
                 socialContext: socialContext,
-                trigger: messageTrigger,
+                message: memory,
             }
         });
     }
@@ -34,8 +34,8 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
      * Save the given message if it matches the pattern. Also trims whitespace.
      * For example "Remember: I like pizza" would be saved as "I like pizza" if the pattern is "Remember:(.*)"
      */
-     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string, triggerMessage: string, response: string) {
-        const match = triggerMessage.match(this.pattern);
+     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<void> {
+        const match = message.match(this.pattern);
         if (!match) {
             return;
         }
