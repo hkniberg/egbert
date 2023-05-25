@@ -116,6 +116,7 @@ export class WeaviateMemoryManager extends MemoryManager {
             temperature: 0,
         };
         // console.log('This is what Weaviate memory manager will send to OpenAI:', body.messages);
+        console.log("Asking OpenAI if I should remember this message");
         const response = await axios.post(OPEN_AI_URL, body, { headers: headers });
         const responseContent = response.data.choices[0].message.content;
 

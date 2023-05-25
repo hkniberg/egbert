@@ -75,6 +75,13 @@ export class Bot {
 
         let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSource, this.name, socialContext, chatContext, triggerMessage) : [];
 
+        if (this.memoryManager) {
+            // Save the memory asynchronously, but log if it fails for some reason
+            this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, sender, triggerMessage).catch((error) => {
+                console.error("Failed to save memory", error);
+            });
+        }
+
         let response = await this.responseGenerator.generateResponse(
             triggerMessage,
             sender,
@@ -83,13 +90,6 @@ export class Bot {
             memories,
             chatContext,
         );
-
-        if (this.memoryManager) {
-            // Save the memory asynchronously, but log if it fails for some reason
-            this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, sender, triggerMessage).catch((error) => {
-                console.error("Failed to save memory", error);
-            });
-        }
 
         console.log(`${this.name} will respond`);
         return response;
