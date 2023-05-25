@@ -119,7 +119,7 @@ Bots can have a long-term memory (= stored on disk). This is done by hooking up 
 We currently support two memory managers:
 - **Keyword triggered memory manager**: The bot remembers things when you ask it to remember them.
 For example `"Egbert, remember: Never laugh at Dave's jokes"`. Memories are saved in a JSON file in the `memories` folder.
-- **Weaviate memory manager**: The bot remembers everything that is said to it and stores in [Weaviate](https://weaviate.io/), 
+- **Weaviate memory manager**: The bot remembers everything important that is said to it and stores in [Weaviate](https://weaviate.io/), 
 an open source vector DB that you can easily run locally.
 When generating responses it will selectively include memories that are relevant to the current chat context.
 
