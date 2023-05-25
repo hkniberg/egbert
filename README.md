@@ -201,7 +201,7 @@ regardless of how many are stored. So it is less likely to cause token limit pro
 The problem with saving ALL messages is that you get quite a lot of junk in the vector DB, things like "Hi Egbert" or questions
 like "Egbert, what do you think?". These are not very useful memories to recall when generating responses. 
 To solve this, we can ask GPT to determine if a message is worth saving or not. 
-See the commented out section of `config/examples/docker-compose.yml` for an example of this. 
+See the commented out section of `config/examples/console-openai-weaviate.json5` for an example of this. 
 
 # Social context
 
