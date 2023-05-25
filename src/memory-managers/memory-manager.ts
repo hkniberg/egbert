@@ -22,5 +22,5 @@ export abstract class MemoryManager {
 
     abstract loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], message: string): Promise<MemoryEntry[]>;
 
-    abstract maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<void>;
+    abstract maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<boolean>;
 }

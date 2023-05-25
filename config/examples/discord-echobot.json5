@@ -33,6 +33,10 @@
           },
         ]
         */
+
+        /* If your bot uses memoryManagers, you can use rememberEmoji to make the bot react to remembered messages
+        "rememberEmoji": "💾"
+        */
       }
     }
   ]

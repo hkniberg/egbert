@@ -70,11 +70,11 @@ export class WeaviateMemoryManager extends MemoryManager {
         socialContext: string,
         sender: string | null,
         message: string,
-    ): Promise<void> {
+    ): Promise<boolean> {
         await this.addSchemaIfMissing();
 
         if (!await this.isMessageWorthRemembering(message)) {
-            return;
+            return false;
         }
 
         const objectToSave = {
@@ -90,6 +90,7 @@ export class WeaviateMemoryManager extends MemoryManager {
         };
 
         await this.weaviateClient.batch.objectsBatcher().withObject(objectToSave).do();
+        return true;
     }
 
     /**

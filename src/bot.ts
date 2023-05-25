@@ -63,6 +63,8 @@ export class Bot {
      * Includes chat context (recent chat messages before the incoming message) and any relevant memories in the prompt.
      * It is up to the caller to call willRespond() first to check if the bot wants to respond.
      * That's a separate call to avoid having to load the chat context unnecessarily if the bot isn't going to respond.
+     *
+     * @param onMessageRemembered Optional callback that will be called if the bot remembers the message, so the chat source can put an emoji on it or something.
      */
     public async generateResponse(
         chatSource: string,
@@ -70,6 +72,7 @@ export class Bot {
         sender: string | null,
         triggerMessage: string,
         chatContext: ChatMessage[],
+        onMessageRemembered?: () => void,
     ): Promise<string | null> {
         console.log(`${this.name} received message "${triggerMessage}" in social context ${socialContext}`);
 
@@ -79,6 +82,10 @@ export class Bot {
             // Save the memory asynchronously, but log if it fails for some reason
             this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, sender, triggerMessage).catch((error) => {
                 console.error("Failed to save memory", error);
+            }).then((saved  ) => {
+                if (saved && onMessageRemembered) {
+                    onMessageRemembered();
+                }
             });
         }
 

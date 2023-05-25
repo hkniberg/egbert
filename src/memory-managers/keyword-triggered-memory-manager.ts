@@ -34,14 +34,15 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
      * Save the given message if it matches the pattern. Also trims whitespace.
      * For example "Remember: I like pizza" would be saved as "I like pizza" if the pattern is "Remember:(.*)"
      */
-     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<void> {
+     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<boolean> {
         const match = message.match(this.pattern);
         if (!match) {
-            return;
+            return false;
         }
         const memory = match[1].trim();
         await this.saveMemory(sender, memory, botName, socialContext);
         console.log(`${this.name} saved memory for context ${socialContext}: ${memory}`);
+        return true;
     }
 
     /**

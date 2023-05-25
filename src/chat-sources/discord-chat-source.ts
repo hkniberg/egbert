@@ -98,7 +98,12 @@ export class DiscordChatSource extends ChatSource {
             }
 
             let chatHistory = await this.loadDiscordChatHistory(discordMessage);
-            const responseMessage = await bot.generateResponse(this.name, socialContextToUse, sender, triggerMessage, chatHistory);
+            let onMessageRemembered = () => {
+                if (this.typeSpecificConfig.rememberEmoji) {
+                    discordMessage.react(this.typeSpecificConfig.rememberEmoji);
+                }
+            };
+            const responseMessage = await bot.generateResponse(this.name, socialContextToUse, sender, triggerMessage, chatHistory, onMessageRemembered);
             if (responseMessage) {
                 // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
                 console.log(`[${this.name} ${socialContextToUse}] ${bot.getName()}: ${responseMessage}`);
