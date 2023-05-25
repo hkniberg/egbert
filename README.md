@@ -123,6 +123,12 @@ For example `"Egbert, remember: Never laugh at Dave's jokes"`. Memories are save
 an open source vector DB that you can easily run locally.
 When generating responses it will selectively include memories that are relevant to the current chat context.
 
+Which to choose? That depends.
+- Keyword triggered memory manager gives you 100% control over what your bot remembers.
+But you can't add too many memories because of GPT token limits.
+- Weaviate memory manager is fully automated and more scalable, but everything gets saved so
+you have less control over which memories your bot will recall when answering. 
+
 Regardless of which memory manager you use, the relevant memories will be included in the prompt to GPT.
 
 > **GPT Prompt:**  
@@ -154,6 +160,9 @@ You'll see a file popping up in your `memories` folder,
 and the console will show how the memories are included in each prompt.
 Restart the app (to clear the chat history) and ask some questions to test if Egbert remembered correctly.
 
+One caveat with this memory manager is that it always includes all stored memories in the GPT prompt,
+so if you have too many memories you will hit the GPT token limit and get an error.
+
 ## Weaviate memory manager
 
 - Take a look at `config/examples/console-openai-weaviate.json5`
@@ -173,12 +182,15 @@ That's it! Now you have a running Weaviate DB listening on port 8080,
 and the weaviate example config above should work right out of the box.
 
 Try it! Start up the app and chat with Egbert about some random topics.
-The console will show how relevant memories are included in each prompt.
+The console will show how a fixed number of relevant memories are included in each prompt.
 Restart the app (to clear the chat history) and ask some questions to test if Egbert remembered correctly.
 
 Note that the sample docker-compose file has some commented out lines that you can use to configure where
 the memories are stored on disk. If you don't do this, the memories will disappear if the docker container is removed.
 Useful for testing, but for production you probably want to store the memories on disk.
+
+The nice thing about this memory manager is that it includes only a fixed number of memories in each prompt,
+regardless of how many are stored. So it is less likely to cause token limit problems.
 
 # Social context
 
