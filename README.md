@@ -147,6 +147,12 @@ This makes the bots more useful, and a lot more fun. For example exchanges like 
 > * [Jim] Hey Egbert, you seem a bit buggy today.
 > * [Egbert] Not my fault. Go talk to Mr Genius Coder Henrik over there.
 
+A fun little detail is that you configure the discord chat source to add an emoji to
+any message that it has remembered. That's especially useful with the Weaviate memory manager,
+since you wouldn't know otherwise.
+
+![img.png](docs/images/remember-emoji.png)
+
 ## Keyword triggered memory manager
 
 To enable keyword triggered memory management:
