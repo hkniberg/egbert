@@ -126,8 +126,8 @@ When generating responses it will selectively include memories that are relevant
 Which to choose? That depends.
 - Keyword triggered memory manager gives you 100% control over what your bot remembers.
 But you can't add too many memories because of GPT token limits.
-- Weaviate memory manager is fully automated and more scalable, but everything gets saved so
-you have less control over which memories your bot will recall when answering. 
+- Weaviate memory manager is fully automated and more scalable, 
+but you have less control over exactly which memories your bot will save and recall. 
 
 Regardless of which memory manager you use, the relevant memories will be included in the prompt to GPT.
 
