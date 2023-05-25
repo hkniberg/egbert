@@ -49,20 +49,19 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         // Add the memories
         if (memories.length > 0) {
-            messages.push({ role: 'user', content: `Here are all your relevant memories:` })
+            let memoryString = 'Here are all your memories relevant to this conversation, with message sender in brackets:\n';
 
-            // Go through each memory and add each triggerMessage and response as separate messages in the prompt
+            // Go through each memory and add each triggerMessage and response as separate lines in the memoryString
             memories.forEach(memory => {
                 const senderString = memory.sender ? `[${memory.sender}]: ` : '';
-                messages.push({ role: 'user', content: senderString + memory.message });
+                memoryString += '* ' + senderString + memory.message + '\n';
             });
+
+            messages.push({ role: 'user', content: memoryString });
         }
 
         // Add the chat history
         if (chatHistory.length > 0) {
-
-            messages.push({ role: 'user', content: `Here is the recent chat history.` })
-
             // add each chat message to the prompt, separately. If the sender is the same as the bot, then use 'assistant' as the role
             chatHistory.forEach(chatMessage => {
                 if (chatMessage.sender && chatMessage.sender.toLowerCase() == botName.toLowerCase()) {
@@ -75,7 +74,6 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         }
 
         // Add the user prompt
-        messages.push({ role: 'user', content: `Please respond to the following prompt:` })
         const senderString = sender ? `[${sender}]: ` : '';
         messages.push({ role: 'user', content: senderString + triggerMessage});
 
