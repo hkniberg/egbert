@@ -1,0 +1,61 @@
+{
+  /**
+    * This config file connects OpenAI with the console, so you can type stuff and get snarky
+    * responses from egbert via GPT.
+    *
+    * A bot is a chat agent with an optional personality.
+    * It needs to belong to one or more social contexts where it reacts and responds to
+    * messages in any associated chat sources.
+    * If it is triggered to make a response it will use a response generator.
+   */
+  "bots": [
+    {
+      "name": "egbert",
+      "personality": "You are Egbert, a sarcastic and witty bot that never gives a straight answer",
+      "memoryManager": "keyword",
+      "responseGenerator": "gpt",
+      "socialContexts": ["friends"]
+    },
+  ],
+
+  /**
+    * A memory manager controls when and how to save messages to long-term memory,
+    * and which memories to include in the prompt to the response generator.
+    */
+  "memoryManagers": [
+    {
+      // This type of memory lets you manually inject long-term memory to a bot by typing keywords.
+      // For example "Egbert, remember: Henrik sucks at dancing" will save "Henrik sucks at dancing" to the memory file.
+      // The memories are stored on disk, one memory file per social context it is part of.
+      // All memories will be included in every chat prompt, so this only works if we don't have too many memories
+      // and we stay within token limits.
+      "name": "keyword",
+      "type": "keywordTriggered",
+      "typeSpecificConfig": {
+        "memoriesFolder": "memories", // where on disk we should store memory files
+        "pattern": "remember:(.*)" // regexp defining which messages should cause a memory to be saved, and which part should be saved
+      }
+    }
+  ],
+
+  "responseGenerators": [
+    {
+      "name": "gpt",
+      "type": "openai",
+      "typeSpecificConfig": {
+        "apiKey": "YOUR_API_KEY_HERE", // https://platform.openai.com/account/api-keys
+        "model": "gpt-3.5-turbo", // https://platform.openai.com/docs/models/model-endpoint-compatibility
+        "temperature": 1 // 0 = more predictable, 1 = more random and creative
+      }
+    }
+  ],
+
+  "chatSources": [
+    {
+      "name": "console",
+      "type": "console",
+      "maxChatHistoryLength": 20, // how many previous chat messages to include in the prompt to the response generator
+      "defaultSocialContext": "friends"
+    },
+  ]
+}

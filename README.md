@@ -114,50 +114,71 @@ The prompt sent to OpenAI will look something like this:
 
 # Memories
 
-A bot can be asked to remember things. For example:
+Bots can have a long-term memory (= stored on disk). This is done by hooking up a **memory manager** to the bot.
 
-> * [Henrik] Hey Egbert, remember: I like to code
- 
-The keyword for this is configurable, but by default it is `remember:`
+We currently support two memory managers:
+- **Keyword triggered memory manager**: The bot remembers things when you ask it to remember them.
+For example `"Egbert, remember: Never laugh at Dave's jokes"`. Memories are saved in a JSON file in the `memories` folder.
+- **Weaviate memory manager**: The bot remembers everything that is said to it and stores in [Weaviate](https://weaviate.io/), 
+an open source vector DB that you can easily run locally.
+When generating responses it will selectively include memories that are relevant to the current chat context.
 
-This causes the bot to save this memory to a local file on the server,
-and include it in all future prompts to GPT.
-
-This makes the bot more fun, and potentially more useful too.
-
-> * [Henrik] Hey Egbert, you seem a bit buggy today.
-> * [Egbert] Well guess who's fault that is, Mr Genius Coder?
-
-The prompt to GPT includes both recent chat context and all memories.
+Regardless of which memory manager you use, the relevant memories will be included in the prompt to GPT.
 
 > **GPT Prompt:**  
-> You are Egbert, a sarcastic unhelpful bot.  
-> You have the following memories:  
-> * [Henrik] Hey Egbert, remember: I like to code
+> You are Egbert, a sarcastic unhelpful bot.
 > 
->Here is the recent chat history:
-> * ....
->
-> Respond to this:
-> * [Henrik] Hey Egbert, you seem a bit buggy today.
+> You have the following memories:
+> * [Jim] Never laugh at Dave's jokes
+> * [Henrik] I made Egbert because I like to code
+>  
+> (recent chat history here)
+> 
+> [Jim] Hey Egbert, you seem a bit buggy today.
 
-To enable memories, add a ```memoryManagers``` section to your config:
-```json5
-{
-  "memoryManagers": [
-    {
-      "name": "keywordTriggered",
-      "type": "keywordTriggered",
-      "typeSpecificConfig": {
-        "memoriesFolder": "memories", // memory files will be added to this folder
-        "pattern": "remember:(.*)" 
-      }
-    }
-  ]
-}
-```
+This makes the bots more useful, and a lot more fun. For example exchanges like this:
 
-And add ```"memoryManager": "keywordTriggered"``` to your bot config entry.
+> * [Jim] Hey Egbert, you seem a bit buggy today.
+> * [Egbert] Not my fault. Go talk to Mr Genius Coder Henrik over there.
+
+## Keyword triggered memory manager
+
+To enable keyword triggered memory management:
+ 
+- Take a look at `config/examples/console-openai-keywordmemory.json5`
+- Copy the `memoryManagers` section to your config. 
+- Add `"memoryManager": "keyword"` to your bot config entry.
+
+That's it. Try it! Start up the app and inject some memories using "Egbert, remember: ....".
+You'll see a file popping up in your `memories` folder, 
+and the console will show how the memories are included in each prompt.
+Restart the app (to clear the chat history) and ask some questions to test if Egbert remembered correctly.
+
+## Weaviate memory manager
+
+- Take a look at `config/examples/console-openai-weaviate.json5`
+- Copy the `memoryManagers` section to your config.
+- Insert your openAi key there, and tweak any other numbers if you like.
+- Add `"memoryManager": "weaviate"` to your bot config entry.
+
+You will need a weaviate instance to connect to.
+
+You can easily run weaviate locally using [docker compose](https://docs.docker.com/compose/install/).
+For starters, you can simply run `config/examples/docker-compose.yml`.
+
+- `cd config/examples` 
+- `docker-compose up`
+
+That's it! Now you have a running Weaviate DB listening on port 8080,
+and the weaviate example config above should work right out of the box.
+
+Try it! Start up the app and chat with Egbert about some random topics.
+The console will show how relevant memories are included in each prompt.
+Restart the app (to clear the chat history) and ask some questions to test if Egbert remembered correctly.
+
+Note that the sample docker-compose file has some commented out lines that you can use to configure where
+the memories are stored on disk. If you don't do this, the memories will disappear if the docker container is removed.
+Useful for testing, but for production you probably want to store the memories on disk.
 
 # Social context
 
@@ -183,17 +204,15 @@ For example a single Discord chat source may connect to multiple Discord servers
 and you can configure each one to use a different social context.
 
 An incoming message will only be relayed to bots that are in that social context.
-A bot can belong to multiple social contexts and it will store memories separately for each.
-
-# Future plan: automated memories with vector databases
-
-We are currently working on an automated approach to memories. Instead of manually injecting memories by typing `remember:`, 
-we will save a chat log and use a vector database to figure out which parts of the chat history are relevant in each GPT prompt.
+A bot can belong to multiple social contexts and it will keep those memories separate.
 
 # Known issue: Token limits
 
 When talking to GPT there is a limit to how much text can be included in a prompt & response. 
 Currently the application crashes when we hit that limit. We need to implement token counting.
+
+This is especially an issue with the keyword triggered memory manager (see above).
+If you add too many memories it will crash every time because of token limits. 
 
 # Which chat sources are provided?
 

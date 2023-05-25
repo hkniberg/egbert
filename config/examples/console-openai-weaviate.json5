@@ -1,0 +1,61 @@
+{
+  /**
+    * This config file connects OpenAI with the console, so you can type stuff and get snarky
+    * responses from egbert via GPT.
+    *
+    * A bot is a chat agent with an optional personality.
+    * It needs to belong to one or more social contexts where it reacts and responds to
+    * messages in any associated chat sources.
+    * If it is triggered to make a response it will use a response generator.
+   */
+  "bots": [
+    {
+      "name": "egbert",
+      "personality": "You are Egbert, a sarcastic and witty bot that never gives a straight answer",
+      "memoryManager": "weaviate",
+      "responseGenerator": "gpt",
+      "socialContexts": ["friends"]
+    },
+  ],
+
+  /**
+    * A memory manager controls when and how to save messages to long-term memory,
+    * and which memories to include in the prompt to the response generator.
+    */
+  "memoryManagers": [
+    {
+      // Weaviate is a vector DB that stores messages and embeddings to disk.
+      // It uses OpenAI to generate the embeddings, hence the openAiKey below.
+      name: "weaviate",
+      type: "weaviate",
+      "typeSpecificConfig": {
+        "scheme": "http",
+        "host": "localhost:8080",
+        "openAiKey": "YOUR_API_KEY_HERE",
+        "limit": 10, // max memory entries to include in the prompt to the response generator
+        "groupingForce": 0.02 // 0-1. How aggressively we ignore duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
+      }
+    }
+  ],
+
+  "responseGenerators": [
+    {
+      "name": "gpt",
+      "type": "openai",
+      "typeSpecificConfig": {
+        "apiKey": "YOUR_API_KEY_HERE", // https://platform.openai.com/account/api-keys
+        "model": "gpt-3.5-turbo", // https://platform.openai.com/docs/models/model-endpoint-compatibility
+        "temperature": 1 // 0 = more predictable, 1 = more random and creative
+      }
+    }
+  ],
+
+  "chatSources": [
+    {
+      "name": "console",
+      "type": "console",
+      "maxChatHistoryLength": 20, // how many previous chat messages to include in the prompt to the response generator
+      "defaultSocialContext": "friends"
+    },
+  ]
+}
