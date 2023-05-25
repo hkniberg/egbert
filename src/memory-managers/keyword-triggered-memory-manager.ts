@@ -40,7 +40,7 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
             return;
         }
         const memory = match[1].trim();
-        await this.saveMemory(memory, botName, socialContext);
+        await this.saveMemory(sender, memory, botName, socialContext);
         console.log(`${this.name} saved memory for context ${socialContext}: ${memory}`);
     }
 
@@ -48,11 +48,13 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
      * Saves the given memory to a memory file named based on the bot name and social context.
      * Creates the file if it didn't already exist.
      */
-    private async saveMemory(memory: string, botName: string, socialContext: string) {
+    private async saveMemory(sender: string | null, memory: string, botName: string, socialContext: string) {
         const memoriesFilePath = await this.getMemoriesFilePath(botName, socialContext);
 
+        const senderString = sender ? `[${sender}]: ` : '';
+
         const memories = await this.getStoredMemoriesOrEmptyList(memoriesFilePath);
-        memories.push(memory);
+        memories.push(senderString + memory);
         await saveJsonFile(memories, memoriesFilePath);
     }
 

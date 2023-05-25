@@ -15,7 +15,7 @@ import {ChatMessage} from "../response-generators/response-generator";
 // => sender is null, message is "Hey Sam, remember: Life is good
 //
 const REGEXP = /(?:^(\w+):\s*)?(.+)/;
-
+const DEFAULT_USER = 'ConsoleUser'
 
 export class ConsoleChatSource extends ChatSource {
     private readonly chatHistory: CappedArray<ChatMessage>;
@@ -43,7 +43,7 @@ export class ConsoleChatSource extends ChatSource {
                 return;
             }
 
-            const sender = strmatch[1] ? strmatch[1].trim() : null;
+            const sender = strmatch[1] ? strmatch[1].trim() : DEFAULT_USER;
             const triggerMessage = strmatch[2].trim();
 
             const messagesToAddToChatHistory: ChatMessage[] = [{sender: sender, message: triggerMessage}];
