@@ -3,7 +3,7 @@ A sarcastic gpt-based chat bot.
 
 Actually no, its a platform where you can define your own gpt-based bots,
 give them personalities and memories,
-and have them talk on Discord, Minecraft, and places.
+and have them talk on Discord, Slack, Minecraft, and other places.
 
 But Egbert was the first bot here and he won't let you forget it.
 
