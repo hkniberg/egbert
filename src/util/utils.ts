@@ -25,3 +25,12 @@ export function noEmptyString(input: string | null): string | null {
     }
     return null;
 }
+
+/**
+ * Utility function to delay execution
+ * @param ms Number of milliseconds to delay
+ * @returns A promise to wait for
+ */
+export function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}

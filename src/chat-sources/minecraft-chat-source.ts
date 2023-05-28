@@ -4,6 +4,7 @@ import { Rcon } from 'rcon-client';
 import { Tail } from 'tail';
 import { Bot } from '../bot';
 import { CappedArray } from '../util/capped-array';
+import { delay } from '../util/utils';
 import { ChatMessage } from "../response-generators/response-generator";
 
 // regexp for the chat messages that should be visible to the bot. This can be set in the config.
@@ -134,22 +135,13 @@ export class MinecraftChatSource extends ChatSource {
 
                 if (retryCount < maxRetries) {
                     console.log('Retrying...');
-                    await this.delay(retryIntervalMs); // Wait for the specified interval before retrying
+                    await delay(retryIntervalMs); // Wait for the specified interval before retrying
                 } else {
                     console.error('Max retries reached, giving up.');
                     return;
                 }
             }
         }
-    }
-
-    /**
-     * Utility function to delay execution
-     * @param ms Number of milliseconds to delay
-     * @returns A promise to wait for
-     */
-    private delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     /**
