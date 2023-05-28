@@ -4,7 +4,7 @@ import { Rcon } from 'rcon-client';
 import { Tail } from 'tail';
 import { Bot } from '../bot';
 import { CappedArray } from '../util/capped-array';
-import {ChatMessage} from "../response-generators/response-generator";
+import { ChatMessage } from "../response-generators/response-generator";
 
 // regexp for the chat messages that should be visible to the bot. This can be set in the config.
 // First group should be the username (optional), second group should be the message
@@ -66,7 +66,7 @@ export class MinecraftChatSource extends ChatSource {
         const senderString = sender ? `<${sender}> ` : '';
         console.log(`Got message from Minecraft server log: ${senderString} ${triggerMessage}`);
 
-        const messagesToAddToChatHistory: ChatMessage[] = [{sender: sender, message: triggerMessage}];
+        const messagesToAddToChatHistory: ChatMessage[] = [{ sender: sender, message: triggerMessage }];
 
         const respondingBots: Bot[] = this.getRespondingBots(triggerMessage);
         if (respondingBots.length === 0) {
@@ -89,7 +89,7 @@ export class MinecraftChatSource extends ChatSource {
             if (responseMessage) {
                 // technically we could skip await and do these in paralell, but for now I'm choosing the path of least risk
                 const responseMessageWithBotName = `<${bot.getName()}> ${responseMessage}`;
-                messagesToAddToChatHistory.push({sender: bot.getName(), message: responseMessage});
+                messagesToAddToChatHistory.push({ sender: bot.getName(), message: responseMessage });
                 await this.sendChatToMinecraftServer(responseMessageWithBotName);
             }
         }
@@ -104,20 +104,52 @@ export class MinecraftChatSource extends ChatSource {
     }
 
     private async sendChatToMinecraftServer(responseMessageWithBotName: string) {
-        const rcon = await Rcon.connect({
-            host: this.typeSpecificConfig.rconHost,
-            port: this.typeSpecificConfig.rconPort,
-            password: this.typeSpecificConfig.rconPassword,
-        });
+        const maxRetries = 3;
+        const retryIntervalMs = 1000;
 
-        console.log('Sending message to Minecraft server: ' + responseMessageWithBotName);
+        let retryCount = 0;
+        let response = null;
 
-        let escapedMessageWithBotName = JSON.stringify(responseMessageWithBotName);
-        let response = await rcon.send(`tellraw @a {"text":${escapedMessageWithBotName}, "color":"white"}`);
+        while (retryCount < maxRetries) {
+            try {
+                const rcon = await Rcon.connect({
+                    host: this.typeSpecificConfig.rconHost,
+                    port: this.typeSpecificConfig.rconPort,
+                    password: this.typeSpecificConfig.rconPassword,
+                });
 
-        console.log('.... sent message, got response: ', response);
+                console.log('Sending message to Minecraft server: ' + responseMessageWithBotName);
 
-        await rcon.end();
+                let escapedMessageWithBotName = JSON.stringify(responseMessageWithBotName);
+                let response = await rcon.send(`tellraw @a {"text":${escapedMessageWithBotName}, "color":"white"}`);
+
+                console.log('.... sent message, got response: ', response);
+
+                await rcon.end();
+                break;
+
+            } catch (error) {
+                console.error(`Error occurred when sending to Minecraft RCON: ${error}`);
+                retryCount++;
+
+                if (retryCount < maxRetries) {
+                    console.log('Retrying...');
+                    await this.delay(retryIntervalMs); // Wait for the specified interval before retrying
+                } else {
+                    console.error('Max retries reached, giving up.');
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Utility function to delay execution
+     * @param ms Number of milliseconds to delay
+     * @returns A promise to wait for
+     */
+    private delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     /**
