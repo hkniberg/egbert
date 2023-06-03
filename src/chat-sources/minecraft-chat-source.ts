@@ -5,7 +5,7 @@ import { Tail } from 'tail';
 import { Bot } from '../bot';
 import { CappedArray } from '../util/capped-array';
 import { delay } from '../util/utils';
-import { ChatMessage } from "../response-generators/response-generator";
+import { ChatMessage } from '../response-generators/response-generator';
 
 // regexp for the chat messages that should be visible to the bot. This can be set in the config.
 // First group should be the username (optional), second group should be the message
@@ -14,7 +14,7 @@ import { ChatMessage } from "../response-generators/response-generator";
 //      => username is "MrHenrik", message is "Hi there"
 // [02May2023 14:44:22.538] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: MrHenrik bled out
 //      => no username, message is "MrHenrik bled out"
-const DEFAULT_FILTER = /(?:DedicatedServer\/]:\s|\[Bot server]:\s)(?:<(.+?)>)?(.*)/;
+const DEFAULT_FILTER = /(?:DedicatedServer\/]:\s|\[Bot server]:\s|\[Server thread\/INFO]:\s)(?:<(.+?)>)?(.*)/;
 
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
@@ -128,7 +128,6 @@ export class MinecraftChatSource extends ChatSource {
 
                 await rcon.end();
                 break;
-
             } catch (error) {
                 console.error(`Error occurred when sending to Minecraft RCON: ${error}`);
                 retryCount++;
