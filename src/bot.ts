@@ -1,6 +1,7 @@
-import {ChatMessage, ResponseGenerator} from './response-generators/response-generator';
+import {ChatMessage, ChatSourceHistory, ResponseGenerator} from './response-generators/response-generator';
 import {BotTriggerConfig} from './config';
 import {MemoryManager} from "./memory-managers/memory-manager";
+import { ChatSource } from './chat-sources/chat-source';
 
 // Used to define which types of messages the bot will respond to,
 // and the probability of responding.
@@ -17,6 +18,7 @@ export class Bot {
     private readonly socialContexts: Array<string>;
     private readonly responseGenerator: ResponseGenerator;
     private readonly botTriggers: Array<BotTrigger>;
+    private readonly chatSources: Array<ChatSource> = [];
 
     constructor(
         name: string,
@@ -50,6 +52,10 @@ export class Bot {
         return this.name;
     }
 
+    addChatSource(chatSource: ChatSource) {
+        this.chatSources.push(chatSource);
+    }
+
     /**
      * Checks all bot triggers to see if any will respond to the given message & socialContext.
      * Takes probability into account.
@@ -67,7 +73,7 @@ export class Bot {
      * @param onMessageRemembered Optional callback that will be called if the bot remembers the message, so the chat source can put an emoji on it or something.
      */
     public async generateResponse(
-        chatSource: string,
+        chatSourceName: string,
         socialContext: string,
         sender: string | null,
         triggerMessage: string,
@@ -76,17 +82,27 @@ export class Bot {
     ): Promise<string | null> {
         console.log(`${this.name} received message "${triggerMessage}" in social context ${socialContext}`);
 
-        let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSource, this.name, socialContext, triggerMessage) : [];
+        let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSourceName, this.name, socialContext, triggerMessage) : [];
 
         if (this.memoryManager) {
             // Save the memory asynchronously, but log if it fails for some reason
-            this.memoryManager.maybeSaveMemory(chatSource, this.name, socialContext, sender, triggerMessage).catch((error) => {
+            this.memoryManager.maybeSaveMemory(chatSourceName, this.name, socialContext, sender, triggerMessage).catch((error) => {
                 console.error("Failed to save memory", error);
             }).then((saved  ) => {
                 if (saved && onMessageRemembered) {
                     onMessageRemembered();
                 }
             });
+        }
+
+        // Get the chat history from other chat sources
+        let otherChatSourceHistories: ChatSourceHistory[] = [];
+        for (let chatSource of this.chatSources) {
+            // Don't include the chat source that the message came from. Include only those that match the crossReferencePattern.
+            if (chatSource.getName() !== chatSourceName && chatSource.getCrossReferencePattern()?.test(triggerMessage)) {
+                let chatSourceHistory = await chatSource.getChatHistory();
+                otherChatSourceHistories.push({ chatSource: chatSource.getName(), chatHistory: chatSourceHistory });
+            }
         }
 
         let response = await this.responseGenerator.generateResponse(
@@ -96,6 +112,7 @@ export class Bot {
             this.personality,
             memories,
             chatContext,
+            otherChatSourceHistories,
         );
 
         console.log(`${this.name} will respond`);

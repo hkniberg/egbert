@@ -32,6 +32,7 @@ for (const botConfig of config.bots) {
     for (const chatSource of chatSources.values()) {
         if (bot.isMemberOfAnySocialContext(chatSource.getSocialContexts())) {
             chatSource.addBot(bot);
+            bot.addChatSource(chatSource);
             console.log(
                 `  Added bot '${bot.getName()}' to chat source '${chatSource.getName()}', since they share at least one social context.`,
             );

@@ -20,8 +20,13 @@ const DEFAULT_USER = 'ConsoleUser'
 export class ConsoleChatSource extends ChatSource {
     private readonly chatHistory: CappedArray<ChatMessage>;
 
-    constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number) {
-        super(name, defaultSocialContext, maxChatHistoryLength);
+    constructor(
+        name: string, 
+        defaultSocialContext: string | null, 
+        maxChatHistoryLength: number,
+        crossReferencePattern: string | null,
+    ) {
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.chatHistory = new CappedArray<ChatMessage>(maxChatHistoryLength);
     }
 

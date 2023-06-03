@@ -6,6 +6,11 @@ export interface ChatMessage {
     message: string
 }
 
+export interface ChatSourceHistory {
+    chatSource: string,
+    chatHistory: ChatMessage[]
+}
+
 export interface ResponseGenerator {
     generateResponse(
         triggerMessage: string,
@@ -14,5 +19,6 @@ export interface ResponseGenerator {
         personality: string,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
+        otherChatSourceHistories: ChatSourceHistory[],
     ): Promise<string>;
 }

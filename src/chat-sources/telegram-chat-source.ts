@@ -11,9 +11,10 @@ export class TelegramChatSource extends ChatSource {
         name: string,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
+        crossReferencePattern: string | null,
         typeSpecificConfig: TelegramChatSourceConfig,
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.typeSpecificConfig = typeSpecificConfig;
 
         this.telegramClient = new Telegraf(this.typeSpecificConfig.botToken);

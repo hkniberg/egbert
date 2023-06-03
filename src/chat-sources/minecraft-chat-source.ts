@@ -25,9 +25,10 @@ export class MinecraftChatSource extends ChatSource {
         name: string,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
+        crossReferencePattern: string | null,
         typeSpecificConfig: MinecraftChatSourceConfig,
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         if (!defaultSocialContext) {
             throw new Error('MinecraftChatSource must have a default social context');
         }
@@ -149,4 +150,9 @@ export class MinecraftChatSource extends ChatSource {
     private isMessageFromBot(message: string, bot: Bot) {
         return message.indexOf(`<${bot.getName()}>`) >= 0;
     }
+
+    async getChatHistory(): Promise<ChatMessage[]> {
+        return this.chatHistory.getAll();
+    }
+    
 }

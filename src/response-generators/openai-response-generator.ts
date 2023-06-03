@@ -1,7 +1,7 @@
 // response-generators/openai-response-generator.ts
 
 import axios from 'axios';
-import {ChatMessage, ResponseGenerator} from './response-generator';
+import {ChatMessage, ChatSourceHistory, ResponseGenerator} from './response-generator';
 import { encode } from 'gpt-3-encoder';
 import {MemoryEntry} from "../memory-managers/memory-manager";
 
@@ -36,6 +36,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         personality: string,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
+        otherChatSourceHistories: ChatSourceHistory[]
     ): Promise<string> {
         // OpenAI spec here: https://platform.openai.com/docs/api-reference/chat/create
 
@@ -60,7 +61,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
             messages.push({ role: 'user', content: memoryString });
         }
 
-        // Add the chat history
+        // Add the chat history for the current chat source
         if (chatHistory.length > 0) {
             // add each chat message to the prompt, separately. If the sender is the same as the bot, then use 'assistant' as the role
             chatHistory.forEach(chatMessage => {
@@ -70,6 +71,17 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
                     const namePrefix = chatMessage.sender ? `[${chatMessage.sender}]: ` : '';
                     messages.push({ role: 'user', content: namePrefix + chatMessage.message });
                 }
+            });
+        }
+
+        // Add the chat history for other chat sources
+        if (otherChatSourceHistories.length > 0) {
+            otherChatSourceHistories.forEach(chatSourceHistory => {    
+                let historyString = `Here are the recent messages in ${chatSourceHistory.chatSource}:\n`;
+                chatSourceHistory.chatHistory.forEach(chatMessage => {
+                    historyString += '* ' + chatMessage.message + '\n';
+                });
+                messages.push({ role: 'user', content: historyString });
             });
         }
 

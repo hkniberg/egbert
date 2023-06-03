@@ -12,9 +12,10 @@ export class SlackChatSource extends ChatSource {
         name: string,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
+        crossReferencePattern: string | null,
         typeSpecificConfig: SlackChatSourceConfig,
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.app = new App({
             token: typeSpecificConfig.botToken,
             signingSecret: typeSpecificConfig.signingSecret,

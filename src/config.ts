@@ -42,6 +42,7 @@ export interface ChatSourceConfig {
     defaultSocialContext?: string;
     maxChatHistoryLength?: number;
     typeSpecificConfig?: DiscordChatSourceConfig | MinecraftChatSourceConfig | TelegramChatSourceConfig;
+    crossReferencePattern?: string;
 }
 
 export interface DiscordChatSourceConfig {

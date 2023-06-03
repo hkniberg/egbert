@@ -15,9 +15,10 @@ export class DiscordChatSource extends ChatSource {
         name: string,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
+        crossReferencePattern: string | null,
         typeSpecificConfig: DiscordChatSourceConfig,
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.discordClient = new Client({
             intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
         });

@@ -1,4 +1,5 @@
 import { Bot } from '../bot';
+import { ChatMessage } from '../response-generators/response-generator';
 import { noEmptyString } from '../util/utils';
 
 /**
@@ -13,11 +14,13 @@ export abstract class ChatSource {
     protected readonly defaultSocialContext: string | null;
     protected bots: Array<Bot> = [];
     protected maxChatHistoryLength: number;
+    protected crossReferencePattern: RegExp | null;
 
-    constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number) {
+    constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number, crossReferencePattern: string | null) {
         this.name = name;
         this.defaultSocialContext = noEmptyString(defaultSocialContext);
         this.maxChatHistoryLength = maxChatHistoryLength;
+        this.crossReferencePattern = crossReferencePattern ? new RegExp(crossReferencePattern) : null;
     }
 
     abstract start(): void;
@@ -37,4 +40,13 @@ export abstract class ChatSource {
     getSocialContexts(): string[] {
         return this.defaultSocialContext ? [this.defaultSocialContext] : [];
     }
+
+    getCrossReferencePattern(): RegExp | null {
+        return this.crossReferencePattern;
+    }
+
+    async getChatHistory(): Promise<ChatMessage[]> {
+        return [];
+    }
+
 }
