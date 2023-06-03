@@ -76,7 +76,7 @@ export class Bot {
     ): Promise<string | null> {
         console.log(`${this.name} received message "${triggerMessage}" in social context ${socialContext}`);
 
-        let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSource, this.name, socialContext, chatContext, triggerMessage) : [];
+        let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSource, this.name, socialContext, triggerMessage) : [];
 
         if (this.memoryManager) {
             // Save the memory asynchronously, but log if it fails for some reason

@@ -20,7 +20,7 @@ export abstract class MemoryManager {
         this.name = name;
     }
 
-    abstract loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], message: string): Promise<MemoryEntry[]>;
+    abstract loadRelevantMemories(chatSource: string, botName: string, socialContext: string, message: string): Promise<MemoryEntry[]>;
 
     abstract maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<boolean>;
 }

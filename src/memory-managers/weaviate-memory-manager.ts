@@ -30,7 +30,6 @@ export class WeaviateMemoryManager extends MemoryManager {
         chatSource: string,
         botName: string,
         socialContext: string,
-        chatContext: ChatMessage[],
         message: string,
     ): Promise<MemoryEntry[]> {
         await this.addSchemaIfMissing();
@@ -49,7 +48,7 @@ export class WeaviateMemoryManager extends MemoryManager {
             .withGroup({ type: 'closest', force: this.typeSpecificConfig.groupingForce }) // this removes duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
             .do();
 
-        let memories = result.data.Get.Memory;
+        let memories = result.data.Get[SCHEMA_CLASS_NAME];
 
         // We need to limit the number of memories.
         // We could limit it in the weaviate query, but that results in too few entries, because of the grouping mechanism.

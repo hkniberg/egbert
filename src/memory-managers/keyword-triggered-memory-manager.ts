@@ -17,7 +17,7 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
         this.pattern = new RegExp(typeSpecificConfig.pattern, 'i');
     }
 
-    async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, chatContext: ChatMessage[], message: string): Promise<MemoryEntry[]> {
+    async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, message: string): Promise<MemoryEntry[]> {
         const memoriesFilePath = await this.getMemoriesFilePath(botName, socialContext);
         const memories = await this.getStoredMemoriesOrEmptyList(memoriesFilePath);
         return memories.map(memory => {
