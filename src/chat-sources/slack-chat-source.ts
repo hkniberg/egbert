@@ -3,6 +3,9 @@ import { Bot } from '../bot';
 import { SlackChatSourceConfig } from '../config';
 import { App } from '@slack/bolt';
 
+/**
+ * https://api.slack.com/reference
+ */
 export class SlackChatSource extends ChatSource {
     private readonly typeSpecificConfig: SlackChatSourceConfig;
     private app: App;
@@ -62,8 +65,10 @@ export class SlackChatSource extends ChatSource {
                 return;
             }
 
-            if (this.ignoreMessagesFrom.includes(message.user)) {
-                console.log(`Slack chat source '${this.name}': Ignoring message because it is from '${message.user}'`);
+            const sender = await this.getUserDisplayName(message.user);
+
+            if (this.ignoreMessagesFrom.includes(sender)) {
+                console.log(`Slack chat source '${this.name}': Ignoring message because it is from '${sender}'`);
                 return;
             }
 
@@ -86,7 +91,7 @@ export class SlackChatSource extends ChatSource {
             const responseMessage = await bot.generateResponse(
                 this.name,
                 socialContext,
-                message.user,
+                sender,
                 incomingMessage,
                 [],
                 onMessageRemembered,
@@ -104,5 +109,15 @@ export class SlackChatSource extends ChatSource {
             await this.app.start();
             console.log(`⚡️ Slack chat source '${this.name}' is running!`);
         })();
+    }
+
+    async getUserDisplayName(userId: string): Promise<string> {
+        const result = await this.app.client.users.info({ user: userId });
+        if (result.ok) {
+            return result.user?.profile?.display_name || result.user?.profile?.real_name || result.user?.name || userId;
+        } else {
+            console.error('Error retrieving user info: ', result.error);
+            return '';
+        }
     }
 }
