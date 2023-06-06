@@ -45,7 +45,7 @@ export class SlackChatSource extends ChatSource {
             throw new Error(`Bot '${this.typeSpecificConfig.bot}' not found for slack chat source ${this.name}`);
         }
 
-        this.app.message(/.*/, async ({ message, say }) => {
+        this.app.message(/.*/, async ({ message, client }) => {
             if (message.type != 'message' || !('text' in message) || !('user' in message)) {
                 return;
             }
@@ -73,16 +73,30 @@ export class SlackChatSource extends ChatSource {
                 return;
             }
 
+            const onMessageRemembered = async () => {
+                if (this.typeSpecificConfig.rememberEmoji) {
+                    await client.reactions.add({
+                        name: this.typeSpecificConfig.rememberEmoji,
+                        channel: message.channel,
+                        timestamp: message.ts,
+                    });
+                }
+            };
+
             const responseMessage = await bot.generateResponse(
                 this.name,
                 socialContext,
                 message.user,
                 incomingMessage,
                 [],
+                onMessageRemembered,
             );
             if (responseMessage) {
                 console.log(`[${this.name} ${socialContext}] ${bot.getName()}: ${responseMessage}`);
-                await say(`${responseMessage}`);
+                await client.chat.postMessage({
+                    channel: message.channel,
+                    text: responseMessage,
+                });
             }
         });
 

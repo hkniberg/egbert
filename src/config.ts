@@ -74,6 +74,7 @@ export interface SlackChatSourceConfig {
     botToken: string;
     signingSecret: string;
     appToken: string;
+    rememberEmoji?: string;
 }
 
 export interface MemoryManagerConfig {
@@ -100,7 +101,6 @@ export interface WeaviateMemoryManagerConfig {
 
 // Recursively load a json5 config file with the include directive
 export function parseConfig(configFilePath: string): Config {
-
     const resolvedConfigFilePath = path.resolve(process.cwd(), configFilePath);
     const configJson = fs.readFileSync(resolvedConfigFilePath, 'utf-8');
     const config = JSON5.parse(configJson);
