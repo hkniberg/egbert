@@ -7,6 +7,7 @@ import { Message } from '@slack/web-api/dist/response/ConversationsHistoryRespon
 import * as NodeCache from 'node-cache'
 
 const DEFAULT_USER_NAME_CACHE_SECONDS = 60 * 10;
+const DEFAULT_START_THREAD = true
 
 /**
  * https://api.slack.com/reference
@@ -17,6 +18,7 @@ export class SlackChatSource extends ChatSource {
     private ignoreMessagesFrom: string[] = [];
     private botId: string | null = null; // for example U057Q8JQ204
     private readonly userNameCache: NodeCache;
+    private readonly startThread;
 
     constructor(
         name: string,
@@ -36,6 +38,7 @@ export class SlackChatSource extends ChatSource {
         this.typeSpecificConfig = typeSpecificConfig;
         const userNameCacheSeconds = typeSpecificConfig.userNameCacheSeconds || DEFAULT_USER_NAME_CACHE_SECONDS;
         this.userNameCache = new NodeCache({ stdTTL: userNameCacheSeconds });
+        this.startThread = typeSpecificConfig.thread == undefined ? DEFAULT_START_THREAD : typeSpecificConfig.thread;
         console.log('Slack chat source created: ', this.name);
     }
 
@@ -110,7 +113,7 @@ export class SlackChatSource extends ChatSource {
             );
             if (responseMessage) {
                 console.log(`[${this.name} ${socialContext}] ${bot.getName()}: ${responseMessage}`);
-                if (this.typeSpecificConfig.thread) {
+                if (this.startThread) {
                     // always respond in a thread (create a new thread if necessary)
                     await client.chat.postMessage({
                         channel: message.channel,
@@ -118,7 +121,7 @@ export class SlackChatSource extends ChatSource {
                         thread_ts: message.ts,
                     });
                 } else {
-                    // only respond if the message was already in a thread
+                    // only respond in a thread if the message was already in a thread
                     await client.chat.postMessage({
                         channel: message.channel,
                         text: responseMessage,
