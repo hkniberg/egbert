@@ -1,7 +1,8 @@
 import { ChatSource } from './chat-source';
 import { Bot } from '../bot';
 import { SlackChatSourceConfig } from '../config';
-import { App } from '@slack/bolt';
+import { App, KnownEventFromType } from '@slack/bolt';
+import { ChatMessage } from '../response-generators/response-generator';
 
 /**
  * https://api.slack.com/reference
@@ -25,6 +26,7 @@ export class SlackChatSource extends ChatSource {
             appToken: typeSpecificConfig.appToken,
             socketMode: true,
         });
+        this.maxChatHistoryLength = maxChatHistoryLength;
         this.typeSpecificConfig = typeSpecificConfig;
         console.log('Slack chat source created: ', this.name);
     }
@@ -88,12 +90,14 @@ export class SlackChatSource extends ChatSource {
                 }
             };
 
+            const chatHistory = await this.loadSlackChatHistory(message, this.maxChatHistoryLength);
+
             const responseMessage = await bot.generateResponse(
                 this.name,
                 socialContext,
                 sender,
                 incomingMessage,
-                [],
+                chatHistory,
                 onMessageRemembered,
             );
             if (responseMessage) {
@@ -118,6 +122,44 @@ export class SlackChatSource extends ChatSource {
         } else {
             console.error('Error retrieving user info: ', result.error);
             return '';
+        }
+    }
+
+    async loadSlackChatHistory(
+        slackMessage: KnownEventFromType<'message'>,
+        maxChatHistoryLength: number,
+    ): Promise<ChatMessage[]> {
+        if (maxChatHistoryLength === 0) {
+            return [];
+        }
+
+        // Get the channel id from the incoming message
+        const channel = slackMessage.channel;
+
+        const result = await this.app.client.conversations.history({
+            channel: channel,
+            limit: maxChatHistoryLength,
+            latest: slackMessage.ts, // timestamp of the message
+            inclusive: false, // false to not include the message with latest timestamp
+        });
+
+        let messages = result.messages;
+        if (messages) {
+            // The Slack API returns the messages in chronological order, just like we want
+            let chatMessages = await Promise.all(
+                messages.map(async (message) => {
+                    // Slack chat messages don't include the sender's name, so we have to look it up
+                    const senderName = message.user ? await this.getUserDisplayName(message.user) : null;
+                    return {
+                        sender: senderName,
+                        message: message.text ? message.text : '',
+                    };
+                }),
+            );
+            // reverse the array, since slack responds with newest messages first and we want oldest first
+            return chatMessages.reverse();
+        } else {
+            return [];
         }
     }
 }
