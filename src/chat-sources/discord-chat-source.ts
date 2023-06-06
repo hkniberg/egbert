@@ -147,6 +147,6 @@ async function sendDiscordResponse(discordMessage: Message, responseMessage: str
     const replyChunks = splitStringAtNewline(responseMessage, DISCORD_MESSAGE_MAX_LENGTH);
     for (let replyChunk of replyChunks) {
         if (replyChunk.length === 0) continue;
-        await discordMessage.reply(replyChunk);
+        await discordMessage.reply(replyChunk); // if the message was in a thread then the response will be in the same thread.
     }
 }
