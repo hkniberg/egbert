@@ -22,9 +22,10 @@
       "defaultSocialContext": "friends",
       "typeSpecificConfig": {
         "bot": "echobot",
-        "botToken": "YOUR_BOT_TOKEN",
-        "signingSecret": "YOUR_SIGNING_SECRET",
-        "appToken": "YOUR_APP_TOKEN"
+        // https://api.slack.com/apps/
+        "botToken": "YOUR_BOT_TOKEN", // OAuth & permissions
+        "signingSecret": "YOUR_SIGNING_SECRET", // Basic info => App credentials
+        "appToken": "YOUR_APP_TOKEN" // Basic info => app level tokens
       }
     }
   ]
