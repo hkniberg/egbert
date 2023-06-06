@@ -147,7 +147,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 memories/
-/config/config.json5
+/config/config*.json5
 build/**/*
 /src/**/*.js
 /configtemp/**/*
