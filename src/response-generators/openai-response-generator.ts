@@ -76,7 +76,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         // Add the chat history for other chat sources
         if (otherChatSourceHistories.length > 0) {
-            otherChatSourceHistories.forEach(chatSourceHistory => {    
+            otherChatSourceHistories.forEach(chatSourceHistory => {
                 let historyString = `Here are the recent messages in ${chatSourceHistory.chatSource}:\n`;
                 chatSourceHistory.chatHistory.forEach(chatMessage => {
                     historyString += '* ' + chatMessage.message + '\n';
@@ -109,6 +109,11 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
                 }`,
             );
 
+            // If the response starts with `BOTNAME:` then remove it.
+            // This is an ugly hack, but I was unable to get GPT to not include the bot name in the response.
+            if (responseContent.toLowerCase().startsWith(botName.toLowerCase() + ':')) {
+                return responseContent.substring(botName.length + 1).trim();
+            }
             return responseContent;
         } catch (error) {
             console.log('Oops, something went wrong when talking to GPT!!! ', error);
