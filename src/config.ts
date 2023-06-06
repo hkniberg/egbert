@@ -76,6 +76,7 @@ export interface SlackChatSourceConfig {
     appToken: string;
     userNameCacheSeconds?: number; // how often to refresh the cache of user names (we need to look up user names by id)
     rememberEmoji?: string;
+    thread?: boolean; // true (default) if we should create a new thread when responding to a non-threaded message
 }
 
 export interface MemoryManagerConfig {

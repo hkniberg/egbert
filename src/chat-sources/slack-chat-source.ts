@@ -110,11 +110,22 @@ export class SlackChatSource extends ChatSource {
             );
             if (responseMessage) {
                 console.log(`[${this.name} ${socialContext}] ${bot.getName()}: ${responseMessage}`);
-                await client.chat.postMessage({
-                    channel: message.channel,
-                    text: responseMessage,
-                    thread_ts: message.ts,  // Always respond in a thread
-                });
+                if (this.typeSpecificConfig.thread) {
+                    // always respond in a thread (create a new thread if necessary)
+                    await client.chat.postMessage({
+                        channel: message.channel,
+                        text: responseMessage,
+                        thread_ts: message.ts,
+                    });
+                } else {
+                    // only respond if the message was already in a thread
+                    await client.chat.postMessage({
+                        channel: message.channel,
+                        text: responseMessage,
+                        thread_ts: ('thread_ts' in message) ? message.thread_ts : undefined,
+                    });
+                }
+
             }
         });
 

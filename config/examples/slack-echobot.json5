@@ -28,6 +28,7 @@
         "appToken": "YOUR_APP_TOKEN", // Basic info => app level tokens
         "rememberEmoji": "floppy_disk", // Optional. If your bot uses memoryManagers, you can use rememberEmoji to make the bot react to remembered messages
         "useNameCacheSeconds": 600, // How long we cache user names (to avoid having to look them up in the slack API every time)
+        "thread": true, // true (default) if we should create a new thread when responding to a non-threaded message
       }
     }
   ]
