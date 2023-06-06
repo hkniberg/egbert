@@ -3,6 +3,10 @@ import { Bot } from '../bot';
 import { SlackChatSourceConfig } from '../config';
 import { App, KnownEventFromType } from '@slack/bolt';
 import { ChatMessage } from '../response-generators/response-generator';
+import { Message } from '@slack/web-api/dist/response/ConversationsHistoryResponse';
+import * as NodeCache from 'node-cache'
+
+const DEFAULT_USER_NAME_CACHE_SECONDS = 60 * 10;
 
 /**
  * https://api.slack.com/reference
@@ -11,6 +15,8 @@ export class SlackChatSource extends ChatSource {
     private readonly typeSpecificConfig: SlackChatSourceConfig;
     private app: App;
     private ignoreMessagesFrom: string[] = [];
+    private botId: string | null = null; // for example U057Q8JQ204
+    private readonly userNameCache: NodeCache;
 
     constructor(
         name: string,
@@ -28,6 +34,8 @@ export class SlackChatSource extends ChatSource {
         });
         this.maxChatHistoryLength = maxChatHistoryLength;
         this.typeSpecificConfig = typeSpecificConfig;
+        const userNameCacheSeconds = typeSpecificConfig.userNameCacheSeconds || DEFAULT_USER_NAME_CACHE_SECONDS;
+        this.userNameCache = new NodeCache({ stdTTL: userNameCacheSeconds });
         console.log('Slack chat source created: ', this.name);
     }
 
@@ -67,7 +75,7 @@ export class SlackChatSource extends ChatSource {
                 return;
             }
 
-            const sender = await this.getUserDisplayName(message.user);
+            const sender = await this.getUserName(message.user);
 
             if (this.ignoreMessagesFrom.includes(sender)) {
                 console.log(`Slack chat source '${this.name}': Ignoring message because it is from '${sender}'`);
@@ -115,13 +123,38 @@ export class SlackChatSource extends ChatSource {
         })();
     }
 
-    async getUserDisplayName(userId: string): Promise<string> {
+    /**
+     * Get the display name of a user. Use the cached value if available,
+     * otherwise retrieve it from the Slack API.
+     */
+    async getUserName(userId: string): Promise<string> {
+        const cachedUserName = this.userNameCache.get(userId);
+        if (cachedUserName) {
+            return cachedUserName as string;
+        }
+
         const result = await this.app.client.users.info({ user: userId });
         if (result.ok) {
-            return result.user?.profile?.display_name || result.user?.profile?.real_name || result.user?.name || userId;
+            let userName = result.user?.profile?.display_name || result.user?.profile?.real_name || result.user?.name || userId;
+            this.userNameCache.set(userId, userName);
+            return userName;
         } else {
-            console.error('Error retrieving user info: ', result.error);
+            console.error('Error retrieving user info from Slack API: ', result.error);
             return '';
+        }
+    }
+
+    async loadBotIdIfMissing() {
+        if (!this.botId) {
+            const result = await this.app.client.auth.test();
+            if (!result.ok) {
+                throw new Error(`Error retrieving bot id: ${result.error}`);
+            }
+            if (!result.bot_id) {
+                console.log(result);
+                throw new Error(`Error retrieving bot id: no bot id in response`);
+            }
+            this.botId = result.bot_id;
         }
     }
 
@@ -148,8 +181,8 @@ export class SlackChatSource extends ChatSource {
             // The Slack API returns the messages in chronological order, just like we want
             let chatMessages = await Promise.all(
                 messages.map(async (message) => {
-                    // Slack chat messages don't include the sender's name, so we have to look it up
-                    const senderName = message.user ? await this.getUserDisplayName(message.user) : null;
+                    let senderName = await this.getSenderNameFromSlackMessage(message);
+                    console.log(`senderName: ${senderName}, message: ${message.text}`);
                     return {
                         sender: senderName,
                         message: message.text ? message.text : '',
@@ -160,6 +193,15 @@ export class SlackChatSource extends ChatSource {
             return chatMessages.reverse();
         } else {
             return [];
+        }
+    }
+
+    private async getSenderNameFromSlackMessage(message: Message) {
+        await this.loadBotIdIfMissing();
+        if (message.bot_id === this.botId) {
+            return this.typeSpecificConfig.bot;
+        } else {
+            return message.user ? await this.getUserName(message.user) : null
         }
     }
 }

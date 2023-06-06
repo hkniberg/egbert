@@ -74,6 +74,7 @@ export interface SlackChatSourceConfig {
     botToken: string;
     signingSecret: string;
     appToken: string;
+    userNameCacheSeconds?: number; // how often to refresh the cache of user names (we need to look up user names by id)
     rememberEmoji?: string;
 }
 

@@ -25,7 +25,9 @@
         // https://api.slack.com/apps/
         "botToken": "YOUR_BOT_TOKEN", // OAuth & permissions
         "signingSecret": "YOUR_SIGNING_SECRET", // Basic info => App credentials
-        "appToken": "YOUR_APP_TOKEN" // Basic info => app level tokens
+        "appToken": "YOUR_APP_TOKEN", // Basic info => app level tokens
+        "rememberEmoji": "floppy_disk", // Optional. If your bot uses memoryManagers, you can use rememberEmoji to make the bot react to remembered messages
+        "useNameCacheSeconds": 600, // How long we cache user names (to avoid having to look them up in the slack API every time)
       }
     }
   ]
