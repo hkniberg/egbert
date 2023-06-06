@@ -113,6 +113,7 @@ export class SlackChatSource extends ChatSource {
                 await client.chat.postMessage({
                     channel: message.channel,
                     text: responseMessage,
+                    thread_ts: message.ts,  // Always respond in a thread
                 });
             }
         });
