@@ -1,14 +1,13 @@
-import {MemoryEntry} from "../memory-managers/memory-manager";
-
+import { MemoryEntry } from '../memory-managers/memory-manager';
 
 export interface ChatMessage {
-    sender: string | null,
-    message: string
+    sender: string | null;
+    message: string;
 }
 
 export interface ChatSourceHistory {
-    chatSource: string,
-    chatHistory: ChatMessage[]
+    chatSource: string;
+    chatHistory: ChatMessage[];
 }
 
 export interface ResponseGenerator {
