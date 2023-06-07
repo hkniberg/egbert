@@ -9,6 +9,7 @@ import * as NodeCache from 'node-cache'
 const DEFAULT_USER_NAME_CACHE_SECONDS = 60 * 10;
 const DEFAULT_START_THREAD = true
 
+
 /**
  * https://api.slack.com/reference
  */
@@ -85,8 +86,11 @@ export class SlackChatSource extends ChatSource {
                 return;
             }
 
+            const incomingMessageWithRealUserNames = await this.replaceUserIdsWithRealNames(incomingMessage);
+
+
             let socialContext = this.defaultSocialContext as string;
-            if (!bot.willRespond(socialContext, incomingMessage)) {
+            if (!bot.willRespond(socialContext, incomingMessageWithRealUserNames)) {
                 console.log(`${bot.getName()} does not want to respond to this message`);
                 return;
             }
@@ -107,7 +111,7 @@ export class SlackChatSource extends ChatSource {
                 this.name,
                 socialContext,
                 sender,
-                incomingMessage,
+                incomingMessageWithRealUserNames,
                 chatHistory,
                 onMessageRemembered,
             );
@@ -200,7 +204,7 @@ export class SlackChatSource extends ChatSource {
                     console.log(`senderName: ${senderName}, message: ${message.text}`);
                     return {
                         sender: senderName,
-                        message: message.text ? message.text : '',
+                        message: message.text ? await this.replaceUserIdsWithRealNames(message.text): '',
                     };
                 }),
             );
@@ -218,5 +222,24 @@ export class SlackChatSource extends ChatSource {
         } else {
             return message.user ? await this.getUserName(message.user) : null
         }
+    }
+
+    /**
+     * When someone writes 'Hi @Henrik' in slack, that shows up as 'Hi <@U12345678>' in the message text.
+     * This method replaces the user id with the user's real name, for example: 'Hi Henrik'.
+     */
+    private async replaceUserIdsWithRealNames(incomingMessage: string) {
+        let matches = incomingMessage.match(/<@([A-Z0-9]+)>/g);
+        if (!matches) {
+            return incomingMessage;
+        }
+
+        for (let match of matches) {
+            let userId = match.substring(2, match.length - 1);
+            let userName = await this.getUserName(userId);
+            incomingMessage = incomingMessage.replace(match, userName);
+        }
+
+        return incomingMessage;
     }
 }
