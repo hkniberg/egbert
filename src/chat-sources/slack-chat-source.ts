@@ -198,7 +198,6 @@ export class SlackChatSource extends ChatSource {
             };
             // TODO handle pagination and also ovoid breaking the token limit
 
-            console.log("replies options: ", repliesOptions)
             const result = await this.app.client.conversations.replies(repliesOptions);
 
             // remove the last message if it is the same as the incoming message
@@ -214,7 +213,6 @@ export class SlackChatSource extends ChatSource {
                 latest: slackMessage.ts, // timestamp of the message
                 inclusive: false, // false to not include the message with latest timestamp
             };
-            console.log("replies options: ", historyOptions)
             const result = await this.app.client.conversations.history(historyOptions);
 
             messages = result.messages;
@@ -222,8 +220,6 @@ export class SlackChatSource extends ChatSource {
         }
 
         if (messages) {
-            console.log("Raw chat history: ", messages);
-
             // The Slack API returns the messages in chronological order, just like we want
             return await Promise.all(
                 messages.map(async (message) => {
