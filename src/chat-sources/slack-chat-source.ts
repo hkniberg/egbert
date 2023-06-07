@@ -1,9 +1,9 @@
-import { ChatSource } from './chat-source';
-import { Bot } from '../bot';
-import { SlackChatSourceConfig } from '../config';
-import { App, KnownEventFromType } from '@slack/bolt';
-import { ChatMessage } from '../response-generators/response-generator';
-import { Message } from '@slack/web-api/dist/response/ConversationsHistoryResponse';
+import {ChatSource} from './chat-source';
+import {Bot} from '../bot';
+import {SlackChatSourceConfig} from '../config';
+import {App, KnownEventFromType} from '@slack/bolt';
+import {ChatMessage} from '../response-generators/response-generator';
+import {Message} from '@slack/web-api/dist/response/ConversationsHistoryResponse';
 import * as NodeCache from 'node-cache'
 
 const DEFAULT_USER_NAME_CACHE_SECONDS = 60 * 10;
@@ -188,28 +188,53 @@ export class SlackChatSource extends ChatSource {
         // Get the channel id from the incoming message
         const channel = slackMessage.channel;
 
-        const result = await this.app.client.conversations.history({
-            channel: channel,
-            limit: maxChatHistoryLength,
-            latest: slackMessage.ts, // timestamp of the message
-            inclusive: false, // false to not include the message with latest timestamp
-        });
+        let messages: Message[] | undefined;
+        if ("thread_ts" in slackMessage && slackMessage.thread_ts) {
+            // This is a thread message, so we will use the thread replies as history
+            let repliesOptions = {
+                channel: channel,
+                ts: slackMessage.thread_ts, // timestamp of message that started the thread
+                inclusive: false, // false to not include the message with latest timestamp
+            };
+            // TODO handle pagination and also ovoid breaking the token limit
 
-        let messages = result.messages;
+            console.log("replies options: ", repliesOptions)
+            const result = await this.app.client.conversations.replies(repliesOptions);
+
+            // remove the last message if it is the same as the incoming message
+            if (result.messages && result.messages[result.messages.length - 1].ts == slackMessage.ts) {
+                result.messages.pop();
+            }
+
+            messages = result.messages; // conversations.replies returns oldest messages first, so no need to reverse
+        } else {
+            let historyOptions = {
+                channel: channel,
+                limit: maxChatHistoryLength,
+                latest: slackMessage.ts, // timestamp of the message
+                inclusive: false, // false to not include the message with latest timestamp
+            };
+            console.log("replies options: ", historyOptions)
+            const result = await this.app.client.conversations.history(historyOptions);
+
+            messages = result.messages;
+            messages?.reverse(); // conversations.history returns newest messages first, so we reverse the order
+        }
+
         if (messages) {
+            console.log("Raw chat history: ", messages);
+
             // The Slack API returns the messages in chronological order, just like we want
-            let chatMessages = await Promise.all(
+            return await Promise.all(
                 messages.map(async (message) => {
                     let senderName = await this.getSenderNameFromSlackMessage(message);
                     console.log(`senderName: ${senderName}, message: ${message.text}`);
                     return {
                         sender: senderName,
-                        message: message.text ? await this.replaceUserIdsWithRealNames(message.text): '',
+                        message: message.text ? await this.replaceUserIdsWithRealNames(message.text) : '',
                     };
                 }),
             );
-            // reverse the array, since slack responds with newest messages first and we want oldest first
-            return chatMessages.reverse();
         } else {
             return [];
         }
