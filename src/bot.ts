@@ -85,8 +85,8 @@ export class Bot {
         let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSourceName, this.name, socialContext, triggerMessage) : [];
 
         if (this.memoryManager) {
-            // Save the memory asynchronously, but log if it fails for some reason
-            this.memoryManager.maybeSaveMemory(chatSourceName, this.name, socialContext, sender, triggerMessage).catch((error) => {
+            // This could be done asynchronously, but seems to cause rate limit issues. Testing sync for now.
+            await this.memoryManager.maybeSaveMemory(chatSourceName, this.name, socialContext, sender, triggerMessage).catch((error) => {
                 console.error("Failed to save memory", error);
             }).then((saved  ) => {
                 if (saved && onMessageRemembered) {
