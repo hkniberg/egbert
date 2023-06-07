@@ -1,11 +1,59 @@
 import {MemoryEntry, MemoryManager} from './memory-manager';
 import {WeaviateMemoryManagerConfig} from '../config';
 import weaviate, {WeaviateClient} from 'weaviate-ts-client';
-import {ChatMessage} from '../response-generators/response-generator';
 import axios from "axios";
+import {HumanMessagePromptTemplate,} from "langchain/prompts"
 
 const SCHEMA_CLASS_NAME = 'Memory';
 const OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions';
+
+const SYSTEM_MESSAGE = `You are an assistant that helps decide which messages to remember`;
+
+const DEFAULT_REMEMBER_MODEL = 'gpt-3.5-turbo';
+
+const DEFAULT_REMEMBER_INSTRUCTIONS = `Evaluate if the given message should be saved in the bot's memory for future prompts
+You should only save messages that you have been explicitly asked to remember,
+for example phrases such as 'remember xxx' or 'keep xxx in mind' or 'don't forget xxx'.
+The same applies to non-english sentences such as 'Glöm inte, du älskar hundar'.
+Never save a question.`
+
+const DEFAULT_REMEMBER_EXAMPLES = [
+    'Remember that I like cheese',
+    'I like cheese, keep that in mind',
+    'I like cheese. Remember that.',
+    'Remember: I like cheese.',
+    'Kom ihåg: människor är bra att ha',
+];
+
+const DEFAULT_DONT_REMEMBER_EXAMPLES = [
+    'I like cheese',
+    'What do you remember?',
+    'You have memories',
+    'I remember when I was young',
+    'Jag gillar ost'
+];
+
+const REMEMBER_PROMPT_TEMPLATE = HumanMessagePromptTemplate.fromTemplate(
+    `I will give you a message within tripple backticks.
+{rememberInstructions}
+
+Example of messages to remember:
+{rememberExamples}
+
+Example of messages to not remember:
+{dontRememberExamples}
+
+Respond with a valid json structure with two fields:
+- remember (yes/no)
+- motivation (why this message should be remembered or not, in one sentence).
+
+Here is the message I want you to evaluate:
+\`\`\`
+{message}
+\`\`\`
+`);
+
+
 
 /**
  * A memory manager that saves memories to Weaviate.
@@ -13,11 +61,19 @@ const OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions';
 export class WeaviateMemoryManager extends MemoryManager {
     private readonly weaviateClient: WeaviateClient;
     private readonly typeSpecificConfig: WeaviateMemoryManagerConfig;
+    private readonly rememberInstructions: string;
+    private readonly rememberExamplesAsBullets: string;
+    private readonly dontRememberExamplesAsBullets: string;
+    private readonly rememberModel: string;
 
     constructor(name: string, typeSpecificConfig: WeaviateMemoryManagerConfig) {
         super(name);
 
         this.typeSpecificConfig = typeSpecificConfig;
+        this.rememberModel = typeSpecificConfig.rememberModel || DEFAULT_REMEMBER_MODEL;
+        this.rememberInstructions = typeSpecificConfig.rememberInstructions || DEFAULT_REMEMBER_INSTRUCTIONS;
+        this.rememberExamplesAsBullets = this.arrayToBulletString(typeSpecificConfig.rememberExamples || DEFAULT_REMEMBER_EXAMPLES);
+        this.dontRememberExamplesAsBullets = this.arrayToBulletString(typeSpecificConfig.dontRememberExamples || DEFAULT_DONT_REMEMBER_EXAMPLES);
 
         this.weaviateClient = weaviate.client({
             scheme: typeSpecificConfig.scheme,
@@ -96,47 +152,44 @@ export class WeaviateMemoryManager extends MemoryManager {
      * Uses OpenAI to figure out if a message is worth remembering.
      */
     private async isMessageWorthRemembering(message: string) : Promise<boolean> {
-        if (!this.typeSpecificConfig.rememberPrompt || !this.typeSpecificConfig.rememberModel || !this.typeSpecificConfig.rememberThreshold) {
-            console.log("No rememberPrompt, rememberModel or rememberThreshold configured, so I won't ask OpenAI if this message should be remembered. I'll just remember everything.");
-            return true;
-        }
-
         const headers = {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${this.typeSpecificConfig.openAiKey}`,
         };
 
-        const prompt = this.typeSpecificConfig.rememberPrompt + "\n```" + message + "```";
+        const userPrompt = await REMEMBER_PROMPT_TEMPLATE.format({
+            rememberInstructions: this.rememberInstructions,
+            rememberExamples: this.rememberExamplesAsBullets,
+            dontRememberExamples: this.dontRememberExamplesAsBullets,
+            message: message,
+        });
 
         const body = {
-            model: this.typeSpecificConfig.rememberModel,
+            model: this.rememberModel,
             messages: [
-                { role: 'user', content: prompt},
+                { role: 'system', content: SYSTEM_MESSAGE},
+                { role: 'user', content: userPrompt.text},
             ],
             temperature: 0,
         };
-        // console.log('This is what Weaviate memory manager will send to OpenAI:', body.messages);
         console.log("Asking OpenAI if I should remember this message");
         const response = await axios.post(OPEN_AI_URL, body, { headers: headers });
         const responseContent = response.data.choices[0].message.content;
 
-        // check if the response contains a number between 0 and 10
-        const match = responseContent.match(/\b([0-9]|10)\b/);
-
-        if (!match) {
-            console.warn(`WARNING: I asked OpenAI to score how important this message is to remember, but I can't find a score in there.\nPrompt: ${JSON.stringify(body.messages, null, 2)}\nResponse: ${JSON.stringify(responseContent, null, 2)}`);
+        try {
+            const responseJson = JSON.parse(responseContent);
+            if (responseJson.remember === 'yes') {
+                console.log(`Yes, remember it. Motivation: ${responseJson.motivation}`);
+                return true;
+            }
+            else {
+                console.log(`No, don't remember it. Motivation: ${responseJson.motivation}`);
+                return false;
+            }
+        } catch (e) {
+            console.warn(`WARNING: I asked OpenAI to score how important this message is to remember, but I can't parse the response.\nResponse: ${JSON.stringify(responseContent, null, 2)}`);
             return false;
         }
-
-        const score = parseInt(match[1]);
-        if (score >= this.typeSpecificConfig.rememberThreshold) {
-            console.log('I will remember this message. OpenAI says ' + responseContent);
-            return true;
-        } else {
-            console.log('I will forget this message. OpenAI says ' + responseContent)
-            return false;
-        }
-
     }
 
     async addSchemaIfMissing() {
@@ -183,5 +236,9 @@ export class WeaviateMemoryManager extends MemoryManager {
         const schema = await this.weaviateClient.schema.getter().do();
         const classNames = schema.classes?.map((c) => c.class);
         return classNames && classNames.includes(SCHEMA_CLASS_NAME);
+    }
+
+    private arrayToBulletString(array: string[]) {
+        return array.map((s) => `- ${s}`).join('\n');
     }
 }

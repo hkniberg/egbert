@@ -97,8 +97,10 @@ export interface WeaviateMemoryManagerConfig {
     limit: number;
     groupingForce: number;
     rememberModel?: string;
-    rememberThreshold?: number;
-    rememberPrompt?: string;
+    // the three params below (optional) are best understood by looking at the default constants in weaviate-memory-manager.ts
+    rememberInstructions?: string;
+    rememberExamples?: string[];
+    dontRememberExamples?: string[];
 }
 
 // Recursively load a json5 config file with the include directive

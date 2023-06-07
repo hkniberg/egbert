@@ -36,15 +36,14 @@
         "groupingForce": 0.02 // 0-1. How aggressively we ignore duplicates and near-duplicates, such as a bunch of 'hi egbert' messages
 
         /*
-        The fields below are optional. Use them if you want to use GPT to figure out if a message is worth saving.
-        Otherwise we simply save all messages.
+        The fields below are optional. Use them if you want to change how we decide which messages to save.
+        Otherwise the default behaviour is to save messages that we are explicitly asked to remember.
+        Check out the default values in weaviate-memory-manager.js for more info.
 
         "rememberModel": "gpt-3.5-turbo", // https://platform.openai.com/docs/models/model-endpoint-compatibility
-        "rememberThreshold": 5, // we only remember messages that score equal or above this threshold
-        "rememberPrompt": "I will give you a message within tripple backticks. Tell me if is worth saving in the bot's memory for future prompts. \
-        We want to save messages that are relevant, such as information about the world or people, requests about your behaviour, or things you are asked to remember. \
-        We don't want save messages like questions or greetings. Respond with an integer score (0-10) and a single sentence motivation for it."
-
+        "rememberInstructions": "Tell me if the given message is worth saving in the bot's memory for future prompts."
+        "rememberExamples": ["Remember, I love cheese", "Keep in mind that world peace is a good thing"],
+        "dontRememberExamples": ["Hi there", "What do you remember?"],
         */
       }
     }
