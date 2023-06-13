@@ -1,9 +1,9 @@
 // response-generators/openai-response-generator.ts
 
 import axios from 'axios';
-import {ChatMessage, ChatSourceHistory, ResponseGenerator} from './response-generator';
+import { ChatMessage, ChatSourceHistory, ResponseGenerator } from './response-generator';
 import { encode } from 'gpt-3-encoder';
-import {MemoryEntry} from "../memory-managers/memory-manager";
+import { MemoryEntry } from '../memory-managers/memory-manager';
 
 const openAiUrl = 'https://api.openai.com/v1/chat/completions';
 
@@ -36,7 +36,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         personality: string,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
-        otherChatSourceHistories: ChatSourceHistory[]
+        otherChatSourceHistories: ChatSourceHistory[],
     ): Promise<string> {
         // OpenAI spec here: https://platform.openai.com/docs/api-reference/chat/create
 
@@ -50,10 +50,11 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         // Add the memories
         if (memories.length > 0) {
-            let memoryString = 'Here are all your memories relevant to this conversation, with message sender in brackets:\n';
+            let memoryString =
+                'Here are all your memories relevant to this conversation, with message sender in brackets:\n';
 
             // Go through each memory and add each triggerMessage and response as separate lines in the memoryString
-            memories.forEach(memory => {
+            memories.forEach((memory) => {
                 const senderString = memory.sender ? `[${memory.sender}]: ` : '';
                 memoryString += '* ' + senderString + memory.message + '\n';
             });
@@ -64,7 +65,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         // Add the chat history for the current chat source
         if (chatHistory.length > 0) {
             // add each chat message to the prompt, separately. If the sender is the same as the bot, then use 'assistant' as the role
-            chatHistory.forEach(chatMessage => {
+            chatHistory.forEach((chatMessage) => {
                 if (chatMessage.sender && chatMessage.sender.toLowerCase() == botName.toLowerCase()) {
                     messages.push({ role: 'assistant', content: chatMessage.message });
                 } else {
@@ -76,9 +77,9 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         // Add the chat history for other chat sources
         if (otherChatSourceHistories.length > 0) {
-            otherChatSourceHistories.forEach(chatSourceHistory => {
+            otherChatSourceHistories.forEach((chatSourceHistory) => {
                 let historyString = `Here are the recent messages in ${chatSourceHistory.chatSource}:\n`;
-                chatSourceHistory.chatHistory.forEach(chatMessage => {
+                chatSourceHistory.chatHistory.forEach((chatMessage) => {
                     historyString += '* ' + chatMessage.message + '\n';
                 });
                 messages.push({ role: 'user', content: historyString });
@@ -87,7 +88,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         // Add the user prompt
         const senderString = sender ? `[${sender}]: ` : '';
-        messages.push({ role: 'user', content: senderString + triggerMessage});
+        messages.push({ role: 'user', content: senderString + triggerMessage });
 
         console.log('This is what we will send to GPT:', messages);
 
