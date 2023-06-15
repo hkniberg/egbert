@@ -46,7 +46,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         };
 
         // Add the personality
-        const messages: GptMessage[] = [];
+        const messages: GptMessage[] = [{ role: 'system', content: personality}];
 
         // Add the memories
         if (memories.length > 0) {
@@ -89,9 +89,6 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         // Add the user prompt
         const senderString = sender ? `[${sender}]: ` : '';
         messages.push({ role: 'user', content: senderString + triggerMessage });
-
-        // Add the system messase last. I heard that this increases the chance of the bot keeping its personality
-        messages.push({ role: 'system', content: personality });
 
         console.log('This is what we will send to GPT:', messages);
 
