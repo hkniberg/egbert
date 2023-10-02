@@ -251,3 +251,7 @@ Coming soon:
 
 - `npm test` runs unit tests
 - `npm run watch` will run the typescript compiler in watch mode, so it will auto-recompile when you change a file.
+
+# License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
