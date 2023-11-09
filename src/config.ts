@@ -28,6 +28,7 @@ export interface OpenAiResponseGeneratorConfig {
     apiKey: string;
     model: string;
     temperature: number;
+    apiBaseUrl?: string; // Defaults to https://api.openai.com/v1
 }
 
 export interface ResponseGeneratorConfig {

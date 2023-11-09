@@ -5,12 +5,13 @@ import { ChatMessage, ChatSourceHistory, ResponseGenerator } from './response-ge
 import { encode } from 'gpt-3-encoder';
 import { MemoryEntry } from '../memory-managers/memory-manager';
 
-const openAiUrl = 'https://api.openai.com/v1/chat/completions';
+const API_BASE_URL = 'https://api.openai.com/v1';
 
 interface OpenAiResponseGeneratorConfig {
     apiKey: string; // used for payment. See & generate keys here: https://platform.openai.com/account/api-keys
     model: string; // for example "gpt-3.5-turbo". Listed here: https://platform.openai.com/docs/models/gpt-4
     temperature: number; // 0 = no variation, 1 = lots of variation and creativity
+    apiBaseUrl?: string; // Defaults to https://api.openai.com/v1
 }
 
 // This is from the OpenAI API.
@@ -24,9 +25,11 @@ interface GptMessage {
 
 export class OpenAiResponseGenerator implements ResponseGenerator {
     private readonly typeSpecificConfig: OpenAiResponseGeneratorConfig;
+    private readonly apiBaseUrl: string;
 
     constructor(typeSpecificConfig: OpenAiResponseGeneratorConfig) {
         this.typeSpecificConfig = typeSpecificConfig;
+        this.apiBaseUrl = typeSpecificConfig.apiBaseUrl || API_BASE_URL;
     }
 
     async generateResponse(
@@ -39,6 +42,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         otherChatSourceHistories: ChatSourceHistory[],
     ): Promise<string> {
         // OpenAI spec here: https://platform.openai.com/docs/api-reference/chat/create
+        const url = `${this.apiBaseUrl}/chat/completions`;
 
         const headers = {
             'Content-Type': 'application/json',
@@ -99,7 +103,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         };
 
         try {
-            const response = await axios.post(openAiUrl, body, { headers: headers });
+            const response = await axios.post(url, body, { headers: headers });
 
             const responseContent = response.data.choices[0].message.content;
             const requestTokens = this.getTokenCount(JSON.stringify(messages));
