@@ -31,6 +31,12 @@ export interface OpenAiResponseGeneratorConfig {
     apiBaseUrl?: string; // Defaults to https://api.openai.com/v1
 }
 
+export interface OllamaResponseGeneratorConfig {
+    model: string;
+    temperature: number;
+    apiBaseUrl?: string; // Defaults to http://localhost:11434/api
+}
+
 export interface ResponseGeneratorConfig {
     name: string;
     type: string;
