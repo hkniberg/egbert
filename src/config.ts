@@ -1,13 +1,15 @@
 import * as fs from "fs";
 import JSON5 from "json5";
 import path from "path";
+import { ModelType } from "./api/gpt";
 
 export interface Config {
     bots: Array<BotConfig>;
     memoryManagers: Array<MemoryManagerConfig> | null;
     responseGenerators: Array<ResponseGeneratorConfig>;
     chatSources: Array<ChatSourceConfig>;
-    mediaGenerators: Array<MediaGeneratorConfig>;
+    mediaGenerators: Array<MediaGeneratorConfig> | null;
+    tools: Array<ToolConfig> | null;
 }
 
 export interface BotConfig {
@@ -17,6 +19,20 @@ export interface BotConfig {
     personality: string;
     socialContexts: Array<string>;
     triggers: Array<BotTriggerConfig>;
+}
+
+export interface ToolConfig {
+    name: string;
+    type: string;
+    typeSpecificConfig?: GenerateImageToolConfig | GetWeatherToolConfig;
+}
+
+export interface GenerateImageToolConfig {
+    apiKey: string;
+}
+
+export interface GetWeatherToolConfig {
+    apiKey: string;
 }
 
 export interface MediaGeneratorConfig {
@@ -40,7 +56,7 @@ export interface BotTriggerConfig {
 
 export interface OpenAiResponseGeneratorConfig {
     apiKey: string;
-    model: string;
+    model: ModelType;
     temperature: number;
     apiBaseUrl?: string; // Defaults to https://api.openai.com/v1
 }

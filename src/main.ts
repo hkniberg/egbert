@@ -1,11 +1,14 @@
 import { Bot } from "./bot";
 import { createChatSources } from "./chat-sources/chat-source-factory";
-import { DalleMediaGeneratorConfig, GiphyMediaGeneratorConfig, MediaGeneratorConfig, parseConfig } from "./config";
-import { DalleImageGenerator } from "./media-generators/dalle-image-generatory";
+import { DalleMediaGeneratorConfig, GenerateImageToolConfig, GetWeatherToolConfig, GiphyMediaGeneratorConfig, MediaGeneratorConfig, ToolConfig, parseConfig } from "./config";
+import { DalleImageGenerator } from "./media-generators/dalle-image-generator";
 import { GiphyGenerator } from "./media-generators/giphy-generator";
 import { MediaGenerator } from "./media-generators/media-generator";
 import { createMemoryManagers } from "./memory-managers/memory-manager-factory";
 import { createResponseGenerators } from "./response-generators/response-generator-factory";
+import { GenerateImage as GenerateImageTool } from "./tools/generate-image-tool";
+import { GetWeatherTool } from "./tools/get-weather-tool";
+import { Tool } from "./tools/tool";
 
 const DEFAULT_CONFIG_PATH = "config/config.json5";
 
@@ -16,7 +19,8 @@ const config = parseConfig(configPath);
 
 const mediaGenerators = createMediaGenerators(config.mediaGenerators);
 
-const responseGenerators = createResponseGenerators(config.responseGenerators);
+const tools = createTools(config.tools);
+const responseGenerators = createResponseGenerators(config.responseGenerators, tools);
 const chatSources = createChatSources(config.chatSources, mediaGenerators);
 const memoryManagers = createMemoryManagers(config.memoryManagers);
 
@@ -50,7 +54,10 @@ for (const chatSource of chatSources.values()) {
     chatSource.start();
 }
 
-function createMediaGenerators(mediaGeneratorConfigs: Array<MediaGeneratorConfig>): MediaGenerator[] {
+function createMediaGenerators(mediaGeneratorConfigs: Array<MediaGeneratorConfig> | null): MediaGenerator[] {
+    if (!mediaGeneratorConfigs) {
+        return [];
+    }
     const mediaGenerators: MediaGenerator[] = [];
     for (const mediaGeneratorConfig of mediaGeneratorConfigs) {
         mediaGenerators.push(createMediaGenerator(mediaGeneratorConfig));
@@ -66,6 +73,26 @@ function createMediaGenerator(mediaGeneratorConfig: MediaGeneratorConfig): Media
     } else {
         throw "Unknown media generator type: " + mediaGeneratorConfig.type;
     }
+}
+
+function createTools(toolConfigs: Array<ToolConfig> | null): Array<Tool> {
+    if (!toolConfigs) {
+        return []
+    }
+    const tools: Tool[] = [];
+    for (const toolConfig of toolConfigs) {
+        tools.push(createTool(toolConfig));
+    }
+    return tools;
+}
+
+function createTool(toolConfig: ToolConfig): Tool {
+    if (toolConfig.type === "generate-image") {
+        return new GenerateImageTool(toolConfig.typeSpecificConfig as GenerateImageToolConfig);
+    } else if (toolConfig.type === "get-weather") {
+        return new GetWeatherTool(toolConfig.typeSpecificConfig as GetWeatherToolConfig);
+    }
+    throw "Unknown tool type: " + toolConfig.type;
 }
 
 function getResponseGeneratorByName(name: string) {

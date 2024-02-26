@@ -7,11 +7,11 @@ import ChatCompletionCreateParamsNonStreaming = Chat.ChatCompletionCreateParamsN
 
 const maxToolResponseLength = 20000;
 
-export const emptySendChunkToClient = (chunk: string, finishReason: string | null) => {};
+export const emptySendChunkToClient = (chunk: string, finishReason: string | null) => { };
 export const emptySendStatusToClient = (activity: string) => {
     console.log("Activity: ", activity);
 };
-export const emptySendToolCallMessageToClient = (toolCallMessage: Chat.ChatCompletionMessageParam) => {};
+export const emptySendToolCallMessageToClient = (toolCallMessage: Chat.ChatCompletionMessageParam) => { };
 
 export type ModelType =
     | "gpt-4"
@@ -26,12 +26,15 @@ const DEFAULT_MODEL = "gpt-4-0125-preview";
 export class GPT {
     private openai: OpenAI;
     private defaultModel: ModelType;
+    private defaultTemperature: number;
 
-    constructor(apiKey: string, defaultModel: ModelType = DEFAULT_MODEL) {
+    constructor(apiKey: string, defaultModel: ModelType = DEFAULT_MODEL, defaultTemperature: number) {
         this.openai = new OpenAI({
             apiKey: apiKey,
         });
         this.defaultModel = defaultModel;
+        // TODO use temperature
+        this.defaultTemperature = defaultTemperature;
     }
 
     async chat(
@@ -315,8 +318,7 @@ export class GPT {
                         })
                         .catch((error: Error) => {
                             console.error(
-                                `Error calling tool ${toolName} with arguments ${JSON.stringify(functionArgs)}: ${
-                                    error.message
+                                `Error calling tool ${toolName} with arguments ${JSON.stringify(functionArgs)}: ${error.message
                                 }`
                             );
                             console.error(error.stack);

@@ -1,18 +1,17 @@
 // response-generators/openai-response-generator.ts
 
-import axios from "axios";
 import { encode } from "gpt-3-encoder";
+import { GPT, ModelType } from '../api/gpt';
 import { MemoryEntry } from "../memory-managers/memory-manager";
 import { mediaReplacementPrompt } from "../prompts/media-replacement";
+import { Tool } from "../tools/tool";
+import { Toolbox } from "../tools/toolbox";
 import { ChatMessage, ChatSourceHistory, ResponseGenerator } from "./response-generator";
-
-const API_BASE_URL = "https://api.openai.com/v1";
 
 interface OpenAiResponseGeneratorConfig {
     apiKey: string; // used for payment. See & generate keys here: https://platform.openai.com/account/api-keys
-    model: string; // for example "gpt-3.5-turbo". Listed here: https://platform.openai.com/docs/models/gpt-4
+    model: ModelType; // for example "gpt-3.5-turbo". Listed here: https://platform.openai.com/docs/models/gpt-4
     temperature: number; // 0 = no variation, 1 = lots of variation and creativity
-    apiBaseUrl?: string; // Defaults to https://api.openai.com/v1
 }
 
 // This is from the OpenAI API.
@@ -25,12 +24,14 @@ interface GptMessage {
 }
 
 export class OpenAiResponseGenerator implements ResponseGenerator {
-    private readonly typeSpecificConfig: OpenAiResponseGeneratorConfig;
-    private readonly apiBaseUrl: string;
+    private config: OpenAiResponseGeneratorConfig;
+    private gpt: GPT;
+    private readonly toolbox;
 
-    constructor(typeSpecificConfig: OpenAiResponseGeneratorConfig) {
-        this.typeSpecificConfig = typeSpecificConfig;
-        this.apiBaseUrl = typeSpecificConfig.apiBaseUrl || API_BASE_URL;
+    constructor(config: OpenAiResponseGeneratorConfig, tools: Tool[]) {
+        this.config = config;
+        this.gpt = new GPT(config.apiKey, config.model, config.temperature);
+        this.toolbox = new Toolbox(tools);
     }
 
     async generateResponse(
@@ -42,14 +43,6 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         chatHistory: ChatMessage[],
         otherChatSourceHistories: ChatSourceHistory[]
     ): Promise<string> {
-        // OpenAI spec here: https://platform.openai.com/docs/api-reference/chat/create
-        const url = `${this.apiBaseUrl}/chat/completions`;
-
-        const headers = {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.typeSpecificConfig.apiKey}`,
-        };
-
         // Add the personality
         const systemMessage = personality + "\n\n" + mediaReplacementPrompt;
 
@@ -99,23 +92,17 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
 
         console.log("This is what we will send to GPT:", messages);
 
-        const body = {
-            model: this.typeSpecificConfig.model,
-            messages: messages,
-            temperature: this.typeSpecificConfig.temperature,
-        };
-
         try {
-            const response = await axios.post(url, body, { headers: headers });
-
-            const responseContent = response.data.choices[0].message.content;
+            const responseContent = await this.gpt.generateResponseWithTools(messages, this.toolbox);
+            /*
+            TODO log tokens
             const requestTokens = this.getTokenCount(JSON.stringify(messages));
             const responseTokens = this.getTokenCount(responseContent);
             console.log(
-                `Request tokens: ${requestTokens}, Response tokens: ${responseTokens}, Total tokens: ${
-                    requestTokens + responseTokens
+                `Request tokens: ${requestTokens}, Response tokens: ${responseTokens}, Total tokens: ${requestTokens + responseTokens
                 }`
             );
+            */
 
             // If the response starts with `BOTNAME:` then remove it.
             // This is an ugly hack, but I was unable to get GPT to not include the bot name in the response.
