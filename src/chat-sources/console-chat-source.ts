@@ -1,6 +1,6 @@
-import {ChatSource} from './chat-source';
-import {CappedArray} from '../util/capped-array';
-import {ChatMessage} from "../response-generators/response-generator";
+import { ChatSource } from "./chat-source";
+import { CappedArray } from "../util/capped-array";
+import { ChatMessage } from "../response-generators/response-generator";
 
 // A regexp to parse out the sender name (optional), and the message. Follows this format:
 //
@@ -15,16 +15,16 @@ import {ChatMessage} from "../response-generators/response-generator";
 // => sender is null, message is "Hey Sam, remember: Life is good
 //
 const REGEXP = /(?:^(\w+):\s*)?(.+)/;
-const DEFAULT_USER = 'ConsoleUser'
+const DEFAULT_USER = "ConsoleUser";
 
 export class ConsoleChatSource extends ChatSource {
     private readonly chatHistory: CappedArray<ChatMessage>;
 
     constructor(
-        name: string, 
-        defaultSocialContext: string | null, 
+        name: string,
+        defaultSocialContext: string | null,
         maxChatHistoryLength: number,
-        crossReferencePattern: string | null,
+        crossReferencePattern: string | null
     ) {
         super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.chatHistory = new CappedArray<ChatMessage>(maxChatHistoryLength);
@@ -37,10 +37,10 @@ export class ConsoleChatSource extends ChatSource {
         }
 
         const stdin = process.openStdin();
-        stdin.addListener('data', async (incomingMessageRaw) => {
+        stdin.addListener("data", async (incomingMessageRaw) => {
             // for some reason incomingMessageRaw is a character buffer or something like that,
             // so we convert it to string before sending it to the bot
-            const incomingMessage = ('' + incomingMessageRaw).trim();
+            const incomingMessage = ("" + incomingMessageRaw).trim();
 
             const strmatch = incomingMessage.match(REGEXP);
             if (!strmatch) {
@@ -51,7 +51,7 @@ export class ConsoleChatSource extends ChatSource {
             const sender = strmatch[1] ? strmatch[1].trim() : DEFAULT_USER;
             const triggerMessage = strmatch[2].trim();
 
-            const messagesToAddToChatHistory: ChatMessage[] = [{sender: sender, message: triggerMessage}];
+            const messagesToAddToChatHistory: ChatMessage[] = [{ sender: sender, message: triggerMessage }];
 
             // send the message to each responding bot
             const respondingBots = this.getRespondingBots(incomingMessage);
@@ -65,11 +65,13 @@ export class ConsoleChatSource extends ChatSource {
                     this.defaultSocialContext as string,
                     sender,
                     triggerMessage,
-                    this.chatHistory.getAll(),
+                    this.chatHistory.getAll()
                 );
                 if (responseMessage) {
-                    messagesToAddToChatHistory.push({sender: bot.getName(), message: responseMessage});
-                    console.log(`[${this.name} ${this.defaultSocialContext as string}] [${bot.getName()}]: ${responseMessage}`);
+                    messagesToAddToChatHistory.push({ sender: bot.getName(), message: responseMessage });
+                    console.log(
+                        `[${this.name} ${this.defaultSocialContext as string}] [${bot.getName()}]: ${responseMessage}`
+                    );
                 }
             }
             // We add the messages to the chat history after all bots have had a chance to respond

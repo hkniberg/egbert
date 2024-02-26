@@ -1,4 +1,4 @@
-import { MemoryEntry } from '../memory-managers/memory-manager';
+import { MemoryEntry } from "../memory-managers/memory-manager";
 
 export interface ChatMessage {
     sender: string | null;
@@ -18,6 +18,6 @@ export interface ResponseGenerator {
         personality: string,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
-        otherChatSourceHistories: ChatSourceHistory[],
+        otherChatSourceHistories: ChatSourceHistory[]
     ): Promise<string>;
 }

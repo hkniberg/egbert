@@ -1,5 +1,5 @@
-import {ChatMessage, ResponseGenerator} from './response-generator';
-import {MemoryEntry} from "../memory-managers/memory-manager";
+import { ChatMessage, ResponseGenerator } from "./response-generator";
+import { MemoryEntry } from "../memory-managers/memory-manager";
 
 export class EchoResponseGenerator implements ResponseGenerator {
     async generateResponse(
@@ -8,7 +8,7 @@ export class EchoResponseGenerator implements ResponseGenerator {
         botName: string,
         personality: string,
         memories: MemoryEntry[],
-        chatHistory: ChatMessage[],
+        chatHistory: ChatMessage[]
     ): Promise<string> {
         return `Echo ${triggerMessage}`;
     }

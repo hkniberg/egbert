@@ -1,17 +1,20 @@
-import escapeRegExp from 'lodash.escaperegexp';
+import escapeRegExp from "lodash.escaperegexp";
 
 export interface MediaGenerator {
     getKeyword(): string;
     generateMediaUrl(query: string): Promise<string | null>;
-};
+}
 
-export async function replaceMediaPromptWithMediaUrlFormattedAsMarkdown(mediaGenerators: MediaGenerator[], message: string): Promise<string> {
+export async function replaceMediaPromptWithMediaUrlFormattedAsMarkdown(
+    mediaGenerators: MediaGenerator[],
+    message: string
+): Promise<string> {
     for (let generator of mediaGenerators) {
         let keyword = escapeRegExp(generator.getKeyword());
-        let pattern = new RegExp(`${keyword}\\[([^\\]]+)`, 'g');  // Create a regex pattern for this media generator
+        let pattern = new RegExp(`${keyword}\\[([^\\]]+)`, "g"); // Create a regex pattern for this media generator
 
         let matches = Array.from(message.matchAll(pattern));
-        let promises = matches.map(match => generator.generateMediaUrl(match[1]));
+        let promises = matches.map((match) => generator.generateMediaUrl(match[1]));
         let results = await Promise.all(promises);
 
         for (let i = 0; i < matches.length; i++) {
@@ -27,15 +30,17 @@ export async function replaceMediaPromptWithMediaUrlFormattedAsMarkdown(mediaGen
     return message;
 }
 
-export async function splitMessageByMedia(mediaGenerators: MediaGenerator[], message: string): Promise<(string | null)[]> {
+export async function splitMessageByMedia(
+    mediaGenerators: MediaGenerator[],
+    message: string
+): Promise<(string | null)[]> {
     let segments: (string | null)[] = [];
-    let lastEnd = 0;  // Initialize lastEnd outside the loop
+    let lastEnd = 0; // Initialize lastEnd outside the loop
 
     for (let generator of mediaGenerators) {
         let keyword = escapeRegExp(generator.getKeyword());
 
-        let pattern = new RegExp(`${keyword}\\[([^\\]]+)\\]`, 'g');
-
+        let pattern = new RegExp(`${keyword}\\[([^\\]]+)\\]`, "g");
 
         let promises: Promise<string | null>[] = [];
         let positions: number[] = [];
@@ -52,7 +57,7 @@ export async function splitMessageByMedia(mediaGenerators: MediaGenerator[], mes
             promises.push(generator.generateMediaUrl(mediaPrompt));
             positions.push(segments.length - 1);
 
-            lastEnd = pattern.lastIndex;  // Update lastEnd for each match
+            lastEnd = pattern.lastIndex; // Update lastEnd for each match
         }
 
         let results = await Promise.all(promises);
@@ -65,8 +70,9 @@ export async function splitMessageByMedia(mediaGenerators: MediaGenerator[], mes
         }
     }
 
-    let finalTextSegment = message.slice(lastEnd).trim();  // Move this line outside the loop
-    if (finalTextSegment) {  // Check and append finalTextSegment outside the loop
+    let finalTextSegment = message.slice(lastEnd).trim(); // Move this line outside the loop
+    if (finalTextSegment) {
+        // Check and append finalTextSegment outside the loop
         segments.push(finalTextSegment);
     }
 

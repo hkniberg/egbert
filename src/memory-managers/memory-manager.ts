@@ -1,12 +1,12 @@
-import {ChatMessage} from "../response-generators/response-generator";
+import { ChatMessage } from "../response-generators/response-generator";
 
 export interface MemoryEntry {
-    date?: Date,
-    bot: string,
-    chatSource: string,
-    socialContext: string,
-    sender?: string, //sometimes there is no sender, for example death messages in minecraft
-    message: string
+    date?: Date;
+    bot: string;
+    chatSource: string;
+    socialContext: string;
+    sender?: string; //sometimes there is no sender, for example death messages in minecraft
+    message: string;
 }
 
 /**
@@ -20,7 +20,18 @@ export abstract class MemoryManager {
         this.name = name;
     }
 
-    abstract loadRelevantMemories(chatSource: string, botName: string, socialContext: string, message: string): Promise<MemoryEntry[]>;
+    abstract loadRelevantMemories(
+        chatSource: string,
+        botName: string,
+        socialContext: string,
+        message: string
+    ): Promise<MemoryEntry[]>;
 
-    abstract maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<boolean>;
+    abstract maybeSaveMemory(
+        chatSource: string,
+        botName: string,
+        socialContext: string,
+        sender: string | null,
+        message: string
+    ): Promise<boolean>;
 }

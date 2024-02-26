@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-const JSON5 = require('json5');
-const path = require('path');
+import * as fs from "fs";
+import JSON5 from "json5";
+import path from "path";
 
 export interface Config {
     bots: Array<BotConfig>;
@@ -21,7 +21,7 @@ export interface BotConfig {
 
 export interface MediaGeneratorConfig {
     type: string;
-    typeSpecificConfig?: GiphyMediaGeneratorConfig | DalleMediaGeneratorConfig // add other response generator configs here if we create more
+    typeSpecificConfig?: GiphyMediaGeneratorConfig | DalleMediaGeneratorConfig; // add other response generator configs here if we create more
 }
 
 export interface GiphyMediaGeneratorConfig {
@@ -127,7 +127,7 @@ export interface WeaviateMemoryManagerConfig {
 // Recursively load a json5 config file with the include directive
 export function parseConfig(configFilePath: string): Config {
     const resolvedConfigFilePath = path.resolve(process.cwd(), configFilePath);
-    const configJson = fs.readFileSync(resolvedConfigFilePath, 'utf-8');
+    const configJson = fs.readFileSync(resolvedConfigFilePath, "utf-8");
     const config = JSON5.parse(configJson);
 
     if (config.include) {

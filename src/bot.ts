@@ -1,7 +1,7 @@
-import { ChatMessage, ChatSourceHistory, ResponseGenerator } from './response-generators/response-generator';
-import { BotTriggerConfig } from './config';
+import { ChatMessage, ChatSourceHistory, ResponseGenerator } from "./response-generators/response-generator";
+import { BotTriggerConfig } from "./config";
 import { MemoryManager } from "./memory-managers/memory-manager";
-import { ChatSource } from './chat-sources/chat-source';
+import { ChatSource } from "./chat-sources/chat-source";
 
 // Used to define which types of messages the bot will respond to,
 // and the probability of responding.
@@ -26,7 +26,7 @@ export class Bot {
         memoryManager: MemoryManager | null,
         socialContexts: Array<string>,
         botTriggerConfigs: Array<BotTriggerConfig> | null,
-        responseGenerator: ResponseGenerator,
+        responseGenerator: ResponseGenerator
     ) {
         this.name = name;
         this.personality = personality;
@@ -39,7 +39,7 @@ export class Bot {
             // No bot triggers were given, so make a default trigger that matches the bot name
             this.botTriggers = [
                 {
-                    pattern: new RegExp(`\\b${this.name}\\b`, 'i'),
+                    pattern: new RegExp(`\\b${this.name}\\b`, "i"),
                     probability: 1.0,
                 },
             ];
@@ -78,28 +78,36 @@ export class Bot {
         sender: string | null,
         triggerMessage: string,
         chatContext: ChatMessage[],
-        onMessageRemembered?: () => void,
+        onMessageRemembered?: () => void
     ): Promise<string | null> {
         console.log(`${this.name} received message "${triggerMessage}" in social context ${socialContext}`);
 
-        let memories = this.memoryManager ? await this.memoryManager.loadRelevantMemories(chatSourceName, this.name, socialContext, triggerMessage) : [];
+        let memories = this.memoryManager
+            ? await this.memoryManager.loadRelevantMemories(chatSourceName, this.name, socialContext, triggerMessage)
+            : [];
 
         if (this.memoryManager) {
             // This could be done asynchronously, but seems to cause rate limit issues. Testing sync for now.
-            await this.memoryManager.maybeSaveMemory(chatSourceName, this.name, socialContext, sender, triggerMessage).catch((error) => {
-                console.error("Failed to save memory", error);
-            }).then((saved) => {
-                if (saved && onMessageRemembered) {
-                    onMessageRemembered();
-                }
-            });
+            await this.memoryManager
+                .maybeSaveMemory(chatSourceName, this.name, socialContext, sender, triggerMessage)
+                .catch((error) => {
+                    console.error("Failed to save memory", error);
+                })
+                .then((saved) => {
+                    if (saved && onMessageRemembered) {
+                        onMessageRemembered();
+                    }
+                });
         }
 
         // Get the chat history from other chat sources
         let otherChatSourceHistories: ChatSourceHistory[] = [];
         for (let chatSource of this.chatSources) {
             // Don't include the chat source that the message came from. Include only those that match the crossReferencePattern.
-            if (chatSource.getName() !== chatSourceName && chatSource.getCrossReferencePattern()?.test(triggerMessage)) {
+            if (
+                chatSource.getName() !== chatSourceName &&
+                chatSource.getCrossReferencePattern()?.test(triggerMessage)
+            ) {
                 let chatSourceHistory = await chatSource.getChatHistory();
                 otherChatSourceHistories.push({ chatSource: chatSource.getName(), chatHistory: chatSourceHistory });
             }
@@ -112,7 +120,7 @@ export class Bot {
             this.personality,
             memories,
             chatContext,
-            otherChatSourceHistories,
+            otherChatSourceHistories
         );
 
         console.log(`${this.name} will respond`);
@@ -131,7 +139,7 @@ export class Bot {
 
 function createBotTrigger(botTriggerConfig: BotTriggerConfig) {
     return {
-        pattern: new RegExp(botTriggerConfig.pattern, 'i'),
+        pattern: new RegExp(botTriggerConfig.pattern, "i"),
         socialContext: botTriggerConfig.socialContext,
         probability: botTriggerConfig.probability ? botTriggerConfig.probability : 1,
     };
@@ -148,7 +156,7 @@ function doesTriggerApply(trigger: BotTrigger, socialContext: string, message: s
     const randomNumber = Math.random();
     if (randomNumber > trigger.probability) {
         console.log(
-            `Randomly ignoring this message (probability of response is ${trigger.probability}, I rolled a ${randomNumber})`,
+            `Randomly ignoring this message (probability of response is ${trigger.probability}, I rolled a ${randomNumber})`
         );
         return false;
     }

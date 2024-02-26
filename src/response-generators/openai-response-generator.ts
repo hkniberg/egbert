@@ -1,12 +1,12 @@
 // response-generators/openai-response-generator.ts
 
-import axios from 'axios';
-import { encode } from 'gpt-3-encoder';
-import { MemoryEntry } from '../memory-managers/memory-manager';
-import { mediaReplacementPrompt } from '../prompts/media-replacement';
-import { ChatMessage, ChatSourceHistory, ResponseGenerator } from './response-generator';
+import axios from "axios";
+import { encode } from "gpt-3-encoder";
+import { MemoryEntry } from "../memory-managers/memory-manager";
+import { mediaReplacementPrompt } from "../prompts/media-replacement";
+import { ChatMessage, ChatSourceHistory, ResponseGenerator } from "./response-generator";
 
-const API_BASE_URL = 'https://api.openai.com/v1';
+const API_BASE_URL = "https://api.openai.com/v1";
 
 interface OpenAiResponseGeneratorConfig {
     apiKey: string; // used for payment. See & generate keys here: https://platform.openai.com/account/api-keys
@@ -17,7 +17,7 @@ interface OpenAiResponseGeneratorConfig {
 
 // This is from the OpenAI API.
 // system = description of bot's personality, user = user message, assistant = bot response
-type GptRole = 'system' | 'user' | 'assistant';
+type GptRole = "system" | "user" | "assistant";
 
 interface GptMessage {
     role: GptRole;
@@ -40,33 +40,33 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         personality: string,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
-        otherChatSourceHistories: ChatSourceHistory[],
+        otherChatSourceHistories: ChatSourceHistory[]
     ): Promise<string> {
         // OpenAI spec here: https://platform.openai.com/docs/api-reference/chat/create
         const url = `${this.apiBaseUrl}/chat/completions`;
 
         const headers = {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${this.typeSpecificConfig.apiKey}`,
         };
 
         // Add the personality
         const systemMessage = personality + "\n\n" + mediaReplacementPrompt;
 
-        const messages: GptMessage[] = [{ role: 'system', content: systemMessage }];
+        const messages: GptMessage[] = [{ role: "system", content: systemMessage }];
 
         // Add the memories
         if (memories.length > 0) {
             let memoryString =
-                'Here are all your memories relevant to this conversation, with message sender in brackets:\n';
+                "Here are all your memories relevant to this conversation, with message sender in brackets:\n";
 
             // Go through each memory and add each triggerMessage and response as separate lines in the memoryString
             memories.forEach((memory) => {
-                const senderString = memory.sender ? `[${memory.sender}]: ` : '';
-                memoryString += '* ' + senderString + memory.message + '\n';
+                const senderString = memory.sender ? `[${memory.sender}]: ` : "";
+                memoryString += "* " + senderString + memory.message + "\n";
             });
 
-            messages.push({ role: 'user', content: memoryString });
+            messages.push({ role: "user", content: memoryString });
         }
 
         // Add the chat history for the current chat source
@@ -74,10 +74,10 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
             // add each chat message to the prompt, separately. If the sender is the same as the bot, then use 'assistant' as the role
             chatHistory.forEach((chatMessage) => {
                 if (chatMessage.sender && chatMessage.sender.toLowerCase() == botName.toLowerCase()) {
-                    messages.push({ role: 'assistant', content: chatMessage.message });
+                    messages.push({ role: "assistant", content: chatMessage.message });
                 } else {
-                    const namePrefix = chatMessage.sender ? `[${chatMessage.sender}]: ` : '';
-                    messages.push({ role: 'user', content: namePrefix + chatMessage.message });
+                    const namePrefix = chatMessage.sender ? `[${chatMessage.sender}]: ` : "";
+                    messages.push({ role: "user", content: namePrefix + chatMessage.message });
                 }
             });
         }
@@ -87,17 +87,17 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
             otherChatSourceHistories.forEach((chatSourceHistory) => {
                 let historyString = `Here are the recent messages in ${chatSourceHistory.chatSource}:\n`;
                 chatSourceHistory.chatHistory.forEach((chatMessage) => {
-                    historyString += '* ' + chatMessage.message + '\n';
+                    historyString += "* " + chatMessage.message + "\n";
                 });
-                messages.push({ role: 'user', content: historyString });
+                messages.push({ role: "user", content: historyString });
             });
         }
 
         // Add the user prompt
-        const senderString = sender ? `[${sender}]: ` : '';
-        messages.push({ role: 'user', content: senderString + triggerMessage });
+        const senderString = sender ? `[${sender}]: ` : "";
+        messages.push({ role: "user", content: senderString + triggerMessage });
 
-        console.log('This is what we will send to GPT:', messages);
+        console.log("This is what we will send to GPT:", messages);
 
         const body = {
             model: this.typeSpecificConfig.model,
@@ -112,20 +112,21 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
             const requestTokens = this.getTokenCount(JSON.stringify(messages));
             const responseTokens = this.getTokenCount(responseContent);
             console.log(
-                `Request tokens: ${requestTokens}, Response tokens: ${responseTokens}, Total tokens: ${requestTokens + responseTokens
-                }`,
+                `Request tokens: ${requestTokens}, Response tokens: ${responseTokens}, Total tokens: ${
+                    requestTokens + responseTokens
+                }`
             );
 
             // If the response starts with `BOTNAME:` then remove it.
             // This is an ugly hack, but I was unable to get GPT to not include the bot name in the response.
-            if (responseContent.toLowerCase().startsWith(botName.toLowerCase() + ':')) {
+            if (responseContent.toLowerCase().startsWith(botName.toLowerCase() + ":")) {
                 return responseContent.substring(botName.length + 1).trim();
             }
             return responseContent;
         } catch (error) {
-            console.log('Oops, something went wrong when talking to GPT!!! ', error);
+            console.log("Oops, something went wrong when talking to GPT!!! ", error);
             console.error(error);
-            return 'Oops, something went wrong when talking to GPT.';
+            return "Oops, something went wrong when talking to GPT.";
         }
     }
 

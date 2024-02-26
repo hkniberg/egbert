@@ -1,8 +1,7 @@
-import {MemoryEntry, MemoryManager} from "./memory-manager";
-import {KeywordTriggeredMemoryManagerConfig} from "../config";
 import * as fs from "fs/promises";
 import * as path from "path";
-import {ChatMessage} from "../response-generators/response-generator";
+import { KeywordTriggeredMemoryManagerConfig } from "../config";
+import { MemoryEntry, MemoryManager } from "./memory-manager";
 
 /**
  * A simple memory manager that saves memories to a file when a trigger message matches a pattern such as "Remember: "
@@ -14,19 +13,24 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
     constructor(name: string, typeSpecificConfig: KeywordTriggeredMemoryManagerConfig) {
         super(name);
         this.memoriesFolder = typeSpecificConfig.memoriesFolder;
-        this.pattern = new RegExp(typeSpecificConfig.pattern, 'i');
+        this.pattern = new RegExp(typeSpecificConfig.pattern, "i");
     }
 
-    async loadRelevantMemories(chatSource: string, botName: string, socialContext: string, message: string): Promise<MemoryEntry[]> {
+    async loadRelevantMemories(
+        chatSource: string,
+        botName: string,
+        socialContext: string,
+        message: string
+    ): Promise<MemoryEntry[]> {
         const memoriesFilePath = await this.getMemoriesFilePath(botName, socialContext);
         const memories = await this.getStoredMemoriesOrEmptyList(memoriesFilePath);
-        return memories.map(memory => {
+        return memories.map((memory) => {
             return {
                 bot: botName,
                 chatSource: chatSource,
                 socialContext: socialContext,
                 message: memory,
-            }
+            };
         });
     }
 
@@ -34,7 +38,13 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
      * Save the given message if it matches the pattern. Also trims whitespace.
      * For example "Remember: I like pizza" would be saved as "I like pizza" if the pattern is "Remember:(.*)"
      */
-     async maybeSaveMemory(chatSource: string, botName: string, socialContext: string, sender: string | null, message: string): Promise<boolean> {
+    async maybeSaveMemory(
+        chatSource: string,
+        botName: string,
+        socialContext: string,
+        sender: string | null,
+        message: string
+    ): Promise<boolean> {
         const match = message.match(this.pattern);
         if (!match) {
             return false;
@@ -52,7 +62,7 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
     private async saveMemory(sender: string | null, memory: string, botName: string, socialContext: string) {
         const memoriesFilePath = await this.getMemoriesFilePath(botName, socialContext);
 
-        const senderString = sender ? `[${sender}]: ` : '';
+        const senderString = sender ? `[${sender}]: ` : "";
 
         const memories = await this.getStoredMemoriesOrEmptyList(memoriesFilePath);
         memories.push(senderString + memory);
@@ -61,7 +71,7 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
 
     private async getStoredMemoriesOrEmptyList(memoriesFilePath: string): Promise<Array<string>> {
         if (await fileExists(memoriesFilePath)) {
-            const fileContent = await fs.readFile(memoriesFilePath, 'utf8');
+            const fileContent = await fs.readFile(memoriesFilePath, "utf8");
             try {
                 return JSON.parse(fileContent) as Array<string>;
             } catch (error) {
@@ -74,22 +84,22 @@ export class KeywordTriggeredMemoryManager extends MemoryManager {
 
     private async getMemoriesFilePath(botName: string, socialContext: string) {
         const fileName = `memories-${botName}-${socialContext}`;
-        const memoriesFilePath = path.join(this.memoriesFolder, sanitizeFilename(fileName) + '.json');
+        const memoriesFilePath = path.join(this.memoriesFolder, sanitizeFilename(fileName) + ".json");
 
         await createFolderIfItDoesntAlreadyExist(this.memoriesFolder);
         return memoriesFilePath;
     }
 }
 
-async function saveJsonFile(memories: Array<String>, filePath: string) {
-    await fs.writeFile(filePath, JSON.stringify(memories, null, 2), 'utf-8');
+async function saveJsonFile(memories: Array<string>, filePath: string) {
+    await fs.writeFile(filePath, JSON.stringify(memories, null, 2), "utf-8");
 }
 
 function sanitizeFilename(name: string): string {
-    return name.replace(/[^a-z0-9_\-]/gi, '_');
+    return name.replace(/[^a-z0-9_\-]/gi, "_");
 }
 
-async function createFolderIfItDoesntAlreadyExist(folderPath : string) {
+async function createFolderIfItDoesntAlreadyExist(folderPath: string) {
     try {
         await fs.mkdir(folderPath, { recursive: true });
     } catch (error) {

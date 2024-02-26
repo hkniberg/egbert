@@ -1,11 +1,11 @@
 export function splitStringAtNewline(inputString: string, maxLength: number): string[] {
-    const lines = inputString.split('\n');
+    const lines = inputString.split("\n");
     let result = [];
-    let currentLine = '';
+    let currentLine = "";
 
     for (let line of lines) {
         if (currentLine.length + line.length + 1 <= maxLength) {
-            currentLine += (currentLine.length > 0 ? '\n' : '') + line;
+            currentLine += (currentLine.length > 0 ? "\n" : "") + line;
         } else {
             result.push(currentLine);
             currentLine = line;
@@ -21,7 +21,7 @@ export function splitStringAtNewline(inputString: string, maxLength: number): st
 
 export function noEmptyString(input: string | null): string | null {
     if (input) {
-        return input.trim() === '' ? null : input;
+        return input.trim() === "" ? null : input;
     }
     return null;
 }

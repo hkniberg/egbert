@@ -1,11 +1,11 @@
-import { ChatSource } from './chat-source';
-import { MinecraftChatSourceConfig } from '../config';
-import { Rcon } from 'rcon-client';
-import { Tail } from 'tail';
-import { Bot } from '../bot';
-import { CappedArray } from '../util/capped-array';
-import { delay } from '../util/utils';
-import { ChatMessage } from '../response-generators/response-generator';
+import { ChatSource } from "./chat-source";
+import { MinecraftChatSourceConfig } from "../config";
+import { Rcon } from "rcon-client";
+import { Tail } from "tail";
+import { Bot } from "../bot";
+import { CappedArray } from "../util/capped-array";
+import { delay } from "../util/utils";
+import { ChatMessage } from "../response-generators/response-generator";
 
 // regexp for the chat messages that should be visible to the bot. This can be set in the config.
 // First group should be the username (optional), second group should be the message
@@ -26,15 +26,15 @@ export class MinecraftChatSource extends ChatSource {
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        typeSpecificConfig: MinecraftChatSourceConfig,
+        typeSpecificConfig: MinecraftChatSourceConfig
     ) {
         super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         if (!defaultSocialContext) {
-            throw new Error('MinecraftChatSource must have a default social context');
+            throw new Error("MinecraftChatSource must have a default social context");
         }
         this.typeSpecificConfig = typeSpecificConfig;
         this.chatHistory = new CappedArray<ChatMessage>(maxChatHistoryLength);
-        console.log('Minecraft chat source created: ', this.name);
+        console.log("Minecraft chat source created: ", this.name);
 
         // This regexp is used to filter the messages in the server log to only the ones we care about.
         // And also to strip out timestamp and other boilerplate.
@@ -45,15 +45,15 @@ export class MinecraftChatSource extends ChatSource {
 
     start(): void {
         const tail = new Tail(this.typeSpecificConfig.serverLogPath);
-        tail.on('line', async (line) => {
+        tail.on("line", async (line) => {
             await this.processLine(line.toString());
         });
 
-        tail.on('error', (error) => {
+        tail.on("error", (error) => {
             console.error(`MinecraftChatSource Error: ${error}`);
         });
 
-        console.log('Minecraft chat source started: ', this.typeSpecificConfig.serverLogPath);
+        console.log("Minecraft chat source started: ", this.typeSpecificConfig.serverLogPath);
     }
 
     async processLine(line: string) {
@@ -65,7 +65,7 @@ export class MinecraftChatSource extends ChatSource {
 
         const sender = strmatch[1] ? strmatch[1].trim() : null;
         const triggerMessage = strmatch[2].trim();
-        const senderString = sender ? `<${sender}> ` : '';
+        const senderString = sender ? `<${sender}> ` : "";
         console.log(`Got message from Minecraft server log: ${senderString} ${triggerMessage}`);
 
         const messagesToAddToChatHistory: ChatMessage[] = [{ sender: sender, message: triggerMessage }];
@@ -73,7 +73,7 @@ export class MinecraftChatSource extends ChatSource {
         const respondingBots: Bot[] = this.getRespondingBots(triggerMessage);
         if (respondingBots.length === 0) {
             // early out so we don't waste time reading the chat history when we aren't going to respond anyway
-            console.log('No bots want to respond to this message');
+            console.log("No bots want to respond to this message");
             // We will add this message to our chat history even if no bots respond
             // That way, when we talk to a bot it will be aware of the context of the conversation
             this.chatHistory.addAll(messagesToAddToChatHistory);
@@ -86,7 +86,7 @@ export class MinecraftChatSource extends ChatSource {
                 this.defaultSocialContext as string,
                 sender,
                 triggerMessage,
-                this.chatHistory.getAll(),
+                this.chatHistory.getAll()
             );
             if (responseMessage) {
                 // technically we could skip await and do these in paralell, but for now I'm choosing the path of least risk
@@ -120,12 +120,12 @@ export class MinecraftChatSource extends ChatSource {
                     password: this.typeSpecificConfig.rconPassword,
                 });
 
-                console.log('Sending message to Minecraft server: ' + responseMessageWithBotName);
+                console.log("Sending message to Minecraft server: " + responseMessageWithBotName);
 
                 let escapedMessageWithBotName = JSON.stringify(responseMessageWithBotName);
                 let response = await rcon.send(`tellraw @a {"text":${escapedMessageWithBotName}, "color":"white"}`);
 
-                console.log('.... sent message, got response: ', response);
+                console.log(".... sent message, got response: ", response);
 
                 await rcon.end();
                 break;
@@ -134,10 +134,10 @@ export class MinecraftChatSource extends ChatSource {
                 retryCount++;
 
                 if (retryCount < maxRetries) {
-                    console.log('Retrying...');
+                    console.log("Retrying...");
                     await delay(retryIntervalMs); // Wait for the specified interval before retrying
                 } else {
-                    console.error('Max retries reached, giving up.');
+                    console.error("Max retries reached, giving up.");
                     return;
                 }
             }
@@ -154,5 +154,4 @@ export class MinecraftChatSource extends ChatSource {
     async getChatHistory(): Promise<ChatMessage[]> {
         return this.chatHistory.getAll();
     }
-    
 }

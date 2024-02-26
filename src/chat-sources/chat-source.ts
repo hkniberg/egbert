@@ -1,6 +1,6 @@
-import { Bot } from '../bot';
-import { ChatMessage } from '../response-generators/response-generator';
-import { noEmptyString } from '../util/utils';
+import { Bot } from "../bot";
+import { ChatMessage } from "../response-generators/response-generator";
+import { noEmptyString } from "../util/utils";
 
 /**
  * A ChatSource is a source of chat messages. For example Discord server, a Minecraft server, or a console.
@@ -16,7 +16,12 @@ export abstract class ChatSource {
     protected maxChatHistoryLength: number;
     protected crossReferencePattern: RegExp | null;
 
-    constructor(name: string, defaultSocialContext: string | null, maxChatHistoryLength: number, crossReferencePattern: string | null) {
+    constructor(
+        name: string,
+        defaultSocialContext: string | null,
+        maxChatHistoryLength: number,
+        crossReferencePattern: string | null
+    ) {
         this.name = name;
         this.defaultSocialContext = noEmptyString(defaultSocialContext);
         this.maxChatHistoryLength = maxChatHistoryLength;
@@ -48,5 +53,4 @@ export abstract class ChatSource {
     async getChatHistory(): Promise<ChatMessage[]> {
         return [];
     }
-
 }

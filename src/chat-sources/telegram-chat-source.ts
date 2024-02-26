@@ -1,8 +1,8 @@
-import { ChatSource } from './chat-source';
-import { Context, Telegraf } from 'telegraf';
-import { Update } from 'typegram';
-import { Bot } from '../bot';
-import { TelegramChatSourceConfig } from '../config';
+import { ChatSource } from "./chat-source";
+import { Context, Telegraf } from "telegraf";
+import { Update } from "typegram";
+import { Bot } from "../bot";
+import { TelegramChatSourceConfig } from "../config";
 
 export class TelegramChatSource extends ChatSource {
     private readonly typeSpecificConfig: TelegramChatSourceConfig;
@@ -12,35 +12,41 @@ export class TelegramChatSource extends ChatSource {
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        typeSpecificConfig: TelegramChatSourceConfig,
+        typeSpecificConfig: TelegramChatSourceConfig
     ) {
         super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.typeSpecificConfig = typeSpecificConfig;
 
         this.telegramClient = new Telegraf(this.typeSpecificConfig.botToken);
 
-        console.log('Telegram chat source created: ', this.name);
+        console.log("Telegram chat source created: ", this.name);
     }
 
     start(): void {
-        this.telegramClient.on('text', async (ctx) => {
+        this.telegramClient.on("text", async (ctx) => {
             const triggerMessage = ctx.message.text;
             let sender = ctx.from?.first_name;
             console.log(`Received message ${triggerMessage} from user ${sender}`);
 
             if (!this.defaultSocialContext) {
-                console.log('No default social context configured, so we will ignore the message.');
+                console.log("No default social context configured, so we will ignore the message.");
                 return;
             }
 
             const respondingBots: Bot[] = this.getRespondingBots(this.defaultSocialContext, triggerMessage);
             if (respondingBots.length === 0) {
-                console.log('No bots want to respond to this message');
+                console.log("No bots want to respond to this message");
                 return;
             }
 
             for (const bot of respondingBots) {
-                const responseMessage = await bot.generateResponse(this.name, this.defaultSocialContext, sender, triggerMessage, []);
+                const responseMessage = await bot.generateResponse(
+                    this.name,
+                    this.defaultSocialContext,
+                    sender,
+                    triggerMessage,
+                    []
+                );
                 if (responseMessage) {
                     console.log(`[${this.name} ${this.defaultSocialContext}] ${bot.getName()}: ${responseMessage}`);
                     await this.sendTelegramResponse(ctx, responseMessage);
@@ -48,11 +54,11 @@ export class TelegramChatSource extends ChatSource {
             }
         });
         this.telegramClient.launch();
-        console.log('Telegram chat source started: ', this.name);
+        console.log("Telegram chat source started: ", this.name);
     }
 
     private getRespondingBots(socialContext: string, msg: string) {
-        return this.bots.filter((bot) => bot.willRespond(socialContext, msg || ''));
+        return this.bots.filter((bot) => bot.willRespond(socialContext, msg || ""));
     }
 
     private async sendTelegramResponse(ctx: Context, responseMessage: string) {
@@ -67,8 +73,8 @@ export class TelegramChatSource extends ChatSource {
 
     private splitStringAtNewline(str: string, maxLength: number): string[] {
         let result: string[] = [];
-        let current = '';
-        let lines = str.split('\n');
+        let current = "";
+        let lines = str.split("\n");
 
         for (const line of lines) {
             if (current.length + line.length + 1 > maxLength) {

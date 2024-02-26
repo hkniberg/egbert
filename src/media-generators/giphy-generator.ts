@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { GiphyMediaGeneratorConfig } from '../config';
-import { MediaGenerator } from './media-generator';
+import axios from "axios";
+import { GiphyMediaGeneratorConfig } from "../config";
+import { MediaGenerator } from "./media-generator";
 
 export class GiphyGenerator implements MediaGenerator {
     giphyApiKey: string;
@@ -30,4 +30,3 @@ export class GiphyGenerator implements MediaGenerator {
         }
     }
 }
-

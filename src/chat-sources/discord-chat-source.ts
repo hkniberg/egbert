@@ -1,10 +1,10 @@
-import { Client, Events, GatewayIntentBits, Message, TextChannel } from 'discord.js';
-import { Bot } from '../bot';
-import { DiscordChatSourceConfig } from '../config';
-import { MediaGenerator, splitMessageByMedia } from '../media-generators/media-generator';
+import { Client, Events, GatewayIntentBits, Message, TextChannel } from "discord.js";
+import { Bot } from "../bot";
+import { DiscordChatSourceConfig } from "../config";
+import { MediaGenerator, splitMessageByMedia } from "../media-generators/media-generator";
 import { ChatMessage } from "../response-generators/response-generator";
-import { splitStringAtNewline } from '../util/utils';
-import { ChatSource } from './chat-source';
+import { splitStringAtNewline } from "../util/utils";
+import { ChatSource } from "./chat-source";
 
 export class DiscordChatSource extends ChatSource {
     private readonly typeSpecificConfig: DiscordChatSourceConfig;
@@ -32,7 +32,7 @@ export class DiscordChatSource extends ChatSource {
                 this.discordServerToSocialContextMap.set(discordServer.serverName, discordServer.socialContext);
             }
         }
-        console.log('Discord chat source created: ', this.name);
+        console.log("Discord chat source created: ", this.name);
         this.mediaGenerators = mediaGenerators;
     }
 
@@ -70,7 +70,7 @@ export class DiscordChatSource extends ChatSource {
         this.discordClient.on(Events.MessageCreate, async (discordMessage: Message) => {
             const triggerMessage = discordMessage.content;
             console.log(
-                `Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${triggerMessage}`,
+                `Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${triggerMessage}`
             );
 
             let sender = discordMessage.author.username;
@@ -86,7 +86,7 @@ export class DiscordChatSource extends ChatSource {
 
             if (!socialContextToUse || socialContextToUse.trim().length == 0) {
                 console.log(
-                    `Received a message on discord server ${discordMessage.guild?.name} but no social context is configured for that server, and we have no default social context, so we will ignore the message.`,
+                    `Received a message on discord server ${discordMessage.guild?.name} but no social context is configured for that server, and we have no default social context, so we will ignore the message.`
                 );
                 return;
             }
@@ -108,14 +108,21 @@ export class DiscordChatSource extends ChatSource {
                     discordMessage.react(this.typeSpecificConfig.rememberEmoji);
                 }
             };
-            const responseMessage = await bot.generateResponse(this.name, socialContextToUse, sender, triggerMessage, chatHistory, onMessageRemembered);
+            const responseMessage = await bot.generateResponse(
+                this.name,
+                socialContextToUse,
+                sender,
+                triggerMessage,
+                chatHistory,
+                onMessageRemembered
+            );
             if (responseMessage) {
                 // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
                 console.log(`[${this.name} ${socialContextToUse}] ${bot.getName()}: ${responseMessage}`);
                 await this.sendDiscordResponse(discordMessage, responseMessage);
             }
         });
-        console.log('Discord chat source started: ', this.name);
+        console.log("Discord chat source started: ", this.name);
     }
 
     /**
@@ -134,11 +141,16 @@ export class DiscordChatSource extends ChatSource {
                 before: discordMessage.id,
             };
             const discordMessages = await channel.messages.fetch(options);
-            return Array.from(discordMessages.values())
-                // create a ChatMessage from each discord message
-                .map((discordMessage) => ({ sender: discordMessage.author.username ? discordMessage.author.username : null, message: discordMessage.content }))
-                // reverse the array, since discord responds with newest messages first and we want oldest first
-                .reverse();
+            return (
+                Array.from(discordMessages.values())
+                    // create a ChatMessage from each discord message
+                    .map((discordMessage) => ({
+                        sender: discordMessage.author.username ? discordMessage.author.username : null,
+                        message: discordMessage.content,
+                    }))
+                    // reverse the array, since discord responds with newest messages first and we want oldest first
+                    .reverse()
+            );
         } else {
             return [];
         }
@@ -167,4 +179,3 @@ export class DiscordChatSource extends ChatSource {
         }
     }
 }
-

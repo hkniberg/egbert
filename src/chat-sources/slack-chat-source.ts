@@ -1,14 +1,13 @@
-import { App, KnownEventFromType } from '@slack/bolt';
-import { Message } from '@slack/web-api/dist/response/ConversationsHistoryResponse';
-import NodeCache from 'node-cache';
-import { Bot } from '../bot';
-import { SlackChatSourceConfig } from '../config';
-import { ChatMessage } from '../response-generators/response-generator';
-import { ChatSource } from './chat-source';
+import { App, KnownEventFromType } from "@slack/bolt";
+import { Message } from "@slack/web-api/dist/response/ConversationsHistoryResponse";
+import NodeCache from "node-cache";
+import { Bot } from "../bot";
+import { SlackChatSourceConfig } from "../config";
+import { ChatMessage } from "../response-generators/response-generator";
+import { ChatSource } from "./chat-source";
 
 const DEFAULT_USER_NAME_CACHE_SECONDS = 60 * 10;
-const DEFAULT_START_THREAD = true
-
+const DEFAULT_START_THREAD = true;
 
 /**
  * https://api.slack.com/reference
@@ -26,7 +25,7 @@ export class SlackChatSource extends ChatSource {
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        typeSpecificConfig: SlackChatSourceConfig,
+        typeSpecificConfig: SlackChatSourceConfig
     ) {
         super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.app = new App({
@@ -40,7 +39,7 @@ export class SlackChatSource extends ChatSource {
         const userNameCacheSeconds = typeSpecificConfig.userNameCacheSeconds || DEFAULT_USER_NAME_CACHE_SECONDS;
         this.userNameCache = new NodeCache({ stdTTL: userNameCacheSeconds });
         this.startThread = typeSpecificConfig.thread == undefined ? DEFAULT_START_THREAD : typeSpecificConfig.thread;
-        console.log('Slack chat source created: ', this.name);
+        console.log("Slack chat source created: ", this.name);
     }
 
     addBot(bot: Bot) {
@@ -63,7 +62,7 @@ export class SlackChatSource extends ChatSource {
         }
 
         this.app.message(/.*/, async ({ message, client }) => {
-            if (message.type != 'message' || !('text' in message) || !('user' in message)) {
+            if (message.type != "message" || !("text" in message) || !("user" in message)) {
                 return;
             }
 
@@ -87,7 +86,6 @@ export class SlackChatSource extends ChatSource {
             }
 
             const incomingMessageWithRealUserNames = await this.replaceUserIdsWithRealNames(incomingMessage);
-
 
             let socialContext = this.defaultSocialContext as string;
             if (!bot.willRespond(socialContext, incomingMessageWithRealUserNames)) {
@@ -113,7 +111,7 @@ export class SlackChatSource extends ChatSource {
                 sender,
                 incomingMessageWithRealUserNames,
                 chatHistory,
-                onMessageRemembered,
+                onMessageRemembered
             );
             if (responseMessage) {
                 console.log(`[${this.name} ${socialContext}] ${bot.getName()}: ${responseMessage}`);
@@ -129,10 +127,9 @@ export class SlackChatSource extends ChatSource {
                     await client.chat.postMessage({
                         channel: message.channel,
                         text: responseMessage,
-                        thread_ts: ('thread_ts' in message) ? message.thread_ts : undefined,
+                        thread_ts: "thread_ts" in message ? message.thread_ts : undefined,
                     });
                 }
-
             }
         });
 
@@ -154,12 +151,13 @@ export class SlackChatSource extends ChatSource {
 
         const result = await this.app.client.users.info({ user: userId });
         if (result.ok) {
-            let userName = result.user?.profile?.display_name || result.user?.profile?.real_name || result.user?.name || userId;
+            let userName =
+                result.user?.profile?.display_name || result.user?.profile?.real_name || result.user?.name || userId;
             this.userNameCache.set(userId, userName);
             return userName;
         } else {
-            console.error('Error retrieving user info from Slack API: ', result.error);
-            return '';
+            console.error("Error retrieving user info from Slack API: ", result.error);
+            return "";
         }
     }
 
@@ -178,8 +176,8 @@ export class SlackChatSource extends ChatSource {
     }
 
     async loadSlackChatHistory(
-        slackMessage: KnownEventFromType<'message'>,
-        maxChatHistoryLength: number,
+        slackMessage: KnownEventFromType<"message">,
+        maxChatHistoryLength: number
     ): Promise<ChatMessage[]> {
         if (maxChatHistoryLength === 0) {
             return [];
@@ -227,9 +225,9 @@ export class SlackChatSource extends ChatSource {
                     console.log(`senderName: ${senderName}, message: ${message.text}`);
                     return {
                         sender: senderName,
-                        message: message.text ? await this.replaceUserIdsWithRealNames(message.text) : '',
+                        message: message.text ? await this.replaceUserIdsWithRealNames(message.text) : "",
                     };
-                }),
+                })
             );
         } else {
             return [];
@@ -241,7 +239,7 @@ export class SlackChatSource extends ChatSource {
         if (message.bot_id === this.botId) {
             return this.typeSpecificConfig.bot;
         } else {
-            return message.user ? await this.getUserName(message.user) : null
+            return message.user ? await this.getUserName(message.user) : null;
         }
     }
 

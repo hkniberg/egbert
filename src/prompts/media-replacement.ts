@@ -11,4 +11,4 @@ For example:
 - Assistant: "Here you go: GIF[dancing hat] "
 
 That will automatically be replaced by a generated image.
-`
+`;
