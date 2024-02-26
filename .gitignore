@@ -157,3 +157,5 @@ build/**/*
 .gitmessage
 
 config/docker-compose.yml
+
+.DS_Store
