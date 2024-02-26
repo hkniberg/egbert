@@ -1,11 +1,11 @@
-import { ChatSource } from "./chat-source";
-import { MinecraftChatSourceConfig } from "../config";
 import { Rcon } from "rcon-client";
 import { Tail } from "tail";
 import { Bot } from "../bot";
+import { MinecraftChatSourceConfig } from "../config";
+import { ChatMessage } from "../response-generators/response-generator";
 import { CappedArray } from "../util/capped-array";
 import { delay } from "../util/utils";
-import { ChatMessage } from "../response-generators/response-generator";
+import { ChatSource } from "./chat-source";
 
 // regexp for the chat messages that should be visible to the bot. This can be set in the config.
 // First group should be the username (optional), second group should be the message
@@ -26,9 +26,10 @@ export class MinecraftChatSource extends ChatSource {
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
+        prompt: string | null,
         typeSpecificConfig: MinecraftChatSourceConfig
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
         if (!defaultSocialContext) {
             throw new Error("MinecraftChatSource must have a default social context");
         }
@@ -83,6 +84,7 @@ export class MinecraftChatSource extends ChatSource {
         for (const bot of respondingBots) {
             const responseMessage = await bot.generateResponse(
                 this.name,
+                this.prompt,
                 this.defaultSocialContext as string,
                 sender,
                 triggerMessage,

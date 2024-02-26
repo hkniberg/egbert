@@ -38,13 +38,17 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         triggerMessage: string,
         sender: string | null,
         botName: string,
-        personality: string,
+        botPrompt: string,
+        chatSourcePrompt: string | null,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
         otherChatSourceHistories: ChatSourceHistory[]
     ): Promise<string> {
-        // Add the personality
-        const systemMessage = personality + "\n\n" + mediaReplacementPrompt;
+        let systemMessage = botPrompt;
+        if (chatSourcePrompt) {
+            systemMessage = systemMessage + "\n\n" + chatSourcePrompt;
+        }
+        systemMessage = systemMessage + "\n\n" + mediaReplacementPrompt;
 
         const messages: GptMessage[] = [{ role: "system", content: systemMessage }];
 

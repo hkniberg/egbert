@@ -78,6 +78,7 @@ export interface ChatSourceConfig {
     type: string;
     defaultSocialContext?: string;
     maxChatHistoryLength?: number;
+    prompt?: string;
     typeSpecificConfig?: DiscordChatSourceConfig | MinecraftChatSourceConfig | TelegramChatSourceConfig;
     crossReferencePattern?: string;
 }

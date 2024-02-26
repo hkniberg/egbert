@@ -1,7 +1,7 @@
-import { ChatMessage, ChatSourceHistory, ResponseGenerator } from "./response-generators/response-generator";
+import { ChatSource } from "./chat-sources/chat-source";
 import { BotTriggerConfig } from "./config";
 import { MemoryManager } from "./memory-managers/memory-manager";
-import { ChatSource } from "./chat-sources/chat-source";
+import { ChatMessage, ChatSourceHistory, ResponseGenerator } from "./response-generators/response-generator";
 
 // Used to define which types of messages the bot will respond to,
 // and the probability of responding.
@@ -74,6 +74,7 @@ export class Bot {
      */
     public async generateResponse(
         chatSourceName: string,
+        chatSourcePrompt: string | null,
         socialContext: string,
         sender: string | null,
         triggerMessage: string,
@@ -118,6 +119,7 @@ export class Bot {
             sender,
             this.name,
             this.personality,
+            chatSourcePrompt,
             memories,
             chatContext,
             otherChatSourceHistories

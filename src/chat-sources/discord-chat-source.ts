@@ -18,10 +18,11 @@ export class DiscordChatSource extends ChatSource {
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
+        prompt: string | null,
         typeSpecificConfig: DiscordChatSourceConfig,
         mediaGenerators: MediaGenerator[]
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
         this.discordClient = new Client({
             intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
         });
@@ -110,6 +111,7 @@ export class DiscordChatSource extends ChatSource {
             };
             const responseMessage = await bot.generateResponse(
                 this.name,
+                this.prompt,
                 socialContextToUse,
                 sender,
                 triggerMessage,

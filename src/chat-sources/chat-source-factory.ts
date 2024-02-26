@@ -20,6 +20,7 @@ function createChatSource(chatSourceConfig: ChatSourceConfig, mediaGenerators: M
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
             chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
+            chatSourceConfig.prompt ? chatSourceConfig.prompt : null,
             chatSourceConfig.typeSpecificConfig as DiscordChatSourceConfig,
             mediaGenerators
         );
@@ -29,6 +30,7 @@ function createChatSource(chatSourceConfig: ChatSourceConfig, mediaGenerators: M
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
             chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
+            chatSourceConfig.prompt ? chatSourceConfig.prompt : null,
             chatSourceConfig.typeSpecificConfig as MinecraftChatSourceConfig
         );
     } else if (chatSourceConfig.type === "console") {
@@ -36,7 +38,9 @@ function createChatSource(chatSourceConfig: ChatSourceConfig, mediaGenerators: M
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
-            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null
+            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
+            chatSourceConfig.prompt ? chatSourceConfig.prompt : null,
+
         );
     } else if (chatSourceConfig.type === "telegram") {
         return new TelegramChatSource(
@@ -44,6 +48,7 @@ function createChatSource(chatSourceConfig: ChatSourceConfig, mediaGenerators: M
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
             chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
+            chatSourceConfig.prompt ? chatSourceConfig.prompt : null,
             chatSourceConfig.typeSpecificConfig as TelegramChatSourceConfig
         );
     } else if (chatSourceConfig.type === "slack") {
@@ -52,6 +57,7 @@ function createChatSource(chatSourceConfig: ChatSourceConfig, mediaGenerators: M
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
             chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
+            chatSourceConfig.prompt ? chatSourceConfig.prompt : null,
             chatSourceConfig.typeSpecificConfig as SlackChatSourceConfig
         );
     } else {

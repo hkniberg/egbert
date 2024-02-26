@@ -1,8 +1,8 @@
 // response-generators/ollama-response-generator.ts
 
 import axios from "axios";
-import { ChatMessage, ChatSourceHistory, ResponseGenerator } from "./response-generator";
 import { MemoryEntry } from "../memory-managers/memory-manager";
+import { ChatMessage, ChatSourceHistory, ResponseGenerator } from "./response-generator";
 
 const API_BASE_URL = "http://localhost:11434/api";
 
@@ -25,7 +25,8 @@ export class OllamaResponseGenerator implements ResponseGenerator {
         triggerMessage: string,
         sender: string | null,
         botName: string,
-        personality: string,
+        botPrompt: string,
+        chatSourcePrompt: string | null,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
         otherChatSourceHistories: ChatSourceHistory[]
@@ -42,7 +43,7 @@ export class OllamaResponseGenerator implements ResponseGenerator {
 
         const body = {
             model: this.typeSpecificConfig.model,
-            system: personality,
+            system: botPrompt,
             stream: false,
             prompt: message,
             options: {

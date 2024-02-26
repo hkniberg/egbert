@@ -1,8 +1,8 @@
-import { ChatSource } from "./chat-source";
 import { Context, Telegraf } from "telegraf";
 import { Update } from "typegram";
 import { Bot } from "../bot";
 import { TelegramChatSourceConfig } from "../config";
+import { ChatSource } from "./chat-source";
 
 export class TelegramChatSource extends ChatSource {
     private readonly typeSpecificConfig: TelegramChatSourceConfig;
@@ -12,9 +12,10 @@ export class TelegramChatSource extends ChatSource {
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
+        prompt: string | null,
         typeSpecificConfig: TelegramChatSourceConfig
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
         this.typeSpecificConfig = typeSpecificConfig;
 
         this.telegramClient = new Telegraf(this.typeSpecificConfig.botToken);
@@ -42,6 +43,7 @@ export class TelegramChatSource extends ChatSource {
             for (const bot of respondingBots) {
                 const responseMessage = await bot.generateResponse(
                     this.name,
+                    this.prompt,
                     this.defaultSocialContext,
                     sender,
                     triggerMessage,

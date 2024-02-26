@@ -1,6 +1,6 @@
-import { ChatSource } from "./chat-source";
-import { CappedArray } from "../util/capped-array";
 import { ChatMessage } from "../response-generators/response-generator";
+import { CappedArray } from "../util/capped-array";
+import { ChatSource } from "./chat-source";
 
 // A regexp to parse out the sender name (optional), and the message. Follows this format:
 //
@@ -24,9 +24,10 @@ export class ConsoleChatSource extends ChatSource {
         name: string,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
-        crossReferencePattern: string | null
+        crossReferencePattern: string | null,
+        prompt: string | null
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
+        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
         this.chatHistory = new CappedArray<ChatMessage>(maxChatHistoryLength);
     }
 
@@ -62,6 +63,7 @@ export class ConsoleChatSource extends ChatSource {
             for (const bot of respondingBots) {
                 const responseMessage = await bot.generateResponse(
                     this.name,
+                    this.prompt,
                     this.defaultSocialContext as string,
                     sender,
                     triggerMessage,

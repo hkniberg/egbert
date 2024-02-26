@@ -15,7 +15,8 @@ export interface ResponseGenerator {
         triggerMessage: string,
         sender: string | null,
         botName: string,
-        personality: string,
+        botPrompt: string,
+        chatSourcePrompt: string | null,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
         otherChatSourceHistories: ChatSourceHistory[]

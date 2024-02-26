@@ -6,7 +6,8 @@ export class EchoResponseGenerator implements ResponseGenerator {
         triggerMessage: string,
         sender: string | null,
         botName: string,
-        personality: string,
+        botPrompt: string,
+        chatSourcePrompt: string | null,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[]
     ): Promise<string> {
