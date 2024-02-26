@@ -2,31 +2,33 @@ import {
     ChatSourceConfig,
     DiscordChatSourceConfig,
     MinecraftChatSourceConfig,
-    TelegramChatSourceConfig,
     SlackChatSourceConfig,
+    TelegramChatSourceConfig,
 } from '../config';
+import { MediaGenerator } from '../media-generators/media-generator';
 import { ChatSource } from './chat-source';
+import { ConsoleChatSource } from './console-chat-source';
 import { DiscordChatSource } from './discord-chat-source';
 import { MinecraftChatSource } from './minecraft-chat-source';
-import { TelegramChatSource } from './telegram-chat-source';
-import { ConsoleChatSource } from './console-chat-source';
 import { SlackChatSource } from './slack-chat-source';
+import { TelegramChatSource } from './telegram-chat-source';
 
-function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
+function createChatSource(chatSourceConfig: ChatSourceConfig, mediaGenerators: MediaGenerator[]): ChatSource {
     if (chatSourceConfig.type === 'discord') {
         return new DiscordChatSource(
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
-            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null, 
+            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
             chatSourceConfig.typeSpecificConfig as DiscordChatSourceConfig,
+            mediaGenerators,
         );
     } else if (chatSourceConfig.type === 'minecraft') {
         return new MinecraftChatSource(
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
-            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null, 
+            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
             chatSourceConfig.typeSpecificConfig as MinecraftChatSourceConfig,
         );
     } else if (chatSourceConfig.type === 'console') {
@@ -34,14 +36,14 @@ function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
-            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null, 
+            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
         );
     } else if (chatSourceConfig.type === 'telegram') {
         return new TelegramChatSource(
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
-            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null, 
+            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
             chatSourceConfig.typeSpecificConfig as TelegramChatSourceConfig,
         );
     } else if (chatSourceConfig.type === 'slack') {
@@ -49,7 +51,7 @@ function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
             chatSourceConfig.name,
             chatSourceConfig.defaultSocialContext ? chatSourceConfig.defaultSocialContext : null,
             chatSourceConfig.maxChatHistoryLength ? chatSourceConfig.maxChatHistoryLength : 0,
-            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null, 
+            chatSourceConfig.crossReferencePattern ? chatSourceConfig.crossReferencePattern : null,
             chatSourceConfig.typeSpecificConfig as SlackChatSourceConfig,
         );
     } else {
@@ -57,10 +59,10 @@ function createChatSource(chatSourceConfig: ChatSourceConfig): ChatSource {
     }
 }
 
-export function createChatSources(chatSourceConfigs: Array<ChatSourceConfig>) {
+export function createChatSources(chatSourceConfigs: Array<ChatSourceConfig>, mediaGenerators: MediaGenerator[]) {
     const chatSources: Map<String, ChatSource> = new Map();
     for (const chatSourceConfig of chatSourceConfigs) {
-        chatSources.set(chatSourceConfig.name, createChatSource(chatSourceConfig));
+        chatSources.set(chatSourceConfig.name, createChatSource(chatSourceConfig, mediaGenerators));
     }
     return chatSources;
 }

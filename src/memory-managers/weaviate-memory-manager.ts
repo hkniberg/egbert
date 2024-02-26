@@ -1,8 +1,7 @@
-import {MemoryEntry, MemoryManager} from './memory-manager';
-import {WeaviateMemoryManagerConfig} from '../config';
-import weaviate, {WeaviateClient} from 'weaviate-ts-client';
 import axios from "axios";
-import {HumanMessagePromptTemplate,} from "langchain/prompts"
+import weaviate, { WeaviateClient } from 'weaviate-ts-client';
+import { WeaviateMemoryManagerConfig } from '../config';
+import { MemoryEntry, MemoryManager } from './memory-manager';
 
 const SCHEMA_CLASS_NAME = 'Memory';
 const OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions';
@@ -11,7 +10,8 @@ const SYSTEM_MESSAGE = `You are an assistant that helps decide which messages to
 
 const DEFAULT_REMEMBER_MODEL = 'gpt-3.5-turbo';
 
-const DEFAULT_REMEMBER_INSTRUCTIONS = `Evaluate if the given message should be saved in the bot's memory for future prompts
+const DEFAULT_REMEMBER_INSTRUCTIONS = `
+Evaluate if the given message should be saved in the bot's memory for future prompts
 You should only save messages that you have been explicitly asked to remember,
 for example phrases such as 'remember xxx' or 'keep xxx in mind' or 'don't forget xxx'.
 The same applies to non-english sentences such as 'Glöm inte, du älskar hundar'.
@@ -33,8 +33,8 @@ const DEFAULT_DONT_REMEMBER_EXAMPLES = [
     'Jag gillar ost'
 ];
 
-const REMEMBER_PROMPT_TEMPLATE = HumanMessagePromptTemplate.fromTemplate(
-    `I will give you a message within tripple backticks.
+const REMEMBER_PROMPT_TEMPLATE = `
+I will give you a message within tripple backticks.
 {rememberInstructions}
 
 Example of messages to remember:
@@ -51,7 +51,7 @@ Here is the message I want you to evaluate:
 \`\`\`
 {message}
 \`\`\`
-`);
+`;
 
 
 
@@ -151,24 +151,23 @@ export class WeaviateMemoryManager extends MemoryManager {
     /**
      * Uses OpenAI to figure out if a message is worth remembering.
      */
-    private async isMessageWorthRemembering(message: string) : Promise<boolean> {
+    private async isMessageWorthRemembering(message: string): Promise<boolean> {
         const headers = {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${this.typeSpecificConfig.openAiKey}`,
         };
 
-        const userPrompt = await REMEMBER_PROMPT_TEMPLATE.format({
-            rememberInstructions: this.rememberInstructions,
-            rememberExamples: this.rememberExamplesAsBullets,
-            dontRememberExamples: this.dontRememberExamplesAsBullets,
-            message: message,
-        });
+        const userPrompt = REMEMBER_PROMPT_TEMPLATE
+            .replace("{rememberInstructions}", this.rememberInstructions)
+            .replace("{rememberExamples}", this.rememberExamplesAsBullets)
+            .replace("{dontRememberExamples}", this.dontRememberExamplesAsBullets)
+            .replace("{message}", message);
 
         const body = {
             model: this.rememberModel,
             messages: [
-                { role: 'system', content: SYSTEM_MESSAGE},
-                { role: 'user', content: userPrompt.text},
+                { role: 'system', content: SYSTEM_MESSAGE },
+                { role: 'user', content: userPrompt },
             ],
             temperature: 0,
         };

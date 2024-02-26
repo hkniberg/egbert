@@ -1,9 +1,10 @@
 // response-generators/openai-response-generator.ts
 
 import axios from 'axios';
-import { ChatMessage, ChatSourceHistory, ResponseGenerator } from './response-generator';
 import { encode } from 'gpt-3-encoder';
 import { MemoryEntry } from '../memory-managers/memory-manager';
+import { mediaReplacementPrompt } from '../prompts/media-replacement';
+import { ChatMessage, ChatSourceHistory, ResponseGenerator } from './response-generator';
 
 const API_BASE_URL = 'https://api.openai.com/v1';
 
@@ -50,7 +51,9 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         };
 
         // Add the personality
-        const messages: GptMessage[] = [{ role: 'system', content: personality}];
+        const systemMessage = personality + "\n\n" + mediaReplacementPrompt;
+
+        const messages: GptMessage[] = [{ role: 'system', content: systemMessage }];
 
         // Add the memories
         if (memories.length > 0) {
@@ -109,8 +112,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
             const requestTokens = this.getTokenCount(JSON.stringify(messages));
             const responseTokens = this.getTokenCount(responseContent);
             console.log(
-                `Request tokens: ${requestTokens}, Response tokens: ${responseTokens}, Total tokens: ${
-                    requestTokens + responseTokens
+                `Request tokens: ${requestTokens}, Response tokens: ${responseTokens}, Total tokens: ${requestTokens + responseTokens
                 }`,
             );
 

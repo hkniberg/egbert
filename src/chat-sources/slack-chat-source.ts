@@ -1,10 +1,10 @@
-import {ChatSource} from './chat-source';
-import {Bot} from '../bot';
-import {SlackChatSourceConfig} from '../config';
-import {App, KnownEventFromType} from '@slack/bolt';
-import {ChatMessage} from '../response-generators/response-generator';
-import {Message} from '@slack/web-api/dist/response/ConversationsHistoryResponse';
-import * as NodeCache from 'node-cache'
+import { App, KnownEventFromType } from '@slack/bolt';
+import { Message } from '@slack/web-api/dist/response/ConversationsHistoryResponse';
+import NodeCache from 'node-cache';
+import { Bot } from '../bot';
+import { SlackChatSourceConfig } from '../config';
+import { ChatMessage } from '../response-generators/response-generator';
+import { ChatSource } from './chat-source';
 
 const DEFAULT_USER_NAME_CACHE_SECONDS = 60 * 10;
 const DEFAULT_START_THREAD = true

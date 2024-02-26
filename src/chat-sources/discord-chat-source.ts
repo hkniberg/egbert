@@ -1,15 +1,17 @@
-import { ChatSource } from './chat-source';
 import { Client, Events, GatewayIntentBits, Message, TextChannel } from 'discord.js';
-import { splitStringAtNewline } from '../util/utils';
-import { DiscordChatSourceConfig } from '../config';
 import { Bot } from '../bot';
-import {ChatMessage} from "../response-generators/response-generator";
+import { DiscordChatSourceConfig } from '../config';
+import { MediaGenerator, splitMessageByMedia } from '../media-generators/media-generator';
+import { ChatMessage } from "../response-generators/response-generator";
+import { splitStringAtNewline } from '../util/utils';
+import { ChatSource } from './chat-source';
 
 export class DiscordChatSource extends ChatSource {
     private readonly typeSpecificConfig: DiscordChatSourceConfig;
     private discordServerToSocialContextMap: Map<string, string> = new Map();
     private discordClient: Client;
     private ignoreMessagesFrom: string[] = [];
+    private mediaGenerators: MediaGenerator[];
 
     constructor(
         name: string,
@@ -17,6 +19,7 @@ export class DiscordChatSource extends ChatSource {
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
         typeSpecificConfig: DiscordChatSourceConfig,
+        mediaGenerators: MediaGenerator[]
     ) {
         super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.discordClient = new Client({
@@ -30,6 +33,7 @@ export class DiscordChatSource extends ChatSource {
             }
         }
         console.log('Discord chat source created: ', this.name);
+        this.mediaGenerators = mediaGenerators;
     }
 
     addBot(bot: Bot) {
@@ -108,7 +112,7 @@ export class DiscordChatSource extends ChatSource {
             if (responseMessage) {
                 // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
                 console.log(`[${this.name} ${socialContextToUse}] ${bot.getName()}: ${responseMessage}`);
-                await sendDiscordResponse(discordMessage, responseMessage);
+                await this.sendDiscordResponse(discordMessage, responseMessage);
             }
         });
         console.log('Discord chat source started: ', this.name);
@@ -118,7 +122,7 @@ export class DiscordChatSource extends ChatSource {
      * loads previous messages from the same discord channel, up to and not including the given message.
      * Oldest messages first.
      */
-    private async loadDiscordChatHistory(discordMessage: Message) : Promise<ChatMessage[]> {
+    private async loadDiscordChatHistory(discordMessage: Message): Promise<ChatMessage[]> {
         if (this.maxChatHistoryLength === 0) {
             return [];
         }
@@ -132,21 +136,35 @@ export class DiscordChatSource extends ChatSource {
             const discordMessages = await channel.messages.fetch(options);
             return Array.from(discordMessages.values())
                 // create a ChatMessage from each discord message
-                .map((discordMessage) => ({sender: discordMessage.author.username ? discordMessage.author.username : null, message: discordMessage.content}))
+                .map((discordMessage) => ({ sender: discordMessage.author.username ? discordMessage.author.username : null, message: discordMessage.content }))
                 // reverse the array, since discord responds with newest messages first and we want oldest first
                 .reverse();
         } else {
             return [];
         }
     }
-}
 
-async function sendDiscordResponse(discordMessage: Message, responseMessage: string) {
-    console.log(`Sending response to discord: ${responseMessage}`);
-    const DISCORD_MESSAGE_MAX_LENGTH = 2000;
-    const replyChunks = splitStringAtNewline(responseMessage, DISCORD_MESSAGE_MAX_LENGTH);
-    for (let replyChunk of replyChunks) {
-        if (replyChunk.length === 0) continue;
-        await discordMessage.reply(replyChunk); // if the message was in a thread then the response will be in the same thread.
+    async sendDiscordResponse(discordMessage: Message, responseMessage: string) {
+        console.log(`Sending response to discord: ${responseMessage}`);
+        const DISCORD_MESSAGE_MAX_LENGTH = 2000;
+
+        const segments = await splitMessageByMedia(this.mediaGenerators, responseMessage);
+        for (let segment of segments) {
+            if (segment && segment.startsWith("http")) {
+                const embed = {
+                    image: {
+                        url: segment,
+                    },
+                };
+                await discordMessage.reply({ embeds: [embed] });
+            } else if (segment) {
+                const replyChunks = splitStringAtNewline(segment, DISCORD_MESSAGE_MAX_LENGTH);
+                for (let replyChunk of replyChunks) {
+                    if (replyChunk.length === 0) continue;
+                    await discordMessage.reply(replyChunk);
+                }
+            }
+        }
     }
 }
+

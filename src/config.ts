@@ -7,6 +7,7 @@ export interface Config {
     memoryManagers: Array<MemoryManagerConfig> | null;
     responseGenerators: Array<ResponseGeneratorConfig>;
     chatSources: Array<ChatSourceConfig>;
+    mediaGenerators: Array<MediaGeneratorConfig>;
 }
 
 export interface BotConfig {
@@ -16,6 +17,19 @@ export interface BotConfig {
     personality: string;
     socialContexts: Array<string>;
     triggers: Array<BotTriggerConfig>;
+}
+
+export interface MediaGeneratorConfig {
+    type: string;
+    typeSpecificConfig?: GiphyMediaGeneratorConfig | DalleMediaGeneratorConfig // add other response generator configs here if we create more
+}
+
+export interface GiphyMediaGeneratorConfig {
+    apiKey: string;
+}
+
+export interface DalleMediaGeneratorConfig {
+    apiKey: string;
 }
 
 export interface BotTriggerConfig {

@@ -1,6 +1,6 @@
-import {ChatMessage, ChatSourceHistory, ResponseGenerator} from './response-generators/response-generator';
-import {BotTriggerConfig} from './config';
-import {MemoryManager} from "./memory-managers/memory-manager";
+import { ChatMessage, ChatSourceHistory, ResponseGenerator } from './response-generators/response-generator';
+import { BotTriggerConfig } from './config';
+import { MemoryManager } from "./memory-managers/memory-manager";
 import { ChatSource } from './chat-sources/chat-source';
 
 // Used to define which types of messages the bot will respond to,
@@ -88,7 +88,7 @@ export class Bot {
             // This could be done asynchronously, but seems to cause rate limit issues. Testing sync for now.
             await this.memoryManager.maybeSaveMemory(chatSourceName, this.name, socialContext, sender, triggerMessage).catch((error) => {
                 console.error("Failed to save memory", error);
-            }).then((saved  ) => {
+            }).then((saved) => {
                 if (saved && onMessageRemembered) {
                     onMessageRemembered();
                 }
@@ -105,7 +105,7 @@ export class Bot {
             }
         }
 
-        let response = await this.responseGenerator.generateResponse(
+        let response: string = await this.responseGenerator.generateResponse(
             triggerMessage,
             sender,
             this.name,
