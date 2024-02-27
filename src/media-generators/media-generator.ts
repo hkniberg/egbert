@@ -54,7 +54,10 @@ export async function splitMessageByMedia(
             }
 
             segments.push(null);
-            promises.push(generator.generateMediaUrl(mediaPrompt));
+            promises.push(generator.generateMediaUrl(mediaPrompt).catch((err) => {
+                console.log(`Error generating media URL: ${err}`);
+                return "(failed to generate media)";
+            }));
             positions.push(segments.length - 1);
 
             lastEnd = pattern.lastIndex; // Update lastEnd for each match
