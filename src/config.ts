@@ -33,6 +33,7 @@ export interface GenerateImageToolConfig {
 
 export interface GetWeatherToolConfig {
     apiKey: string;
+    cacheTimeSeconds: number;
 }
 
 export interface MediaGeneratorConfig {

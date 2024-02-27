@@ -49,6 +49,7 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
             systemMessage = systemMessage + "\n\n" + chatSourcePrompt;
         }
         systemMessage = systemMessage + "\n\n" + mediaReplacementPrompt;
+        systemMessage = systemMessage + "\n\n" + "The current time in UMT is " + new Date().toISOString();
 
         const messages: GptMessage[] = [{ role: "system", content: systemMessage }];
 

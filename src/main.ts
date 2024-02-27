@@ -9,6 +9,7 @@ import { createResponseGenerators } from "./response-generators/response-generat
 import { GenerateImage as GenerateImageTool } from "./tools/generate-image-tool";
 import { GetWeatherTool } from "./tools/get-weather-tool";
 import { Tool } from "./tools/tool";
+import { PersistentCache } from "./util/cache";
 
 const DEFAULT_CONFIG_PATH = "config/config.json5";
 
@@ -19,10 +20,13 @@ const config = parseConfig(configPath);
 
 const mediaGenerators = createMediaGenerators(config.mediaGenerators);
 
+const cache = new PersistentCache("cache");
+cache.init();
 const tools = createTools(config.tools);
 const responseGenerators = createResponseGenerators(config.responseGenerators, tools);
 const chatSources = createChatSources(config.chatSources, mediaGenerators);
 const memoryManagers = createMemoryManagers(config.memoryManagers);
+
 
 // Create each Bot and add to their respective chat sources (based on social context)
 for (const botConfig of config.bots) {
@@ -90,7 +94,7 @@ function createTool(toolConfig: ToolConfig): Tool {
     if (toolConfig.type === "generate-image") {
         return new GenerateImageTool(toolConfig.typeSpecificConfig as GenerateImageToolConfig);
     } else if (toolConfig.type === "get-weather") {
-        return new GetWeatherTool(toolConfig.typeSpecificConfig as GetWeatherToolConfig);
+        return new GetWeatherTool(toolConfig.typeSpecificConfig as GetWeatherToolConfig, cache);
     }
     throw "Unknown tool type: " + toolConfig.type;
 }
