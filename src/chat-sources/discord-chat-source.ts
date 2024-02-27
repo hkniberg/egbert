@@ -169,9 +169,7 @@ export class DiscordChatSource extends ChatSource {
             };
 
             // Start typing indicator
-            if (discordMessage.channel instanceof TextChannel) {
-                discordMessage.channel.sendTyping();
-            }
+            discordMessage.channel.sendTyping();
 
             const responseMessage = await bot.generateResponse(
                 this.name,
