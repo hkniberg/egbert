@@ -1,4 +1,5 @@
 import { Client, Events, GatewayIntentBits, Message, TextChannel } from "discord.js";
+import cron from "node-cron";
 import { Bot } from "../bot";
 import { DiscordChatSourceConfig } from "../config";
 import { MediaGenerator, splitMessageByMedia } from "../media-generators/media-generator";
@@ -13,16 +14,17 @@ export class DiscordChatSource extends ChatSource {
     private ignoreMessagesFrom: string[] = [];
     private mediaGenerators: MediaGenerator[];
 
+
     constructor(
         name: string,
+        socialContextPrompts: Map<string, string>,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        prompt: string | null,
         typeSpecificConfig: DiscordChatSourceConfig,
         mediaGenerators: MediaGenerator[]
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
+        super(name, socialContextPrompts, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.discordClient = new Client({
             intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
         });
@@ -35,6 +37,61 @@ export class DiscordChatSource extends ChatSource {
         }
         console.log("Discord chat source created: ", this.name);
         this.mediaGenerators = mediaGenerators;
+    }
+
+    private schedulePrompts() {
+        if (this.typeSpecificConfig.discordServers) {
+            for (const discordServer of this.typeSpecificConfig.discordServers) {
+                if (discordServer.scheduledPrompts) {
+                    for (const scheduledPrompt of discordServer.scheduledPrompts) {
+                        cron.schedule(scheduledPrompt.schedule, () => this.executeScheduledPrompt(discordServer.serverName, discordServer.socialContext, scheduledPrompt.prompt, scheduledPrompt.channel));
+                    }
+                }
+            }
+        }
+    }
+
+    private async executeScheduledPrompt(serverName: string, socialContext: string, prompt: string, channelName: string) {
+        console.log(`Executing scheduled prompt for server '${serverName}', channel '${channelName}': ${prompt}`);
+        const channelId = this.getChannelId(serverName, channelName);
+        if (!channelId) {
+            console.log(`Could not find channel ID for server '${serverName}' and channel '${channelName}', ignoring scheduled prompt`)
+            return;
+        }
+        const channel = this.discordClient.channels.cache.get(channelId) as TextChannel;
+        if (channel) {
+            const bot = this.bots.find((bot) => bot.getName() == this.typeSpecificConfig.bot);
+            if (bot) {
+                const responseMessage = await bot.generateResponse(
+                    this.name,
+                    this.getSocialContextPrompt(socialContext),
+                    socialContext,
+                    bot.getName(),
+                    prompt,
+                    [],
+                    () => { }
+                );
+                if (responseMessage) {
+                    await this.sendDiscordMessage(channel, responseMessage);
+                }
+            }
+        }
+    }
+
+    private getChannelId(serverName: string, channelName: string): string | null {
+        const server = this.discordClient.guilds.cache.find(guild => guild.name === serverName);
+        if (!server) {
+            console.error(`Server '${serverName}' not found`);
+            return null;
+        }
+
+        const channel = server.channels.cache.find(channel => channel.name === channelName && channel instanceof TextChannel);
+        if (!channel) {
+            console.error(`Channel '${channelName}' not found on server '${serverName}'`);
+            return null;
+        }
+
+        return channel.id;
     }
 
     addBot(bot: Bot) {
@@ -66,6 +123,7 @@ export class DiscordChatSource extends ChatSource {
 
         this.discordClient.once(Events.ClientReady, (client) => {
             console.log(`Ready! Logged in as ${client.user.tag}. I see ${client.channels.cache.size} channels.`);
+            this.schedulePrompts();
         });
 
         this.discordClient.on(Events.MessageCreate, async (discordMessage: Message) => {
@@ -111,7 +169,7 @@ export class DiscordChatSource extends ChatSource {
             };
             const responseMessage = await bot.generateResponse(
                 this.name,
-                this.prompt,
+                this.getSocialContextPrompt(socialContextToUse),
                 socialContextToUse,
                 sender,
                 triggerMessage,
@@ -160,9 +218,15 @@ export class DiscordChatSource extends ChatSource {
 
     async sendDiscordResponse(discordMessage: Message, responseMessage: string) {
         console.log(`Sending response to discord: ${responseMessage}`);
-        const DISCORD_MESSAGE_MAX_LENGTH = 2000;
+        const channel = discordMessage.channel;
+        if (channel instanceof TextChannel) {
+            await this.sendDiscordMessage(channel, responseMessage);
+        }
+    }
 
-        const segments = await splitMessageByMedia(this.mediaGenerators, responseMessage);
+    private async sendDiscordMessage(channel: TextChannel, message: string) {
+        const DISCORD_MESSAGE_MAX_LENGTH = 2000;
+        const segments = await splitMessageByMedia(this.mediaGenerators, message);
         for (let segment of segments) {
             if (segment && segment.startsWith("http")) {
                 const embed = {
@@ -170,12 +234,12 @@ export class DiscordChatSource extends ChatSource {
                         url: segment,
                     },
                 };
-                await discordMessage.reply({ embeds: [embed] });
+                await channel.send({ embeds: [embed] });
             } else if (segment) {
                 const replyChunks = splitStringAtNewline(segment, DISCORD_MESSAGE_MAX_LENGTH);
                 for (let replyChunk of replyChunks) {
                     if (replyChunk.length === 0) continue;
-                    await discordMessage.reply(replyChunk);
+                    await channel.send(replyChunk);
                 }
             }
         }

@@ -1,8 +1,8 @@
+import { Rcon } from 'rcon-client';
+import { Bot } from '../../src/bot';
 import { MinecraftChatSource } from '../../src/chat-sources/minecraft-chat-source';
 import { MinecraftChatSourceConfig } from '../../src/config';
-import { Bot } from '../../src/bot';
 import { EchoResponseGenerator } from '../../src/response-generators/echo-response-generator';
-import { Rcon } from 'rcon-client';
 
 // This ugly pile of code makes a mock version of rcon-client.
 // The tricky bit is that we need to mock the Rcon.connect() method to return a mock Rcon object,
@@ -35,7 +35,7 @@ describe('MinecraftChatSource', () => {
     beforeEach(() => {
         (Rcon.connect as jest.Mock).mockClear();
         const bot = new Bot('testBot', 'You are a test bot', null, ['testContext'], null, new EchoResponseGenerator());
-        chatSource = new MinecraftChatSource('minecraftTest', 'testContext', 100, null, minecraftChatSourceConfig);
+        chatSource = new MinecraftChatSource('minecraftTest', new Map(), 'testContext', 100, null, minecraftChatSourceConfig);
         chatSource.addBot(bot);
     });
 

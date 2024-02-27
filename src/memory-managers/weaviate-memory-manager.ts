@@ -12,8 +12,8 @@ const DEFAULT_REMEMBER_MODEL = "gpt-3.5-turbo";
 
 const DEFAULT_REMEMBER_INSTRUCTIONS = `
 Evaluate if the given message should be saved in the bot's memory for future prompts
-You should only save messages that you have been explicitly asked to remember,
-for example phrases such as 'remember xxx' or 'keep xxx in mind' or 'don't forget xxx'.
+You should only save messages that you have been asked to remember,
+for example phrases such as 'remember this', 'remember: xxx' or 'keep xxx in mind' or 'don't forget xxx'.
 The same applies to non-english sentences such as 'Glöm inte, du älskar hundar'.
 Never save a question.`;
 

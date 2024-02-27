@@ -22,13 +22,13 @@ export class SlackChatSource extends ChatSource {
 
     constructor(
         name: string,
+        socialContextPrompts: Map<string, string>,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        prompt: string | null,
         typeSpecificConfig: SlackChatSourceConfig
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
+        super(name, socialContextPrompts, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.app = new App({
             token: typeSpecificConfig.botToken,
             signingSecret: typeSpecificConfig.signingSecret,
@@ -108,7 +108,7 @@ export class SlackChatSource extends ChatSource {
 
             const responseMessage = await bot.generateResponse(
                 this.name,
-                this.prompt,
+                this.getSocialContextPrompt(socialContext),
                 socialContext,
                 sender,
                 incomingMessageWithRealUserNames,

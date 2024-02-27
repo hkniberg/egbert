@@ -15,23 +15,27 @@ export abstract class ChatSource {
     protected bots: Array<Bot> = [];
     protected maxChatHistoryLength: number;
     protected crossReferencePattern: RegExp | null;
-    protected prompt: string | null;
+    protected socialContextPrompts: Map<string, string>;
 
     constructor(
         name: string,
+        socialContextPrompts: Map<string, string>,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        prompt: string | null
     ) {
         this.name = name;
+        this.socialContextPrompts = socialContextPrompts;
         this.defaultSocialContext = noEmptyString(defaultSocialContext);
         this.maxChatHistoryLength = maxChatHistoryLength;
         this.crossReferencePattern = crossReferencePattern ? new RegExp(crossReferencePattern) : null;
-        this.prompt = prompt;
     }
 
     abstract start(): void;
+
+    getSocialContextPrompt(socialContext: string): string | null {
+        return this.socialContextPrompts.get(socialContext) || null;
+    }
 
     getDefaultSocialContext(): string | null {
         return this.defaultSocialContext;

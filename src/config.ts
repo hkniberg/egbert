@@ -3,8 +3,10 @@ import JSON5 from "json5";
 import path from "path";
 import { ModelType } from "./api/gpt";
 
+// Make most of these optional
 export interface Config {
     bots: Array<BotConfig>;
+    socialContexts: Array<SocialContextConfig>;
     memoryManagers: Array<MemoryManagerConfig> | null;
     responseGenerators: Array<ResponseGeneratorConfig>;
     chatSources: Array<ChatSourceConfig>;
@@ -19,6 +21,11 @@ export interface BotConfig {
     personality: string;
     socialContexts: Array<string>;
     triggers: Array<BotTriggerConfig>;
+}
+
+export interface SocialContextConfig {
+    name: string;
+    prompt: string;
 }
 
 export interface ToolConfig {
@@ -79,7 +86,6 @@ export interface ChatSourceConfig {
     type: string;
     defaultSocialContext?: string;
     maxChatHistoryLength?: number;
-    prompt?: string;
     typeSpecificConfig?: DiscordChatSourceConfig | MinecraftChatSourceConfig | TelegramChatSourceConfig;
     crossReferencePattern?: string;
 }
@@ -94,6 +100,13 @@ export interface DiscordChatSourceConfig {
 export interface DiscordServerConfig {
     serverName: string;
     socialContext: string;
+    scheduledPrompts?: Array<ScheduledPromptConfig>;
+}
+
+export interface ScheduledPromptConfig {
+    prompt: string;
+    schedule: string;
+    channel: string;
 }
 
 export interface MinecraftChatSourceConfig {

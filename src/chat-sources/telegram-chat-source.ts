@@ -9,13 +9,13 @@ export class TelegramChatSource extends ChatSource {
     private telegramClient: Telegraf<Context<Update>>;
     constructor(
         name: string,
+        socialContextPrompts: Map<string, string>,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        prompt: string | null,
         typeSpecificConfig: TelegramChatSourceConfig
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
+        super(name, socialContextPrompts, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.typeSpecificConfig = typeSpecificConfig;
 
         this.telegramClient = new Telegraf(this.typeSpecificConfig.botToken);
@@ -43,7 +43,7 @@ export class TelegramChatSource extends ChatSource {
             for (const bot of respondingBots) {
                 const responseMessage = await bot.generateResponse(
                     this.name,
-                    this.prompt,
+                    this.getSocialContextPrompt(this.defaultSocialContext),
                     this.defaultSocialContext,
                     sender,
                     triggerMessage,

@@ -24,3 +24,4 @@ export class DalleImageGenerator implements MediaGenerator {
         return imageResponse.data[0].url!;
     }
 }
+

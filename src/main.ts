@@ -1,6 +1,6 @@
 import { Bot } from "./bot";
 import { createChatSources } from "./chat-sources/chat-source-factory";
-import { DalleMediaGeneratorConfig, GenerateImageToolConfig, GetWeatherToolConfig, GiphyMediaGeneratorConfig, MediaGeneratorConfig, ToolConfig, parseConfig } from "./config";
+import { DalleMediaGeneratorConfig, GenerateImageToolConfig, GetWeatherToolConfig, GiphyMediaGeneratorConfig, MediaGeneratorConfig, SocialContextConfig, ToolConfig, parseConfig } from './config';
 import { DalleImageGenerator } from "./media-generators/dalle-image-generator";
 import { GiphyGenerator } from "./media-generators/giphy-generator";
 import { MediaGenerator } from "./media-generators/media-generator";
@@ -24,7 +24,8 @@ const cache = new PersistentCache("cache");
 cache.init();
 const tools = createTools(config.tools);
 const responseGenerators = createResponseGenerators(config.responseGenerators, tools);
-const chatSources = createChatSources(config.chatSources, mediaGenerators);
+const socialContextPrompts = new Map(config.socialContexts.map((sc: SocialContextConfig) => [sc.name, sc.prompt]));
+const chatSources = createChatSources(config.chatSources, mediaGenerators, socialContextPrompts);
 const memoryManagers = createMemoryManagers(config.memoryManagers);
 
 

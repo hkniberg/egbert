@@ -22,12 +22,12 @@ export class ConsoleChatSource extends ChatSource {
 
     constructor(
         name: string,
+        socialContextPrompts: Map<string, string>,
         defaultSocialContext: string | null,
         maxChatHistoryLength: number,
         crossReferencePattern: string | null,
-        prompt: string | null
     ) {
-        super(name, defaultSocialContext, maxChatHistoryLength, crossReferencePattern, prompt);
+        super(name, socialContextPrompts, defaultSocialContext, maxChatHistoryLength, crossReferencePattern);
         this.chatHistory = new CappedArray<ChatMessage>(maxChatHistoryLength);
     }
 
@@ -63,7 +63,7 @@ export class ConsoleChatSource extends ChatSource {
             for (const bot of respondingBots) {
                 const responseMessage = await bot.generateResponse(
                     this.name,
-                    this.prompt,
+                    this.getSocialContextPrompt(this.defaultSocialContext as string) as string,
                     this.defaultSocialContext as string,
                     sender,
                     triggerMessage,
