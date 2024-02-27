@@ -53,6 +53,10 @@ export interface GiphyMediaGeneratorConfig {
 }
 
 export interface DalleMediaGeneratorConfig {
+    awsAccessKeyId: string;
+    awsSecretAccessKey: string;
+    awsRegion: string;
+    awsBucketName: string;
     apiKey: string;
 }
 
