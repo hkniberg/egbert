@@ -132,7 +132,7 @@ export class DiscordChatSource extends ChatSource {
                 `Discord chat source '${this.name}' received message from server '${discordMessage.guild?.name}':\n${triggerMessage}`
             );
 
-            let sender = discordMessage.author.username;
+            let sender = discordMessage.member?.displayName || discordMessage.author.username;
 
             // check which discord server this message came from, and use the corresponding social context
             let socialContextToUse = this.defaultSocialContext;
