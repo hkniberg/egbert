@@ -167,6 +167,12 @@ export class DiscordChatSource extends ChatSource {
                     discordMessage.react(this.typeSpecificConfig.rememberEmoji);
                 }
             };
+
+            // Start typing indicator
+            if (discordMessage.channel instanceof TextChannel) {
+                discordMessage.channel.sendTyping();
+            }
+
             const responseMessage = await bot.generateResponse(
                 this.name,
                 this.getSocialContextPrompt(socialContextToUse),
@@ -176,6 +182,7 @@ export class DiscordChatSource extends ChatSource {
                 chatHistory,
                 onMessageRemembered
             );
+
             if (responseMessage) {
                 // technically we could skip await and do these in parallel, but for now I'm choosing the path of least risk
                 console.log(`[${this.name} ${socialContextToUse}] ${bot.getName()}: ${responseMessage}`);
