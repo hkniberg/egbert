@@ -14,7 +14,7 @@ import { ChatSource } from "./chat-source";
 //      => username is "MrHenrik", message is "Hi there"
 // [02May2023 14:44:22.538] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: MrHenrik bled out
 //      => no username, message is "MrHenrik bled out"
-const DEFAULT_FILTER = /(?:DedicatedServer\/]:\s|\[Bot server]:\s|\[Server thread\/INFO]:\s)(?:<(.+?)>)?(.*)/;
+const DEFAULT_FILTER = /(?:DedicatedServer\/|MinecraftServer\/]:\s|\[Bot server]:\s|\[Server thread\/INFO]:\s)(?:<(.+?)>)?(.*)/;
 
 export class MinecraftChatSource extends ChatSource {
     private readonly typeSpecificConfig: MinecraftChatSourceConfig;
