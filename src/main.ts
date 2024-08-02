@@ -1,6 +1,6 @@
 import { Bot } from "./bot";
 import { createChatSources } from "./chat-sources/chat-source-factory";
-import { DalleMediaGeneratorConfig, GenerateImageToolConfig, GetWeatherToolConfig, GiphyMediaGeneratorConfig, MediaGeneratorConfig, MinecraftListPlayersToolConfig, SocialContextConfig, ToolConfig, parseConfig } from './config';
+import { DalleMediaGeneratorConfig, GenerateImageToolConfig, GetWeatherToolConfig, GiphyMediaGeneratorConfig, MediaGeneratorConfig, MinecraftListPlayersToolConfig, MinecraftReadLogToolConfig, SocialContextConfig, ToolConfig, parseConfig } from './config';
 import { DalleImageGenerator } from "./media-generators/dalle-image-generator";
 import { GiphyGenerator } from "./media-generators/giphy-generator";
 import { MediaGenerator } from "./media-generators/media-generator";
@@ -9,6 +9,7 @@ import { createResponseGenerators } from "./response-generators/response-generat
 import { GenerateImage as GenerateImageTool } from "./tools/generate-image-tool";
 import { GetWeatherTool } from "./tools/get-weather-tool";
 import { MinecraftListPlayersTool } from "./tools/minecraft-list-players-tool";
+import { MinecraftReadLogTool } from "./tools/minecraft-read-log-tool";
 import { Tool } from "./tools/tool";
 import { PersistentCache } from "./util/cache";
 
@@ -99,6 +100,8 @@ function createTool(toolConfig: ToolConfig): Tool {
         return new GetWeatherTool(toolConfig.typeSpecificConfig as GetWeatherToolConfig, cache);
     } else if (toolConfig.type === "minecraft-list-players") {
         return new MinecraftListPlayersTool(toolConfig.typeSpecificConfig as MinecraftListPlayersToolConfig);
+    } else if (toolConfig.type === "minecraft-read-log") {
+        return new MinecraftReadLogTool(toolConfig.typeSpecificConfig as MinecraftReadLogToolConfig);
     }
     throw "Unknown tool type: " + toolConfig.type;
 }
