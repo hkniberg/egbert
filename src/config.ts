@@ -31,7 +31,7 @@ export interface SocialContextConfig {
 export interface ToolConfig {
     name: string;
     type: string;
-    typeSpecificConfig?: GenerateImageToolConfig | GetWeatherToolConfig;
+    typeSpecificConfig?: GenerateImageToolConfig | GetWeatherToolConfig | MinecraftListPlayersToolConfig;
 }
 
 export interface GenerateImageToolConfig {
@@ -41,6 +41,12 @@ export interface GenerateImageToolConfig {
 export interface GetWeatherToolConfig {
     apiKey: string;
     cacheTimeSeconds: number;
+}
+
+export interface MinecraftListPlayersToolConfig {
+    rconHost: string;
+    rconPort: number;
+    rconPassword: string;
 }
 
 export interface MediaGeneratorConfig {
