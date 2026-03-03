@@ -91,10 +91,17 @@ export interface OllamaResponseGeneratorConfig {
     apiBaseUrl?: string; // Defaults to http://localhost:11434/api
 }
 
+export interface HttpResponseGeneratorConfig {
+    url: string;
+    headers?: Record<string, string>;
+    noopResponse?: string;   // if response equals this string exactly, return "" (default "-")
+    timeoutMs?: number;      // default 30000
+}
+
 export interface ResponseGeneratorConfig {
     name: string;
     type: string;
-    typeSpecificConfig?: OpenAiResponseGeneratorConfig; // add other response generator configs here if we create more
+    typeSpecificConfig?: OpenAiResponseGeneratorConfig | OllamaResponseGeneratorConfig | HttpResponseGeneratorConfig;
 }
 
 export interface ChatSourceConfig {

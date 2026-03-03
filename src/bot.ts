@@ -122,7 +122,9 @@ export class Bot {
             chatSourcePrompt,
             memories,
             chatContext,
-            otherChatSourceHistories
+            otherChatSourceHistories,
+            chatSourceName,
+            socialContext
         );
 
         console.log(`${this.name} will respond`);

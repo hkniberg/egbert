@@ -1,10 +1,12 @@
 import { OpenAiResponseGeneratorConfig } from "../config";
 import { OllamaResponseGeneratorConfig } from "../config";
+import { HttpResponseGeneratorConfig } from "../config";
 import { ResponseGeneratorConfig } from "../config";
 import { ResponseGenerator } from "./response-generator";
 import { OpenAiResponseGenerator } from "./openai-response-generator";
 import { OllamaResponseGenerator } from "./ollama-response-generator";
 import { EchoResponseGenerator } from "./echo-response-generator";
+import { HttpResponseGenerator } from "./http-response-generator";
 import { Tool } from '../tools/tool';
 
 function createResponseGenerator(responseGeneratorConfig: ResponseGeneratorConfig, tools: Tool[]): ResponseGenerator {
@@ -14,6 +16,8 @@ function createResponseGenerator(responseGeneratorConfig: ResponseGeneratorConfi
         return new OllamaResponseGenerator(responseGeneratorConfig.typeSpecificConfig as OllamaResponseGeneratorConfig);
     } else if (responseGeneratorConfig.type === "echo") {
         return new EchoResponseGenerator();
+    } else if (responseGeneratorConfig.type === "http") {
+        return new HttpResponseGenerator(responseGeneratorConfig.typeSpecificConfig as HttpResponseGeneratorConfig);
     } else {
         throw "Unknown response generator type: " + responseGeneratorConfig.type;
     }

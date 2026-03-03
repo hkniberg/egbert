@@ -1,0 +1,46 @@
+{
+  // Discord bot that forwards all context to an HTTP endpoint (e.g. Abundly.ai)
+  // and uses the response text as the bot's reply. If the response equals the
+  // noopResponse string (default "-"), the bot stays silent.
+
+  "bots": [
+    {
+      "name": "egbert",
+      "responseGenerator": "abundly",
+      "personality": "You are Egbert, a friendly and helpful chatbot.",
+      "socialContexts": ["friends"],
+      "triggers": [
+        { "pattern": "\\begbert\\b" },
+        { "pattern": ".*", "probability": 0.0 } // set > 0 to respond to random messages
+      ]
+    }
+  ],
+
+  "responseGenerators": [
+    {
+      "name": "abundly",
+      "type": "http",
+      "typeSpecificConfig": {
+        "url": "https://api.abundly.ai/agents/YOUR_AGENT_ID/api/egbert",
+        "headers": {
+          "X-Agent-Access-Key": "YOUR_ACCESS_KEY_HERE"
+        },
+        "noopResponse": "-",
+        // "timeoutMs": 30000
+      }
+    }
+  ],
+
+  "chatSources": [
+    {
+      "name": "discord",
+      "type": "discord",
+      "maxChatHistoryLength": 20,
+      "defaultSocialContext": "friends",
+      "typeSpecificConfig": {
+        "botToken": "YOUR_BOT_TOKEN_HERE",
+        "bot": "egbert"
+      }
+    }
+  ]
+}

@@ -29,7 +29,9 @@ export class OllamaResponseGenerator implements ResponseGenerator {
         chatSourcePrompt: string | null,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
-        otherChatSourceHistories: ChatSourceHistory[]
+        otherChatSourceHistories: ChatSourceHistory[],
+        chatSourceName: string,
+        socialContext: string
     ): Promise<string> {
         // Ollama spec here: https://github.com/jmorganca/ollama/blob/main/docs/api.md
         const url = `${this.apiBaseUrl}/generate`;

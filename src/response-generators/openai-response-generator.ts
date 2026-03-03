@@ -42,7 +42,9 @@ export class OpenAiResponseGenerator implements ResponseGenerator {
         chatSourcePrompt: string | null,
         memories: MemoryEntry[],
         chatHistory: ChatMessage[],
-        otherChatSourceHistories: ChatSourceHistory[]
+        otherChatSourceHistories: ChatSourceHistory[],
+        chatSourceName: string,
+        socialContext: string
     ): Promise<string> {
         let systemMessage = botPrompt;
         if (chatSourcePrompt) {
